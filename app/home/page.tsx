@@ -3,7 +3,7 @@
 
 import React from "react"
 import { cn } from "../../lib/utils";
-import Marquee from "../../components/ui/marquee";
+import Marquee from "../../components/animata/container/marquee";
 import FlickeringGrid from "../../components/ui/flickering-grid";
 import { LampContainer } from "../../components/ui/lamp";
 import { motion } from "framer-motion"

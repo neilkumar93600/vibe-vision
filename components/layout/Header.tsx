@@ -390,7 +390,7 @@ export function Header({
   if (!mounted) return null
 
   return (
-    <div className="sticky top-0 z-50 w-full">
+    <div className="fixed top-0 z-50 w-full">
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex h-16 items-center gap-4 px-4">
           {/* Toggle Sidebar Button */}

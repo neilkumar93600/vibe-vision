@@ -20,6 +20,27 @@ module.exports = {
       },
     },
     extend: {
+      keyframes: {
+        sparkle: {
+          "0%, 100%": { opacity: "0.75", scale: "0.9" },
+          "50%": { opacity: "1", scale: "1" },
+        },
+        "marquee-x": {
+          from: { transform: "translateX(0)" },
+          to: { transform: "translateX(calc(-100% - var(--gap)))" },
+        },
+        "marquee-y": {
+          from: { transform: "translateY(0)" },
+          to: { transform: "translateY(calc(-100% - var(--gap)))" },
+        },
+      },
+      animation: {
+        "marquee-horizontal": "marquee-x var(--duration) infinite linear",
+        "marquee-vertical": "marquee-y var(--duration) linear infinite",
+        },
+      animation: {
+        sparkle: "sparkle 2s ease-in-out infinite",
+      },
       boxShadow: {
         input: `0px 2px 3px -1px rgba(0,0,0,0.1), 0px 1px 0px 0px rgba(25,28,33,0.02), 0px 0px 0px 1px rgba(25,28,33,0.08)`,
       },

@@ -24,6 +24,23 @@ import Playlist from '../../../components/media/playlist-component';
 import { Layout } from "../../../components/layout/layout";
 import { LampContainer } from "../../../components/ui/lamp";
 
+interface TrendingSong {
+    id: number;
+    title: string;
+    artist: string;
+    genre: string;
+    views: string;
+    likes: string;
+    duration: number;
+    releaseDate: string;
+    coverArt: string;
+    audioUrl: string;
+    waveformData: number[];
+    bpm: number;
+    key: string;
+    tags: string[];
+}
+
 // Enhanced features data with gradients and hover states
 const features = [
     {
@@ -90,7 +107,7 @@ const HomePage = () => {
     const [duration, setDuration] = useState(0);
     const [volume, setVolume] = useState(0.8);
     const [selectedGenre, setSelectedGenre] = useState('all');
-    const [trendingSongs, setTrendingSongs] = useState([]);
+    const [trendingSongs, setTrendingSongs] = useState<TrendingSong[]>([]);
     const [followers, setFollowers] = useState({});
     const [audioRef, setAudioRef] = useState(null);
 

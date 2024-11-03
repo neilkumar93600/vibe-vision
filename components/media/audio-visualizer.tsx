@@ -1,19 +1,21 @@
+'use client';
+
 import React, { useRef, useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Slider } from "@/components/ui/slider";
-import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Slider } from "../ui/slider";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "../ui/select";
 
 const AudioVisualizer = ({ audioElement }) => {
   const canvasRef = useRef(null);
   const animationRef = useRef(null);
   const [audioContext, setAudioContext] = useState(null);
+  const [source, setSource] = useState(null);
   const [analyser, setAnalyser] = useState(null);
   const [visualizerType, setVisualizerType] = useState('bars');
   const [eqPreset, setEqPreset] = useState('flat');
@@ -48,43 +50,70 @@ const AudioVisualizer = ({ audioElement }) => {
     }))
   };
 
+  // Initialize audio context
   useEffect(() => {
-    if (!audioElement) return;
-
-    const context = new (window.AudioContext || window.webkitAudioContext)();
-    const source = context.createMediaElementSource(audioElement);
-    const analyserNode = context.createAnalyser();
-    
-    // Create filters for each EQ band
-    const eqFilters = eqBands.map(band => {
-      const filter = context.createBiquadFilter();
-      filter.type = 'peaking';
-      filter.frequency.value = band.freq;
-      filter.Q.value = 1;
-      filter.gain.value = band.gain;
-      return filter;
-    });
-
-    // Connect the audio nodes
-    source.connect(eqFilters[0]);
-    eqFilters.forEach((filter, i) => {
-      if (i < eqFilters.length - 1) {
-        filter.connect(eqFilters[i + 1]);
-      }
-    });
-    eqFilters[eqFilters.length - 1].connect(analyserNode);
-    analyserNode.connect(context.destination);
-
-    setAudioContext(context);
-    setAnalyser(analyserNode);
-    setFilters(eqFilters);
+    if (!audioContext) {
+      const newContext = new (window.AudioContext || window.webkitAudioContext)();
+      setAudioContext(newContext);
+    }
 
     return () => {
-      context.close();
-      cancelAnimationFrame(animationRef.current);
+      if (audioContext) {
+        audioContext.close();
+      }
     };
-  }, [audioElement]);
+  }, []);
 
+  // Setup audio nodes when context and audio element are available
+  useEffect(() => {
+    if (!audioContext || !audioElement) return;
+
+    const setupAudio = async () => {
+      // Clean up previous connections
+      if (source) {
+        source.disconnect();
+      }
+
+      // Create new source
+      const newSource = audioContext.createMediaElementSource(audioElement);
+      setSource(newSource);
+
+      const analyserNode = audioContext.createAnalyser();
+      
+      // Create filters for each EQ band
+      const eqFilters = eqBands.map(band => {
+        const filter = audioContext.createBiquadFilter();
+        filter.type = 'peaking';
+        filter.frequency.value = band.freq;
+        filter.Q.value = 1;
+        filter.gain.value = band.gain;
+        return filter;
+      });
+
+      // Connect the audio nodes
+      newSource.connect(eqFilters[0]);
+      eqFilters.forEach((filter, i) => {
+        if (i < eqFilters.length - 1) {
+          filter.connect(eqFilters[i + 1]);
+        }
+      });
+      eqFilters[eqFilters.length - 1].connect(analyserNode);
+      analyserNode.connect(audioContext.destination);
+
+      setAnalyser(analyserNode);
+      setFilters(eqFilters);
+    };
+
+    setupAudio().catch(console.error);
+
+    return () => {
+      if (source) {
+        source.disconnect();
+      }
+    };
+  }, [audioContext, audioElement]);
+
+  // Visualizer drawing logic
   useEffect(() => {
     if (!analyser || !canvasRef.current) return;
 
@@ -140,6 +169,12 @@ const AudioVisualizer = ({ audioElement }) => {
     };
 
     draw();
+
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
   }, [analyser, visualizerType]);
 
   const handlePresetChange = (value) => {

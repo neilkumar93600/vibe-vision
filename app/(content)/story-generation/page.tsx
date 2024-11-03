@@ -72,6 +72,12 @@ import {
   Users,
 } from 'lucide-react';
 
+type Genre = {
+  value: string;
+  icon: string;
+};
+
+
 const genres: Genre[] = [
   { 
     value: 'Fantasy',

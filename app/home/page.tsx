@@ -5,26 +5,33 @@ import React from "react"
 import { cn } from "../../lib/utils";
 import Marquee from "../../components/animata/container/marquee";
 import FlickeringGrid from "../../components/ui/flickering-grid";
-import { LampContainer } from "../../components/ui/lamp";
-import { motion } from "framer-motion"
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { GoogleGeminiEffect } from "../../components/ui/google-gemini-effect";
 import {
   Users,
   CheckCircle2,
   Calendar,
-  Video,
   Music2,
-  PlayCircle,
-  Sparkles,
   Star,
   Award,
   Zap,
-  MessageSquare,
   Download,
   Globe,
   Rocket,
   Wand2,
   Clock,
   Gift,
+  Sparkles, 
+  Music, 
+  Mic, 
+  Video, 
+  Headphones, 
+  Radio, 
+  MessageSquare, 
+  Palette, 
+  Speaker,
+  Library, 
+  PartyPopper,
 } from "lucide-react"
 
 import { Button } from "../../components/ui/button"
@@ -141,37 +148,212 @@ const testimonials = [
   },
 ]
 
+export function GoogleGeminiEffectDemo() {
+  const ref = React.useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end start"],
+  });
+ 
+  const pathLengthFirst = useTransform(scrollYProgress, [0, 0.8], [0.2, 1.2]);
+  const pathLengthSecond = useTransform(scrollYProgress, [0, 0.8], [0.15, 1.2]);
+  const pathLengthThird = useTransform(scrollYProgress, [0, 0.8], [0.1, 1.2]);
+  const pathLengthFourth = useTransform(scrollYProgress, [0, 0.8], [0.05, 1.2]);
+  const pathLengthFifth = useTransform(scrollYProgress, [0, 0.8], [0, 1.2]);
+ 
+  return (
+    <div
+      className="h-[400vh] bg-black w-full dark:border dark:border-white/[0.1] rounded-md relative pt-40 overflow-clip"
+      ref={ref}
+    >
+      <GoogleGeminiEffect
+        pathLengths={[
+          pathLengthFirst,
+          pathLengthSecond,
+          pathLengthThird,
+          pathLengthFourth,
+          pathLengthFifth,
+        ]}
+      />
+    </div>
+  );
+}
+
+const ENTERTAINMENT_ITEMS = [
+  {
+    title: "Music Creation",
+    icon: Music,
+    gradient: "from-purple-500 to-indigo-600"
+  },
+  {
+    title: "Voice Generation",
+    icon: Mic,
+    gradient: "from-pink-500 to-rose-600"
+  },
+  {
+    title: "Video Content",
+    icon: Video,
+    gradient: "from-blue-500 to-cyan-600"
+  },
+  {
+    title: "Audio Effects",
+    icon: Headphones,
+    gradient: "from-green-500 to-emerald-600"
+  },
+  {
+    title: "Live Streaming",
+    icon: Radio,
+    gradient: "from-orange-500 to-red-600"
+  },
+  // Second row
+  {
+    title: "Comedy Writing",
+    icon: MessageSquare,
+    gradient: "from-violet-500 to-purple-600"
+  },
+  {
+    title: "Visual Effects",
+    icon: Palette,
+    gradient: "from-fuchsia-500 to-pink-600"
+  },
+  {
+    title: "Sound Design",
+    icon: Speaker,
+    gradient: "from-cyan-500 to-blue-600"
+  },
+  {
+    title: "Content Library",
+    icon: Library,
+    gradient: "from-teal-500 to-green-600"
+  },
+  {
+    title: "Live Shows",
+    icon: PartyPopper,
+    gradient: "from-red-500 to-orange-600"
+  }
+];
+
+export const EntertainmentHero = () => {
+  const ref = React.useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end start"],
+  });
+
+  const springConfig = { stiffness: 300, damping: 30, bounce: 100 };
+
+  const translateX = useSpring(
+    useTransform(scrollYProgress, [0, 1], [0, 1000]),
+    springConfig
+  );
+  const translateXReverse = useSpring(
+    useTransform(scrollYProgress, [0, 1], [0, -1000]),
+    springConfig
+  );
+  const opacity = useSpring(
+    useTransform(scrollYProgress, [0, 0.2], [0.2, 1]),
+    springConfig
+  );
+  const rotateZ = useSpring(
+    useTransform(scrollYProgress, [0, 0.2], [20, 0]),
+    springConfig
+  );
+  const translateY = useSpring(
+    useTransform(scrollYProgress, [0, 0.2], [-700, 300]),
+    springConfig
+  );
+
+  const firstRow = ENTERTAINMENT_ITEMS.slice(0, 5);
+  const secondRow = ENTERTAINMENT_ITEMS.slice(5, 10);
+
+  return (
+    <div
+      ref={ref}
+      className="h-[200vh] py-20 overflow-hidden antialiased relative flex flex-col self-auto [perspective:1000px] [transform-style:preserve-3d]"
+    >
+      <div className="max-w-7xl relative mx-auto py-20 px-4 w-full">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col items-center text-center"
+        >
+          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-purple via-black to-purple bg-clip-text">
+            Create. Perform. Entertain.
+          </h1>
+          <p className="max-w-2xl text-base md:text-xl mt-8 text-muted-foreground">
+            Transform your ideas into music and comedy with our AI-powered platform.
+            Create custom songs, generate comedy content, and share your creativity.
+          </p>
+        </motion.div>
+      </div>
+
+      <motion.div
+        style={{
+          rotateZ,
+          translateY,
+          opacity,
+        }}
+        className="relative"
+      >
+        <motion.div className="flex flex-row-reverse space-x-reverse space-x-20 mb-20">
+          {firstRow.map((item) => (
+            <ContentCard
+              key={item.title}
+              item={item}
+              translate={translateX}
+            />
+          ))}
+        </motion.div>
+        <motion.div className="flex flex-row mb-20 space-x-20">
+          {secondRow.map((item) => (
+            <ContentCard
+              key={item.title}
+              item={item}
+              translate={translateXReverse}
+            />
+          ))}
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+};
+
+const ContentCard = ({ item, translate }) => {
+  const Icon = item.icon;
+  
+  return (
+    <motion.div
+      style={{
+        x: translate,
+      }}
+      whileHover={{
+        y: -20,
+        scale: 1.05,
+      }}
+      className="group relative h-64 w-64 flex-shrink-0"
+    >
+      <div className={`h-full w-full rounded-xl bg-gradient-to-br ${item.gradient} p-8 
+                      flex flex-col items-center justify-center gap-4
+                      transition-all duration-300 shadow-lg
+                      group-hover:shadow-2xl`}>
+        <div className="p-4 bg-white/10 rounded-full">
+          <Icon className="h-12 w-12 text-white" />
+        </div>
+        <h2 className="text-white text-xl font-semibold text-center">
+          {item.title}
+        </h2>
+      </div>
+    </motion.div>
+  );
+};
+
 export default function HomePage() {
 
   return (
     <Layout>
       {/* Hero Section */}
-      <LampContainer>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="flex flex-col items-center text-center"
-      >
-        <h1 className="text-6xl font-bold bg-gradient-to-r from-primary via-white to-primary bg-clip-text text-transparent mt-8">
-          Create. Perform. Entertain.
-        </h1>
-        <p className="mt-4 text-xl text-muted-foreground max-w-2xl mt-8">
-          Transform your ideas into music and comedy with our AI-powered platform.
-          Create custom songs, generate comedy content, and share your creativity.
-        </p>
-        <div className="flex gap-4 mt-8">
-          <Button size="lg" className="gap-2">
-            <Sparkles className="h-4 w-4" />
-            Get Started Free
-          </Button>
-          <Button size="lg" variant="outline" className="gap-2">
-            <PlayCircle className="h-4 w-4" />
-            Watch Demo
-          </Button>
-        </div>
-      </motion.div>
-    </LampContainer>
+      <EntertainmentHero/>
 
       {/* Stats Section */}
       <section className="py-16 px-8 bg-muted/50">
@@ -269,98 +451,103 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section className="py-16 px-6 bg-muted/20 relative">
-      <FlickeringGrid
-            className="z-0 absolute inset-0 size-full"
-            squareSize={4}
-            gridGap={6}
-            color="#672F83"
-            maxOpacity={0.5}
-            flickerChance={0.1}
-            height={750}
-            width={1230}
-          />
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">
-            Flexible Pricing for Every Creator
-          </h2>
-          
-          <div className="grid md:grid-cols-3 gap-6">
-            {advancedPricingPlans.map(plan => (
-              <Card 
-                key={plan.name} 
-                className={`relative ${plan.recommended ? 'border-primary' : ''}`}
-              >
-                {plan.recommended && (
-                  <Badge className="absolute top-2 right-2 bg-primary">
-                    Most Popular
-                  </Badge>
-                )}
-                
-                <CardHeader>
-                  <div className="flex items-center gap-4 mb-4">
-                    {plan.icon}
-                    <div>
-                      <CardTitle>{plan.name}</CardTitle>
-                      <CardDescription>{plan.billingType}</CardDescription>
-                    </div>
-                  </div>
-                  
-                  <div className="text-4xl font-bold">
-                    ${plan.price}
-                    <span className="text-sm font-normal text-muted-foreground">
-                      /month
-                    </span>
-                  </div>
-                </CardHeader>
-                
-                <CardContent>
-                  <div className="space-y-2 mb-4">
-                    <h4 className="font-semibold">Features:</h4>
-                    {plan.features.map(feature => (
-                      <div 
-                        key={feature} 
-                        className="flex items-center gap-2 text-sm"
-                      >
-                        <CheckCircle2 className="h-4 w-4 text-green-500" />
-                        {feature}
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <Separator className="my-4" />
-                  
-                  <div className="space-y-2">
-                    <h4 className="font-semibold text-sm text-muted-foreground">
-                      Limitations:
-                    </h4>
-                    {plan.limitations.map(limitation => (
-                      <div 
-                        key={limitation} 
-                        className="flex items-center gap-2 text-sm text-muted-foreground"
-                      >
-                        <Star className="h-3 w-3 opacity-50" />
-                        {limitation}
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-                
-                <CardFooter>
-                  <Button 
-                    variant={plan.recommended ? 'default' : 'outline'} 
-                    className="w-full"
+      <section className="py-8 sm:py-12 lg:py-16 px-4 sm:px-6 bg-muted/20 relative">
+    {/* Adjusted FlickeringGrid with fixed dimensions */}
+    <FlickeringGrid
+      className="z-0 absolute inset-0 w-full h-full"
+      squareSize={4}
+      gridGap={6}
+      color="#672F83"
+      maxOpacity={0.5}
+      flickerChance={0.1}
+      // Use larger height to accommodate stacked cards on mobile
+      height={2500}
+      // Use a fixed width that works across breakpoints
+      width={1528}
+    />
+    
+    <div className="max-w-[320px] sm:max-w-2xl lg:max-w-6xl mx-auto">
+      <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">
+        Flexible Pricing for Every Creator
+      </h2>
+      
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        {advancedPricingPlans.map(plan => (
+          <Card 
+            key={plan.name} 
+            className={`relative h-full ${plan.recommended ? 'border-primary' : ''}`}
+          >
+            {plan.recommended && (
+              <Badge className="absolute top-2 right-2 bg-primary">
+                Most Popular
+              </Badge>
+            )}
+            
+            <CardHeader className="space-y-4">
+              <div className="flex items-center gap-4">
+                {plan.icon}
+                <div>
+                  <CardTitle className="text-lg sm:text-xl">{plan.name}</CardTitle>
+                  <CardDescription>{plan.billingType}</CardDescription>
+                </div>
+              </div>
+              
+              <div className="text-3xl sm:text-4xl font-bold">
+                ${plan.price}
+                <span className="text-xs sm:text-sm font-normal text-muted-foreground">
+                  /month
+                </span>
+              </div>
+            </CardHeader>
+            
+            <CardContent>
+              <div className="space-y-2 mb-4">
+                <h4 className="font-semibold">Features:</h4>
+                {plan.features.map(feature => (
+                  <div 
+                    key={feature} 
+                    className="flex items-center gap-2 text-xs sm:text-sm"
                   >
-                    Choose {plan.name}
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
+                    <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
+                    {feature}
+                  </div>
+                ))}
+              </div>
+              
+              <Separator className="my-4" />
+              
+              <div className="space-y-2">
+                <h4 className="font-semibold text-xs sm:text-sm text-muted-foreground">
+                  Limitations:
+                </h4>
+                {plan.limitations.map(limitation => (
+                  <div 
+                    key={limitation} 
+                    className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground"
+                  >
+                    <Star className="h-2.5 w-2.5 sm:h-3 sm:w-3 opacity-50" />
+                    {limitation}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+            
+            <CardFooter>
+              <Button 
+                variant={plan.recommended ? 'default' : 'outline'} 
+                className="w-full text-sm sm:text-base"
+              >
+                Choose {plan.name}
+              </Button>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
+    </div>
+  </section>
+      {/* GoogleGeminiEffect */}
+      <GoogleGeminiEffectDemo/>
+      
       {/* Testimonials Section */}
       <section className="py-16 px-8 bg-muted/50">
         <div className="max-w-screen-xl mx-auto">

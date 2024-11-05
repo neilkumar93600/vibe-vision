@@ -54,7 +54,7 @@ const ComedyStudioPlatform = () => {
       description: 'Create witty captions for your content',
         icon: <MessageCircle className="w-8 h-8" />,
         gradient: 'from-green-500 to-emerald-500',
-        path: '/create/extend',
+        path: '/caption-generator',
         bgPattern: "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20L10 10zm10 10L20 20V0zM0 20h20L10 10z' fill='%239C92AC' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E\")"
     }
 ];

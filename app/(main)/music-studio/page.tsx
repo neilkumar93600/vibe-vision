@@ -24,23 +24,6 @@ import Playlist from '../../../components/media/playlist-component';
 import { Layout } from "../../../components/layout/layout";
 import { LampContainer } from "../../../components/ui/lamp";
 
-interface TrendingSong {
-    id: number;
-    title: string;
-    artist: string;
-    genre: string;
-    views: string;
-    likes: string;
-    duration: number;
-    releaseDate: string;
-    coverArt: string;
-    audioUrl: string;
-    waveformData: number[];
-    bpm: number;
-    key: string;
-    tags: string[];
-}
-
 // Enhanced features data with gradients and hover states
 const features = [
     {
@@ -60,11 +43,11 @@ const features = [
         bgPattern: "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20v20H0V0zm10 17l-7-7h14l-7 7z' fill='%239C92AC' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E\")"
     },
     {
-        title: 'Custom Remixes',
+        title: 'Custom Song',
         description: 'Personalize existing tracks with AI-powered remixing tools',
         icon: <Sparkles className="w-8 h-8" />,
         gradient: 'from-orange-500 to-red-500',
-        path: '/create/remix',
+        path: '/custom-song-generator',
         bgPattern: "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2 0h16a2 2 0 012 2v16a2 2 0 01-2 2H2a2 2 0 01-2-2V2a2 2 0 012-2zm0 2v16h16V2H2z' fill='%239C92AC' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E\")"
     },
     {
@@ -107,7 +90,7 @@ const HomePage = () => {
     const [duration, setDuration] = useState(0);
     const [volume, setVolume] = useState(0.8);
     const [selectedGenre, setSelectedGenre] = useState('all');
-    const [trendingSongs, setTrendingSongs] = useState<TrendingSong[]>([]);
+    const [trendingSongs, setTrendingSongs] = useState([]);
     const [followers, setFollowers] = useState({});
     const [audioRef, setAudioRef] = useState(null);
 

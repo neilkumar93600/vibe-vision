@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import { ScrollArea, ScrollBar } from "../../../components/ui/scroll-area";
 import { Button } from "../../../components/ui/button";
 import { Card, CardContent } from "../../../components/ui/card";
+import { Layout } from "../../../components/layout/layout"
 import { 
-  Clock, 
   CheckCircle2,
   MoreVertical 
 } from 'lucide-react';
@@ -112,7 +112,8 @@ const VideoPlatform = () => {
   ];
 
   return (
-    <div className="w-full bg-background">
+    <Layout>
+    <div className="w-full bg-background pt-24 pl-20">
       {/* Categories ScrollArea */}
       <ScrollArea className="w-full border-b">
         <div className="flex p-4 gap-2">
@@ -131,7 +132,7 @@ const VideoPlatform = () => {
       </ScrollArea>
 
       {/* Videos Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
         {videos.map((video) => (
           <Card key={video.id} className="border-0 shadow-none">
             <CardContent className="p-0">
@@ -179,6 +180,7 @@ const VideoPlatform = () => {
         ))}
       </div>
     </div>
+    </Layout>
   );
 };
 

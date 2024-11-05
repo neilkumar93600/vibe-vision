@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, FormEvent, ChangeEvent } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
@@ -303,7 +303,7 @@ interface HeaderProps {
 
 export function Header({ 
   onSidebarOpen, 
-  isAuthenticated = true, 
+  isAuthenticated = Boolean(localStorage.getItem('token')), 
   isSidebarCollapsed,
   onSidebarCollapse 
 }: HeaderProps) {
@@ -341,11 +341,11 @@ export function Header({
     setMounted(true);
   }, []);
 
-  const handleSearchChange = (e) => {
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value);
   };
 
-  const handleSearchSubmit = (e) => {
+  const handleSearchSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (searchValue.trim()) {
       router.push(`/search?q=${encodeURIComponent(searchValue)}`);
@@ -362,7 +362,7 @@ export function Header({
     setUnreadCount(0);
   };
 
-  const markNotificationAsRead = (id) => {
+  const markNotificationAsRead = (id: number) => {
     setNotifications((prevNotifications) =>
       prevNotifications.map((notification) =>
         notification.id === id
@@ -385,6 +385,15 @@ export function Header({
       });
       return acc;
     }, [{ label: "Home", path: "/" }]);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('loggedInUser');
+    localStorage.removeItem('loggedInUserEmail');
+    
+    // Redirect to login page
+    router.push('/');
   };
 
   if (!mounted) return null;
@@ -466,7 +475,7 @@ export function Header({
               <DropdownMenuContent align="end" className="w-56">
                 {isAuthenticated ? (
                   <>
-                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuLabel>My Account | {localStorage.getItem('loggedInUser')}</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem>
                       <User className="mr-2 h-4 w-4" />
@@ -481,7 +490,7 @@ export function Header({
                       Studio
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem className="text-red-600">
+                    <DropdownMenuItem className="text-red-600" onClick={handleLogout}>
                       <LogOut className="mr-2 h-4 w-4" />
                       Log out
                     </DropdownMenuItem>

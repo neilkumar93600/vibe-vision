@@ -17,6 +17,8 @@ import {
 } from "../ui/card";
 import { Icons } from "../ui/icons";
 import Link from "next/link";
+import axios from "axios";
+import { BASE_URL } from "@/config";
 
 const signupSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
@@ -40,16 +42,23 @@ export function SignUpForm() {
     },
   });
 
+
   async function onSubmit(data: z.infer<typeof signupSchema>) {
     setIsLoading(true);
-    
-    // Simulate API call
+    const url = `${BASE_URL}/auth/signup`;
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await axios.post(url, {
+        name: `${data.firstName} ${data.lastName}`,
+        email: data.email,
+        password: data.password,
+        // channelName: data.channelName,
+      });
+      
       toast.success("Account created successfully! Please check your email to verify your account.");
       // Redirect to login page
       window.location.href = "/login";
     } catch (error) {
+      console.error(error);
       toast.error("Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);

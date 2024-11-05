@@ -17,6 +17,8 @@ import {
 } from "../ui/card";
 import { Icons } from "../ui/icons";
 import Link from "next/link";
+import axios from "axios";
+import { BASE_URL } from "@/config";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -36,14 +38,22 @@ export function LoginForm() {
 
   async function onSubmit(data: z.infer<typeof loginSchema>) {
     setIsLoading(true);
-    
-    // Simulate API call
+  
+    const url = `${BASE_URL}/auth/login`;
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const response = await axios.post(url, data);
+      const { jwtToken, name, email } = response.data;
+  
+      // Save data to localStorage
+      localStorage.setItem('token', jwtToken);
+      localStorage.setItem('loggedInUser', name);
+      localStorage.setItem('loggedInUserEmail', email);
+  
       toast.success("Logged in successfully!");
-      // Redirect to dashboard
-      window.location.href = "/dashboard";
+      // Redirect to the gallery page (adjust URL if needed)
+      window.location.href = "/entertainment-hub";
     } catch (error) {
+      console.error(error);
       toast.error("Invalid email or password");
     } finally {
       setIsLoading(false);

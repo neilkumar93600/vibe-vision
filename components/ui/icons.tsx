@@ -44,6 +44,7 @@
     
     export const Icons = {
         logo: Command,
+        google: Google,
         close: X,
         spinner: Loader2,
         chevronLeft: ChevronLeft,
@@ -104,6 +105,6 @@
     }
     
     // Export Google icon as part of Icons object
-    Icons.google = Google;
+    // Icons.google = Google;
     
     export { type LucideProps };

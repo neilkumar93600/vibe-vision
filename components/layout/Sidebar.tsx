@@ -6,33 +6,20 @@ import {
   Music2,
   Mic2,
   Tv,
-  Radio,
   Clock,
   ListVideo,
   Star,
   History,
   Heart,
-  Download,
-  Youtube,
-  Podcast,
-  Ticket,
-  Gamepad2,
-  Newspaper,
-  BookOpen,
-  Coffee,
-  Users,
-  Trophy,
-  Film,
-  Flame,
   X
 } from "lucide-react"
 
 import { cn } from "../../lib/utils"
-import { Button } from "../../components/ui/button"
-import { ScrollArea } from "../../components/ui/scroll-area"
-import { Separator } from "../../components/ui/separator"
-import { Badge } from "../../components/ui/badge"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../components/ui/tooltip"
+import { Button } from "../ui/button"
+import { ScrollArea } from "../ui/scroll-area"
+import { Separator } from "../ui/separator"
+import { Badge } from "../ui/badge"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 
 interface SidebarProps {
   isOpen: boolean
@@ -51,36 +38,17 @@ interface NavItem {
 // Updated navigation items with correct app directory routing
 const mainNavItems: NavItem[] = [
   { icon: Home, label: "Home", href: "/" },
-  { icon: Flame, label: "Trending", href: "/trending", badge: "Hot", badgeVariant: "destructive" },
+  { icon: Tv, label: "Entertainment Hub", href: "/entertainment-hub", badge: "Hot", badgeVariant: "destructive" },
   { icon: Music2, label: "Music Studio", href: "/music-studio" },
   { icon: Mic2, label: "Comedy Lab", href: "/comedy-lab" },
-  { icon: Tv, label: "Entertainment Hub", href: "/entertainment-hub" },
-  { icon: Radio, label: "Live Shows", href: "/live-shows", badge: "Live", badgeVariant: "default" },
 ]
 
 const libraryItems: NavItem[] = [
   { icon: ListVideo, label: "Your Playlists", href: "/playlists" },
   { icon: Clock, label: "Watch Later", href: "/watch-later", badge: "3", badgeVariant: "secondary" },
   { icon: Star, label: "Favorites", href: "/favorites" },
-  { icon: Heart, label: "Liked Content", href: "/liked" },
+  { icon: Heart, label: "Liked Content", href: "/liked", badge: "2", badgeVariant: "outline"  },
   { icon: History, label: "History", href: "/history" },
-  { icon: Download, label: "Downloads", href: "/downloads", badge: "2", badgeVariant: "outline" },
-]
-
-const exploreItems: NavItem[] = [
-  { icon: Youtube, label: "Premium Content", href: "/premium" },
-  { icon: Podcast, label: "Podcasts", href: "/podcasts" },
-  { icon: Ticket, label: "Live Events", href: "/events" },
-  { icon: Gamepad2, label: "Gaming", href: "/gaming" },
-  { icon: Film, label: "Movies", href: "/movies", badge: "New", badgeVariant: "default" },
-]
-
-const communityItems: NavItem[] = [
-  { icon: Users, label: "Creator Hub", href: "/creator-hub" },
-  { icon: Trophy, label: "Competitions", href: "/competitions" },
-  { icon: Coffee, label: "Creator Café", href: "/cafe" },
-  { icon: Newspaper, label: "News & Updates", href: "/news" },
-  { icon: BookOpen, label: "Learning", href: "/learning" },
 ]
 
 interface NavItemProps extends NavItem {
@@ -207,7 +175,7 @@ export function Sidebar({ isOpen, isCollapsed, onClose }: SidebarProps) {
       {/* Overlay - only show on mobile when sidebar is open */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 bg-background/180 backdrop-blur-sm z-40 lg:hidden"
           onClick={onClose}
         />
       )}
@@ -259,47 +227,10 @@ export function Sidebar({ isOpen, isCollapsed, onClose }: SidebarProps) {
               isCollapsed={isCollapsed}
               onClose={onClose}
             />
-
-            <Separator className="my-2" />
-
-            {/* Explore Section */}
-            <NavSection
-              title="Explore"
-              items={exploreItems}
-              currentPath={pathname}
-              isCollapsed={isCollapsed}
-              onClose={onClose}
-            />
-
-            <Separator className="my-2" />
-
-            {/* Community Section */}
-            <NavSection
-              title="Community"
-              items={communityItems}
-              currentPath={pathname}
-              isCollapsed={isCollapsed}
-              onClose={onClose}
-            />
+                        <Separator className="my-2" />
           </nav>
-        </ScrollArea>
 
-        {/* Footer - only show when not collapsed */}
-        {!isCollapsed && (
-          <div className="border-t p-4">
-            <Link href="/feedback" passHref legacyBehavior>
-              <Button
-                variant="outline"
-                className="w-full"
-                asChild
-              >
-                <a target="_blank" rel="noopener noreferrer">
-                  Send Feedback
-                </a>
-              </Button>
-            </Link>
-          </div>
-        )}
+        </ScrollArea>
       </aside>
     </>
   )

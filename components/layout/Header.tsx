@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback } from "react"
-import { usePathname, useRouter } from "next/navigation"
-import Link from "next/link"
-import { AnimatePresence, motion } from "framer-motion"
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Bell,
   Search,
@@ -13,9 +13,9 @@ import {
   ChevronRight,
   Sun,
   Moon,
-} from "lucide-react"
-import { Button } from "../../components/ui/button"
-import { Input } from "../../components/ui/input"
+} from "lucide-react";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,18 +23,18 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../../components/ui/dropdown-menu"
+} from "../ui/dropdown-menu";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "../../components/ui/sheet"
-import { Avatar, AvatarFallback, AvatarImage } from "../../components/ui/avatar"
-import { Badge } from "../../components/ui/badge"
-import { ScrollArea } from "../../components/ui/scroll-area"
-import { useTheme } from "next-themes"
+} from "../ui/sheet";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Badge } from "../ui/badge";
+import { ScrollArea } from "../ui/scroll-area";
+import { useTheme } from "next-themes";
 
 // PlaceholdersAndVanishInput Component
 const PlaceholdersAndVanishInput = ({ 
@@ -303,7 +303,7 @@ interface HeaderProps {
 
 export function Header({ 
   onSidebarOpen, 
-  isAuthenticated = false, 
+  isAuthenticated = true, 
   isSidebarCollapsed,
   onSidebarCollapse 
 }: HeaderProps) {
@@ -332,62 +332,62 @@ export function Header({
       time: "2 min ago",
       isRead: false,
       type: "follow",
-      avatar: "/avatars/john.png"
+      avatar: "/avatars/john.png",
     },
     // ... other notifications
-  ])
+  ]);
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchValue(e.target.value)
-  }
+  const handleSearchChange = (e) => {
+    setSearchValue(e.target.value);
+  };
 
-  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
     if (searchValue.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchValue)}`)
+      router.push(`/search?q=${encodeURIComponent(searchValue)}`);
     }
-  }
+  };
 
   const markAllAsRead = () => {
-    setNotifications(prevNotifications =>
-      prevNotifications.map(notification => ({
+    setNotifications((prevNotifications) =>
+      prevNotifications.map((notification) => ({
         ...notification,
-        isRead: true
+        isRead: true,
       }))
-    )
-    setUnreadCount(0)
-  }
+    );
+    setUnreadCount(0);
+  };
 
-  const markNotificationAsRead = (id: number) => {
-    setNotifications(prevNotifications =>
-      prevNotifications.map(notification =>
+  const markNotificationAsRead = (id) => {
+    setNotifications((prevNotifications) =>
+      prevNotifications.map((notification) =>
         notification.id === id
           ? { ...notification, isRead: true }
           : notification
       )
-    )
-    setUnreadCount(prev => Math.max(0, prev - 1))
-  }
+    );
+    setUnreadCount((prev) => Math.max(0, prev - 1));
+  };
 
   const getBreadcrumbs = () => {
-    const paths = pathname.split('/').filter(Boolean)
-    if (paths.length === 0) return [{ label: 'Home', path: '/' }]
+    const paths = pathname.split("/").filter(Boolean);
+    if (paths.length === 0) return [{ label: "Home", path: "/" }];
 
     return paths.reduce((acc, path, index) => {
-      const url = `/${paths.slice(0, index + 1).join('/')}`
+      const url = `/${paths.slice(0, index + 1).join("/")}`;
       acc.push({
-        label: path.charAt(0).toUpperCase() + path.slice(1).replace(/-/g, ' '),
-        path: url
-      })
-      return acc
-    }, [{ label: 'Home', path: '/' }])
-  }
+        label: path.charAt(0).toUpperCase() + path.slice(1).replace(/-/g, " "),
+        path: url,
+      });
+      return acc;
+    }, [{ label: "Home", path: "/" }]);
+  };
 
-  if (!mounted) return null
+  if (!mounted) return null;
 
   return (
     <div className="fixed top-0 z-50 w-full">
@@ -411,6 +411,20 @@ export function Header({
             >
               <Menu className="h-5 w-5" />
             </Button>
+          </div>
+
+          {/* Logo */}
+          <div className="flex items-center gap-2">
+            <Link href="/">
+              <div className="flex items-center gap-2">
+                <img
+                  src="/logo.svg"
+                  alt="Logo"
+                  className="h-8 w-8 rounded-full"
+                />
+                <span className="font-bold text-lg text-transparent bg-clip-text bg-gradient-to-r from-violet-500 via-purole-500/30 to-pink-400">Vibe Vision</span>
+              </div>
+            </Link>
           </div>
 
           {/* Search */}
@@ -589,7 +603,7 @@ export function Header({
         </nav>
       </div>
     </div>
-  )
+  );
 }
 
 export default Header;

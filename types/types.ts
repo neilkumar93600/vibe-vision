@@ -7,8 +7,9 @@ type Genre = {
   
   type StorySettings = {
     tone: string;
-    style: string;
+    ageGroup: string;
     pacing: string;
+    duration: number
     complexity: string;
   };
   

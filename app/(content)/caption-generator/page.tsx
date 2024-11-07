@@ -516,7 +516,7 @@ export default function CaptionGenerator() {
                       toast({
                         title: "Warning",
                         description: "Sharing is not supported on this device/browser",
-                        variant: "warning",
+                        variant: "default",
                       });
                     }
                   } catch (error) {

@@ -3,7 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, Autoplay, EffectCoverflow, Mousewheel, Keyboard } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/keyboard';
+import { Navigation, Keyboard } from 'swiper/modules';
 import {
     Play, Pause, Heart, Star, Share2, Sparkles, Music,
     Mic, RefreshCw, TrendingUp, ChevronRight, Volume2,
@@ -25,22 +28,6 @@ import Playlist from '../../../components/media/playlist-component';
 import { Layout } from "../../../components/layout/layout";
 import { LampContainer } from "../../../components/ui/lamp";
 
-interface Song {
-  id: number;
-  title: string;
-  artist: string;
-  genre: string;
-  views: string;
-  likes: string;
-  duration: number;
-  releaseDate: string;
-  coverArt: string;
-  audioUrl: string;
-  waveformData: number[];
-  bpm: number;
-  key: string;
-  tags: string[];
-};
 // Enhanced features data with gradients and hover states
 const features = [
     // {
@@ -119,6 +106,38 @@ const popularArtists = [
         bio: 'AI-assisted music collective pushing boundaries',
         popularTrack: 'Digital Horizon'
     },
+    {
+        id: 3,
+        name: 'Samel',
+        avatar: '/artists/sarah.jpg',
+        followers: '1.2M',
+        bio: 'Electronic music producer known for ambient soundscapes',
+        popularTrack: 'Neon Dreams'
+    },
+    {
+        id: 4,
+        name: 'Honey Singh',
+        avatar: '/artists/neural.jpg',
+        followers: '892K',
+        bio: 'AI-assisted music collective pushing boundaries',
+        popularTrack: 'Digital Horizon'
+    },
+    {
+        id: 5,
+        name: 'Lucifer Morningstar',
+        avatar: '/artists/sarah.jpg',
+        followers: '1.2M',
+        bio: 'Electronic music producer known for ambient soundscapes',
+        popularTrack: 'Neon Dreams'
+    },
+    {
+        id: 6,
+        name: 'BlackPink',
+        avatar: '/artists/neural.jpg',
+        followers: '892K',
+        bio: 'AI-assisted music collective pushing boundaries',
+        popularTrack: 'Digital Horizon'
+    },
     // Add more artists...
 ];
 
@@ -169,12 +188,156 @@ const MusicStudio = () => {
                 key: 'Am',
                 tags: ['electronic', 'ambient', 'chill']
             },
-            // Add more songs with similar detailed metadata
-        ]);
+            {
+                id: 2,
+                title: 'Sunset Boulevard',
+                artist: 'Aurora Waves',
+                genre: 'Indie Pop',
+                views: '850K',
+                likes: '30K',
+                duration: 210,
+                releaseDate: '2023-10-10',
+                coverArt: '/api/placeholder/400/400',
+                audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+                waveformData: Array.from({ length: 100 }, () => Math.random()),
+                bpm: 115,
+                key: 'G',
+                tags: ['indie pop', 'melancholy', 'vibes']
+            },
+            {
+                id: 3,
+                title: 'High Tides',
+                artist: 'Ocean Echoes',
+                genre: 'Lo-Fi',
+                views: '2.3M',
+                likes: '80K',
+                duration: 185,
+                releaseDate: '2023-12-20',
+                coverArt: '/api/placeholder/400/400',
+                audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
+                waveformData: Array.from({ length: 100 }, () => Math.random()),
+                bpm: 90,
+                key: 'Dm',
+                tags: ['lo-fi', 'relaxing', 'study']
+            },
+            {
+                id: 4,
+                title: 'Cosmic Dance',
+                artist: 'Nebula Knights',
+                genre: 'Psychedelic',
+                views: '1.5M',
+                likes: '60K',
+                duration: 260,
+                releaseDate: '2024-01-05',
+                coverArt: '/api/placeholder/400/400',
+                audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
+                waveformData: Array.from({ length: 100 }, () => Math.random()),
+                bpm: 130,
+                key: 'B',
+                tags: ['psychedelic', 'groovy', 'upbeat']
+            },
+            {
+                id: 5,
+                title: 'Into the Wild',
+                artist: 'The Forest Ensemble',
+                genre: 'Folk',
+                views: '950K',
+                likes: '35K',
+                duration: 240,
+                releaseDate: '2023-08-17',
+                coverArt: '/api/placeholder/400/400',
+                audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
+                waveformData: Array.from({ length: 100 }, () => Math.random()),
+                bpm: 100,
+                key: 'C',
+                tags: ['folk', 'acoustic', 'nature']
+            },
+            {
+                id: 6,
+                title: 'Neon Skies',
+                artist: 'City Lights Collective',
+                genre: 'Synthwave',
+                views: '3.1M',
+                likes: '120K',
+                duration: 220,
+                releaseDate: '2024-04-05',
+                coverArt: '/api/placeholder/400/400',
+                audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3',
+                waveformData: Array.from({ length: 100 }, () => Math.random()),
+                bpm: 135,
+                key: 'Ebm',
+                tags: ['synthwave', 'retro', '80s']
+            },
+            {
+                id: 7,
+                title: 'Dreamscape',
+                artist: 'Echo Reflections',
+                genre: 'Ambient',
+                views: '1.8M',
+                likes: '70K',
+                duration: 255,
+                releaseDate: '2023-11-22',
+                coverArt: '/api/placeholder/400/400',
+                audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3',
+                waveformData: Array.from({ length: 100 }, () => Math.random()),
+                bpm: 75,
+                key: 'Bb',
+                tags: ['ambient', 'meditative', 'dreamy']
+            },
+            {
+                id: 8,
+                title: 'Urban Flow',
+                artist: 'Rhythm Syndicate',
+                genre: 'Hip-Hop',
+                views: '2.7M',
+                likes: '95K',
+                duration: 200,
+                releaseDate: '2023-09-14',
+                coverArt: '/api/placeholder/400/400',
+                audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
+                waveformData: Array.from({ length: 100 }, () => Math.random()),
+                bpm: 92,
+                key: 'Fm',
+                tags: ['hip-hop', 'urban', 'chill']
+            },
+            {
+                id: 9,
+                title: 'Galactic Voyage',
+                artist: 'Space Explorers',
+                genre: 'Electronic',
+                views: '3.5M',
+                likes: '150K',
+                duration: 245,
+                releaseDate: '2024-02-02',
+                coverArt: '/api/placeholder/400/400',
+                audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3',
+                waveformData: Array.from({ length: 100 }, () => Math.random()),
+                bpm: 122,
+                key: 'G#m',
+                tags: ['electronic', 'space', 'journey']
+            },
+            {
+                id: 10,
+                title: 'Morning Dew',
+                artist: 'Nature Sounds',
+                genre: 'New Age',
+                views: '1.1M',
+                likes: '50K',
+                duration: 210,
+                releaseDate: '2023-05-01',
+                coverArt: '/api/placeholder/400/400',
+                audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3',
+                waveformData: Array.from({ length: 100 }, () => Math.random()),
+                bpm: 60,
+                key: 'Cmaj7',
+                tags: ['new age', 'calm', 'nature']
+            }
+        ]);        
     }, []);
 
+    
     // Audio playback controls
-    const handlePlayPause = (track) => {
+    const handlePlayPause = (track: any) => {
         if (currentTrack?.id === track.id) {
             setIsPlaying(!isPlaying);
             isPlaying ? audioRef?.pause() : audioRef?.play();
@@ -193,7 +356,7 @@ const MusicStudio = () => {
     };
 
     // Follow/Unfollow functionality
-    const handleFollowClick = (artistId) => {
+    const handleFollowClick = (artistId: any) => {
         setFollowers(prev => ({
             ...prev,
             [artistId]: !prev[artistId]
@@ -296,12 +459,11 @@ const MusicStudio = () => {
             </CardHeader>
             <CardContent>
                 <Swiper
-                    modules={[Navigation, Pagination, Autoplay, EffectCoverflow, Keyboard]}
+                    modules={[Navigation, Keyboard]}
                     spaceBetween={20}
                     slidesPerView={4}
                     navigation={true}
                     keyboard={{ enabled: true, }}
-                    pagination={{ clickable: true }}
                 >
                     {trendingSongs.map((song) => (
                         <SwiperSlide key={song.id}>
@@ -419,7 +581,7 @@ const MusicStudio = () => {
         const [hoveredArtist, setHoveredArtist] = useState(null);
         const [followedArtists, setFollowedArtists] = useState(new Set());
 
-        const handleFollow = (artistId) => {
+        const handleFollow = (artistId: any) => {
             setFollowedArtists(prev => {
                 const newSet = new Set(prev);
                 if (newSet.has(artistId)) {
@@ -443,11 +605,12 @@ const MusicStudio = () => {
                 </CardHeader>
                 <CardContent>
                     <Swiper
-                        modules={[Navigation, Pagination]}
+                        modules={[Navigation, Keyboard]}
                         spaceBetween={20}
                         slidesPerView={5}
-                        navigation
-                    >
+                        navigation={true}
+                    keyboard={{ enabled: true, }}
+                >
                         {popularArtists.map((artist) => (
                             <SwiperSlide key={artist.id}>
                                 <motion.div
@@ -584,7 +747,7 @@ const MusicStudio = () => {
     );
 
     // Utility function to format time
-    const formatTime = (seconds) => {
+    const formatTime = (seconds: number) => {
         const minutes = Math.floor(seconds / 60);
         const remainingSeconds = Math.floor(seconds % 60);
         return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;

@@ -40,7 +40,9 @@ import {
     Download,
     Share,
     Maximize2,
-    Minimize2
+    Minimize2,
+    AudioLines,
+    PauseCircleIcon
 } from 'lucide-react';
 import { Layout } from "../../../components/layout/layout";
 import { Icon } from '@radix-ui/react-select';
@@ -124,41 +126,41 @@ export default function SongGeneratorPage(): JSX.Element {
 
     const playerScreenRef = useRef<HTMLDivElement>(null)
 
-    const alt_musicUrl = `${BASE_URL}/uploads/6729fde142e71c53dbec2d78_jukebox_1730976610659_music.mp3`
-    const alt_imageUrl = `${BASE_URL}/uploads/6729fde142e71c53dbec2d78_jukebox_1730976610659_image.png`
-    // const alt_imageUrl = `https://images.pexels.com/photos/1955134/pexels-photo-1955134.jpeg`
-    const alt_musicTitle = `Hello Kitty's Dream`
-    const alt_musicLyrics =
-        `[Verse]
-Hello Kitty in a dream
-Running wild by a moonlit stream
-Whiskers twitch in the midnight gleam
-Heartbeats racing steam by steam
-    [Verse 2]
-Stars are falling from the skies
-Adventure sparkles in her eyes
-Every wish those lights comprise
-Makes her spirit start to rise
-    [Chorus]
-Hello Kitty here to stay
-In this fantasy parade
-Love and laughter pave the way
-To a dream where we'll all play
-    [Bridge]
-Climbing rainbows touch the stars
-Riding comets near and far
-    Fantasy in every bar
-In this world you know you are
-    [Verse 3]
-Glitter trails where she goes
-Music's rhythm softly flows
-Tiny pawprints in the snow
-Love's adventure always grows
-    [Chorus]
-Hello Kitty here to stay
-In this fantasy parade
-Love and laughter pave the way
-To a dream where we'll all play`
+    //     const alt_musicUrl = `${BASE_URL}/uploads/6729fde142e71c53dbec2d78_jukebox_1730976610659_music.mp3`
+    //     const alt_imageUrl = `${BASE_URL}/uploads/6729fde142e71c53dbec2d78_jukebox_1730976610659_image.png`
+    //     // const alt_imageUrl = `https://images.pexels.com/photos/1955134/pexels-photo-1955134.jpeg`
+    //     const alt_musicTitle = `Hello Kitty's Dream`
+    //     const alt_generatedLyrics =
+    //         `[Verse]
+    // Hello Kitty in a dream
+    // Running wild by a moonlit stream
+    // Whiskers twitch in the midnight gleam
+    // Heartbeats racing steam by steam
+    //     [Verse 2]
+    // Stars are falling from the skies
+    // Adventure sparkles in her eyes
+    // Every wish those lights comprise
+    // Makes her spirit start to rise
+    //     [Chorus]
+    // Hello Kitty here to stay
+    // In this fantasy parade
+    // Love and laughter pave the way
+    // To a dream where we'll all play
+    //     [Bridge]
+    // Climbing rainbows touch the stars
+    // Riding comets near and far
+    //     Fantasy in every bar
+    // In this world you know you are
+    //     [Verse 3]
+    // Glitter trails where she goes
+    // Music's rhythm softly flows
+    // Tiny pawprints in the snow
+    // Love's adventure always grows
+    //     [Chorus]
+    // Hello Kitty here to stay
+    // In this fantasy parade
+    // Love and laughter pave the way
+    // To a dream where we'll all play`
 
     const handleGenreSelect = (genre: string): void => {
         setSelectedGenres(prev =>
@@ -225,20 +227,26 @@ To a dream where we'll all play`
         setIsPlaying(true);
     };
 
-    const testFunction = () => {
+    const playGeneratedSong = () => {
 
-        const newSong: Song = {
-            id: Date.now(),
-            title: alt_musicTitle,
-            genres: selectedGenres,
-            coverArt: alt_imageUrl,
-            audioUrl: alt_musicUrl,
-            duration: audioRef.current?.duration || 180,
-            timestamp: new Date().toISOString()
-        };
+        if (!isPlaying) {
+            const newSong: Song = {
+                id: Date.now(),
+                title: musicTitle,
+                genres: selectedGenres,
+                coverArt: imageUrl,
+                audioUrl: musicUrl,
+                duration: audioRef.current?.duration || 180,
+                timestamp: new Date().toISOString()
+            };
 
-        setGeneratedSongs(prev => [newSong, ...prev]);
-        setCurrentSongIndex(0)
+            setGeneratedSongs(prev => [newSong, ...prev]);
+            setCurrentSongIndex(0)
+
+            audioRef.current?.play()
+        } else {
+            audioRef.current?.pause()
+        }
     }
 
     const handleGenerateMusic = async () => {
@@ -291,8 +299,8 @@ To a dream where we'll all play`
                 id: Date.now(),
                 title,
                 genres: selectedGenres,
-                coverArt: alt_imageUrl,
-                audioUrl: alt_musicUrl,
+                coverArt: imageUrl,
+                audioUrl: musicUrl,
                 duration: 180,
                 timestamp: new Date().toISOString()
             };
@@ -311,8 +319,8 @@ To a dream where we'll all play`
 
     const handleTimeChange = (value: number[]): void => {
         if (audioRef.current) {
-            audioRef.current.currentTime = value[0];
-            setCurrentTime(value[0]);
+            // audioRef.current.currentTime = value[0];
+            setCurrentTime(audioRef.current.currentTime);
         }
     };
 
@@ -334,10 +342,10 @@ To a dream where we'll all play`
     };
 
     const handleDownloadAudio = async () => {
-        if (alt_musicUrl) {
+        if (musicUrl) {
             try {
                 // Fetch the video file as a blob using Axios
-                const response = await axios.get(alt_musicUrl, {
+                const response = await axios.get(musicUrl, {
                     responseType: 'blob',
                 });
 
@@ -346,7 +354,7 @@ To a dream where we'll all play`
 
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `${alt_musicTitle}.mp3`;
+                a.download = `${musicTitle}.mp3`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -363,32 +371,31 @@ To a dream where we'll all play`
             if (playerScreenRef.current.requestFullscreen) {
                 playerScreenRef.current.requestFullscreen();
                 setIsMusicPlayerFullScreen(true)
-            } else if ((playerScreenRef.current as any).mozRequestFullScreen) { // Firefox
+            } else if ((playerScreenRef.current as any).mozRequestFullScreen) { 
                 (playerScreenRef.current as any).mozRequestFullScreen();
                 setIsMusicPlayerFullScreen(true)
-            } else if ((playerScreenRef.current as any).webkitRequestFullscreen) { // Chrome, Safari, Opera
+            } else if ((playerScreenRef.current as any).webkitRequestFullscreen) { 
                 (playerScreenRef.current as any).webkitRequestFullscreen();
                 setIsMusicPlayerFullScreen(true)
-            } else if ((playerScreenRef.current as any).msRequestFullscreen) { // IE/Edge
+            } else if ((playerScreenRef.current as any).msRequestFullscreen) { 
                 (playerScreenRef.current as any).msRequestFullscreen();
                 setIsMusicPlayerFullScreen(true)
             }
         }
     };
-    
+
     const minimizeScreen = () => {
         if (document.fullscreenElement) {
-            // Check if the document is in full-screen mode and exit
             if (document.exitFullscreen) {
                 document.exitFullscreen();
                 setIsMusicPlayerFullScreen(false)
-            } else if ((document as any).mozCancelFullScreen) { // Firefox
+            } else if ((document as any).mozCancelFullScreen) { 
                 (document as any).mozCancelFullScreen();
                 setIsMusicPlayerFullScreen(false)
-            } else if ((document as any).webkitExitFullscreen) { // Chrome, Safari, Opera
+            } else if ((document as any).webkitExitFullscreen) {
                 (document as any).webkitExitFullscreen();
                 setIsMusicPlayerFullScreen(false)
-            } else if ((document as any).msExitFullscreen) { // IE/Edge
+            } else if ((document as any).msExitFullscreen) { 
                 (document as any).msExitFullscreen();
                 setIsMusicPlayerFullScreen(false)
             }
@@ -396,7 +403,7 @@ To a dream where we'll all play`
     };
 
     return (
-        // <Layout>
+        <Layout>
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
             <div className="container mx-auto px-24 py-32">
                 {/* Title */}
@@ -551,7 +558,7 @@ To a dream where we'll all play`
                                 isLoading={isLoading}
                             />
 
-                            <Button onClick={testFunction}> Test Button </Button>
+                            {/* <Button onClick={playGeneratedSong}> Test Button </Button> */}
 
                             {error && (
                                 <Alert variant="destructive" className="mt-4">
@@ -606,33 +613,55 @@ To a dream where we'll all play`
                                         </div>
                                     )
                                     :
-                                    (
+                                    (musicUrl ?
                                         <div className="p-4 w-full h-full gap-8 text-gray-400 flex flex-col justify-center items-center overflow-hidden">
 
                                             <div className='w-full xl:h-96 rounded-3xl flex flex-col items-center xl:flex-row gap-8'>
                                                 <div
                                                     className="bg-neutral-900 w-fit h-fit flex flex-col gap-6 text-center bg-cover justify-center items-center rounded-3xl p-6">
-                                                    <div className='relative h-48 w-48 group cursor-pointer'>
+                                                    <div className={`relative h-48 w-48 group cursor-pointer `}>
                                                         <div
                                                             style={{
-                                                                backgroundImage: `url('${alt_imageUrl}')`,
+                                                                backgroundImage: `url('${imageUrl}')`,
                                                                 filter: "blur(14px)",
-                                                                opacity: 0.5
+                                                                opacity: 0.5,
                                                             }}
-                                                            className='top-2 left-1 z-10 group-hover:scale-105 duration-300 absolute w-48 h-48 bg-cover rounded-full' />
+                                                            className='top-2 left-1 z-10 group-hover:scale-105 duration-300 absolute w-48 h-48 bg-cover rounded-full' >
+                                                        </div>
                                                         <div
-                                                            style={{ backgroundImage: `url('${alt_imageUrl}')` }}
+                                                            style={{
+                                                                backgroundImage: `url('${imageUrl}')`,
+                                                                animation: isPlaying ? 'slowRotate 15s linear infinite' : '',
+                                                            }}
                                                             className='group-hover:scale-105 relative z-20 opacity-90 duration-300 group-hover:opacity-100 w-48 h-48 flex flex-col bg-cover justify-center items-center rounded-full'>
-                                                            <div className='size-12 bg-neutral-900/60 rounded-full backdrop-blur' />
+                                                            <style>
+                                                                {`
+                                                                    @keyframes slowRotate {
+                                                                        from {
+                                                                            transform: rotate(0deg);
+                                                                        }
+                                                                        to {
+                                                                            transform: rotate(360deg);
+                                                                        }
+                                                                    }
+                                                                `}
+                                                            </style>
+                                                            <div className='size-12 bg-neutral-900/60 flex justify-center items-center rounded-full backdrop-blur' >
+                                                                {isPlaying && <AudioLines />}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     <div className="w-full items-center justify-center flex flex-col gap-2">
-                                                        <h3 className="text-white text-lg">{`${alt_musicTitle}`}</h3>
+                                                        <h3 className="text-white text-lg">{`${musicTitle}`}</h3>
                                                         <p className="text-gray-200 text-sm">Vibe Vision Music.</p>
-                                                        <div className='p-2 cursor-pointer hover:scale-105 duration-300'>
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" className="bi bi-play-circle-fill" viewBox="0 0 16 16">
-                                                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z" />
-                                                            </svg>
+                                                        <div onClick={playGeneratedSong} className='p-2 cursor-pointer hover:scale-105 duration-300'>
+                                                            {!isPlaying ?
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" className="bi bi-play-circle-fill" viewBox="0 0 16 16">
+                                                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z" />
+                                                                </svg>
+                                                                :
+                                                                <PauseCircleIcon className='size-10' />
+                                                            }
                                                         </div>
                                                     </div>
                                                 </div>
@@ -657,8 +686,13 @@ To a dream where we'll all play`
 
                                             <div className="p-8 w-full bg-gradient-to-br max-h-80 overflow-auto from-neutral-950 via-gray-950 to-indigo-950 rounded-3xl">
                                                 <h3 className="font-semibold text-lg mb-2">Lyrics</h3>
-                                                <p className="whitespace-pre-wrap text-gray-400">{alt_musicLyrics || "Nothing to show here yet"}</p>
+                                                <p className="whitespace-pre-wrap text-gray-400">{generatedLyrics || "Nothing to show here yet"}</p>
                                             </div>
+                                        </div>
+
+                                        :
+                                        <div className='w-full h-96 flex justify-center items-center'>
+                                            Your Song will be shown here
                                         </div>
                                     )
                                 }
@@ -703,8 +737,11 @@ To a dream where we'll all play`
                 currentSong && (
                     <div
                         ref={playerScreenRef}
-                        // style={{ backgroundImage: `url(${alt_imageUrl})` }}
-                        className={`fixed bottom-0 left-0 right-0 flex flex-col-reverse bg-background/95 backdrop-blur border-t ${isMusicPlayerFullScreen ? 'h-screen bg-no-repeat bg-cover bg-opacity-90' : ''}`}>
+                        className={`fixed bottom-0 left-0 right-0 flex flex-col-reverse bg-background/95 backdrop-blur border-t`}>
+                        <div
+                            style={{ backgroundImage: isMusicPlayerFullScreen ? `url(${imageUrl})` : '', }}
+                            className='absolute w-full h-full bg-no-repeat bg-cover opacity-30 blur-md pointer-events-none'>
+                        </div>
                         <Progress
                             value={(currentTime / duration) * 100}
                             className="h-1"
@@ -1005,8 +1042,9 @@ To a dream where we'll all play`
 
                         {/* Hidden audio element */}
                         <audio
+                            autoPlay={true}
                             ref={audioRef}
-                            src={currentSong.audioUrl}
+                            src={musicUrl}
                             onPlay={() => setIsPlaying(true)}
                             onPause={() => setIsPlaying(false)}
                         />
@@ -1014,6 +1052,6 @@ To a dream where we'll all play`
                 )
             }
         </div >
-        // </Layout>
+        </Layout>
     );
 }

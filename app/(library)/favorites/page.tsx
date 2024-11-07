@@ -1,3 +1,4 @@
+'use client';
 import { Skeleton } from "@/components/ui/skeleton";
 import { PlayCircle } from "lucide-react";
 import { useState, useEffect } from "react";

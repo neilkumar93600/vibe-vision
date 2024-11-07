@@ -553,10 +553,24 @@ export default function SongGeneratorPage(): JSX.Element {
                                 </div> */}
 
                             {/* Generate Button */}
-                            <AnimatedGenerateButton
-                                onClick={handleGenerateMusic}
-                                isLoading={isLoading}
-                            />
+                            <Button
+                                    size="lg"
+                                    className="w-full h-14 text-lg"
+                                    onClick={handleGenerateMusic}
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? (
+                                        <div className="flex items-center space-x-2">
+                                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent" />
+                                            <span>Creating...</span>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <Music className="mr-2" />
+                                            Create
+                                        </>
+                                    )}
+                                </Button>
 
                             {/* <Button onClick={playGeneratedSong}> Test Button </Button> */}
 

@@ -25,6 +25,22 @@ import Playlist from '../../../components/media/playlist-component';
 import { Layout } from "../../../components/layout/layout";
 import { LampContainer } from "../../../components/ui/lamp";
 
+interface Song = {
+  id: number;
+  title: string;
+  artist: string;
+  genre: string;
+  views: string;
+  likes: string;
+  duration: number;
+  releaseDate: string;
+  coverArt: string;
+  audioUrl: string;
+  waveformData: number[];
+  bpm: number;
+  key: string;
+  tags: string[];
+};
 // Enhanced features data with gradients and hover states
 const features = [
     // {

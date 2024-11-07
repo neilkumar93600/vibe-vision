@@ -148,7 +148,7 @@ const testimonials = [
   },
 ]
 
-export function GoogleGeminiEffectDemo() {
+const GoogleGeminiEffectDemo = () => {
   const ref = React.useRef(null);
   const { scrollYProgress } = useScroll({
     target: ref,

@@ -78,6 +78,7 @@ import {
 } from 'lucide-react';
 import { BASE_URL } from '@/config';
 import axios from 'axios';
+import { Layout } from '@/components/layout/layout';
 
 const genres: Genre[] = [
   {
@@ -327,51 +328,52 @@ export default function EnhancedStoryGenerator() {
   // };
 
   return (
-    <div
-      ref={containerRef}
-      className={`min-h-screen ${getBackgroundClass()} p-6 overflow-hidden relative`}
-    >
-      {/* Animated particles background */}
-      {backgroundStyle === 'particles' && (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(50)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute animate-float"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 5}s`,
-                animationDuration: `${5 + Math.random() * 10}s`,
-                opacity: 0.1 + Math.random() * 0.3,
-              }}
-            >
-              <Sparkles
-                className="text-purple-500"
-                size={10 + Math.random() * 20}
-              />
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Main content */}
-      <div className="max-w-7xl mx-auto relative">
-        {/* Header */}
-        <header className="flex justify-between items-center mb-8">
-          <div className="flex items-center gap-4">
-            <h1 className="text-4xl font-bold text-white flex items-center gap-2">
-              <BrainCircuit className="h-8 w-8" />
-              Story Forge AI
-            </h1>
-            <Badge variant="outline" className="text-white">
-              v2.0
-            </Badge>
+    // <Layout>
+      <div
+        ref={containerRef}
+        className={`min-h-screen ${getBackgroundClass()} p-6 overflow-hidden relative`}
+      >
+        {/* Animated particles background */}
+        {backgroundStyle === 'particles' && (
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            {[...Array(50)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute animate-float"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  animationDelay: `${Math.random() * 5}s`,
+                  animationDuration: `${5 + Math.random() * 10}s`,
+                  opacity: 0.1 + Math.random() * 0.3,
+                }}
+              >
+                <Sparkles
+                  className="text-purple-500"
+                  size={10 + Math.random() * 20}
+                />
+              </div>
+            ))}
           </div>
+        )}
 
-          <div className="flex items-center gap-4">
-            {/* Theme toggle */}
-            {/* <TooltipProvider>
+        {/* Main content */}
+        <div className="max-w-7xl mx-auto relative">
+          {/* Header */}
+          <header className="flex justify-between items-center mb-8">
+            <div className="flex items-center gap-4">
+              <h1 className="text-4xl font-bold text-white flex items-center gap-2">
+                <BrainCircuit className="h-8 w-8" />
+                Story Forge AI
+              </h1>
+              <Badge variant="outline" className="text-white">
+                v2.0
+              </Badge>
+            </div>
+
+            <div className="flex items-center gap-4">
+              {/* Theme toggle */}
+              {/* <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
@@ -393,8 +395,8 @@ export default function EnhancedStoryGenerator() {
               </Tooltip>
             </TooltipProvider> */}
 
-            {/* Audio toggle */}
-            {/* <TooltipProvider>
+              {/* Audio toggle */}
+              {/* <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
@@ -416,72 +418,72 @@ export default function EnhancedStoryGenerator() {
               </Tooltip>
             </TooltipProvider> */}
 
-            {/* Settings button */}
-            <Button
-              variant="outline"
-              className="bg-black/30"
-              onClick={() => setShowSettingsDialog(true)}
-            >
-              <Settings className="h-4 w-4 mr-2" />
-              Settings
-            </Button>
-          </div>
-        </header>
+              {/* Settings button */}
+              <Button
+                variant="outline"
+                className="bg-black/30"
+                onClick={() => setShowSettingsDialog(true)}
+              >
+                <Settings className="h-4 w-4 mr-2" />
+                Settings
+              </Button>
+            </div>
+          </header>
 
-        {/* Main grid layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left panel - Story controls */}
-          <div className="space-y-6">
-            {/* Genre selection */}
-            <Card className={`${darkMode ? 'bg-black/50' : 'bg-white/90'} backdrop-blur border-purple-500/20`}>
-              <CardHeader>
-                <CardTitle className="text-white">Choose Your Genre</CardTitle>
-                <CardDescription className="text-purple-200">
-                  Select a genre to shape your story&apos;s world
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {genres.map(({ value, icon, description }) => (
-                    <TooltipProvider key={value}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant={genre === value ? "default" : "outline"}
-                            className={`w-full h-20 flex flex-col items-center justify-center gap-2 ${genre === value
-                              ? "bg-purple-600 hover:bg-purple-700"
-                              : "hover:bg-purple-500/20"
-                              }`}
-                            onClick={() => {
-                              setGenre(value);
-                              setGenreDescription(description)
-                              if (audioEnabled) {
-                                new Audio('/sounds/select.mp3').play();
+          {/* Main grid layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Left panel - Story controls */}
+            <div className="space-y-6">
+              {/* Genre selection */}
+              <Card className={`${darkMode ? 'bg-black/50' : 'bg-white/90'} backdrop-blur border-purple-500/20`}>
+                <CardHeader>
+                  <CardTitle className="text-white">Choose Your Genre</CardTitle>
+                  <CardDescription className="text-purple-200">
+                    Select a genre to shape your story&apos;s world
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {genres.map(({ value, icon, description }) => (
+                      <TooltipProvider key={value}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant={genre === value ? "default" : "outline"}
+                              className={`w-full h-20 flex flex-col items-center justify-center gap-2 ${genre === value
+                                ? "bg-purple-600 hover:bg-purple-700"
+                                : "hover:bg-purple-500/20"
+                                }`}
+                              onClick={() => {
+                                setGenre(value);
+                                setGenreDescription(description)
+                                if (audioEnabled) {
+                                  new Audio('/sounds/select.mp3').play();
+                                }
                               }
-                            }
-                            }>
-                            <span className="text-2xl">{icon}</span>
-                            <span className="text-sm">{value}</span>
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{description}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                              }>
+                              <span className="text-2xl">{icon}</span>
+                              <span className="text-sm">{value}</span>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{description}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
 
-            {/* Story Configuration */}
-            <Card className={`${darkMode ? 'bg-black/50' : 'bg-white/90'} backdrop-blur border-purple-500/20`}>
-              <CardHeader>
-                <CardTitle className="text-white">Story Configuration</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* AI Model Selection */}
-                {/* <div className="space-y-2">
+              {/* Story Configuration */}
+              <Card className={`${darkMode ? 'bg-black/50' : 'bg-white/90'} backdrop-blur border-purple-500/20`}>
+                <CardHeader>
+                  <CardTitle className="text-white">Story Configuration</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* AI Model Selection */}
+                  {/* <div className="space-y-2">
                   <Label className="text-purple-200">AI Model</Label>
                   <Select value={aiModel} onValueChange={setAiModel}>
                     <SelectTrigger className="bg-black/50">
@@ -495,71 +497,71 @@ export default function EnhancedStoryGenerator() {
                   </Select>
                 </div> */}
 
-                {/* Story Settings Tabs */}
-                <Tabs defaultValue="tone" className="w-full">
-                  <TabsList className="grid w-full grid-cols-3 bg-black/30">
-                    <TabsTrigger value="tone">Tone</TabsTrigger>
-                    <TabsTrigger value="ageGroup">Age Group</TabsTrigger>
-                    <TabsTrigger value="videoDuration">Video Duration</TabsTrigger>
-                    {/* <TabsTrigger value="complexity">Complexity</TabsTrigger> */}
-                  </TabsList>
-                  <TabsContent value="tone" className="space-y-4">
-                    <div className="grid grid-cols-2 gap-2">
-                      {['Casual', 'Formal', 'Humorous', 'Dark', 'Sarcastic', 'Hilarious', 'Silly', 'Dark Comedy'].map((tone) => (
-                        <Button
-                          key={tone}
-                          variant="outline"
-                          className={`${settings.tone.toLowerCase() === tone.toLowerCase()
-                            ? 'bg-purple-600'
-                            : 'bg-black/30'
-                            }`}
-                          onClick={() => setSettings({ ...settings, tone: tone.toLowerCase() })}
-                        >
-                          {tone}
-                        </Button>
-                      ))}
-                    </div>
-                  </TabsContent>
-                  <TabsContent value="ageGroup" className="space-y-4">
-                    <div className="grid grid-cols-2 gap-2">
-                      {['Kids ( less than 12 )', 'Teens ( 13 to 18 )', 'Adults ( above 18 )'].map((ageGroup) => (
-                        <Button
-                          key={ageGroup}
-                          variant="outline"
-                          className={`${settings.ageGroup.toLowerCase() === ageGroup.toLowerCase()
-                            ? 'bg-purple-600'
-                            : 'bg-black/30'
-                            }`}
-                          onClick={() => setSettings({ ...settings, ageGroup: ageGroup.toLowerCase() })}
-                        >
-                          {ageGroup}
-                        </Button>
-                      ))}
-                    </div>
-                  </TabsContent>
-                  <TabsContent value="videoDuration" className="space-y-4">
-                    <div className="space-y-2">
-                      <Label>Video Duration (seconds)</Label>
-                      <Slider
-                        value={[settings.duration]}
-                        onValueChange={([value]) =>
-                          setSettings(prev => ({ ...prev, duration: value }))
-                        }
-                        max={120}
-                        min={5}
-                        step={1}
-                        className="w-full"
-                      />
-                      <p className="text-sm text-gray-300">
-                        Current: About {settings.duration} seconds
-                      </p>
-                    </div>
-                  </TabsContent>
-                  {/* Similar TabsContent for style, pacing, and complexity */}
-                </Tabs>
+                  {/* Story Settings Tabs */}
+                  <Tabs defaultValue="tone" className="w-full">
+                    <TabsList className="grid w-full grid-cols-3 bg-black/30">
+                      <TabsTrigger value="tone">Tone</TabsTrigger>
+                      <TabsTrigger value="ageGroup">Age Group</TabsTrigger>
+                      <TabsTrigger value="videoDuration">Video Duration</TabsTrigger>
+                      {/* <TabsTrigger value="complexity">Complexity</TabsTrigger> */}
+                    </TabsList>
+                    <TabsContent value="tone" className="space-y-4">
+                      <div className="grid grid-cols-2 gap-2">
+                        {['Casual', 'Formal', 'Humorous', 'Dark', 'Sarcastic', 'Hilarious', 'Silly', 'Dark Comedy'].map((tone) => (
+                          <Button
+                            key={tone}
+                            variant="outline"
+                            className={`${settings.tone.toLowerCase() === tone.toLowerCase()
+                              ? 'bg-purple-600'
+                              : 'bg-black/30'
+                              }`}
+                            onClick={() => setSettings({ ...settings, tone: tone.toLowerCase() })}
+                          >
+                            {tone}
+                          </Button>
+                        ))}
+                      </div>
+                    </TabsContent>
+                    <TabsContent value="ageGroup" className="space-y-4">
+                      <div className="grid grid-cols-2 gap-2">
+                        {['Kids ( less than 12 )', 'Teens ( 13 to 18 )', 'Adults ( above 18 )'].map((ageGroup) => (
+                          <Button
+                            key={ageGroup}
+                            variant="outline"
+                            className={`${settings.ageGroup.toLowerCase() === ageGroup.toLowerCase()
+                              ? 'bg-purple-600'
+                              : 'bg-black/30'
+                              }`}
+                            onClick={() => setSettings({ ...settings, ageGroup: ageGroup.toLowerCase() })}
+                          >
+                            {ageGroup}
+                          </Button>
+                        ))}
+                      </div>
+                    </TabsContent>
+                    <TabsContent value="videoDuration" className="space-y-4">
+                      <div className="space-y-2">
+                        <Label>Video Duration (seconds)</Label>
+                        <Slider
+                          value={[settings.duration]}
+                          onValueChange={([value]) =>
+                            setSettings(prev => ({ ...prev, duration: value }))
+                          }
+                          max={120}
+                          min={5}
+                          step={1}
+                          className="w-full"
+                        />
+                        <p className="text-sm text-gray-300">
+                          Current: About {settings.duration} seconds
+                        </p>
+                      </div>
+                    </TabsContent>
+                    {/* Similar TabsContent for style, pacing, and complexity */}
+                  </Tabs>
 
-                {/* Advanced Features */}
-                {/* <div className="space-y-4">
+                  {/* Advanced Features */}
+                  {/* <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <Label className="text-purple-200">Character Profiles</Label>
                     <Switch
@@ -576,73 +578,73 @@ export default function EnhancedStoryGenerator() {
                   </div>
                 </div> */}
 
-                {/* Story Prompt */}
-                <div className="space-y-2">
-                  <Label className="text-purple-200">Story Prompt</Label>
-                  <Textarea
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="Describe your story idea..."
-                    className="h-32 bg-black/50 resize-none"
-                    maxLength={characterLimit}
-                  />
-                  <div className="flex justify-between text-sm text-purple-300">
-                    <span>{prompt.length} / {characterLimit} characters</span>
-                    <button
-                      className="hover:text-purple-100"
-                      onClick={() => setPrompt('')}
-                    >
-                      Clear
-                    </button>
-                  </div>
-                </div>
-
-                {/* Generation Button */}
-                <Button
-                  className="w-full bg-purple-600 hover:bg-purple-700"
-                  onClick={handleGenerate}
-                  disabled={loading || !prompt.trim()}
-                >
-                  {loading ? (
-                    <>
-                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                      Crafting Your Story
-                    </>
-                  ) : (
-                    <>
-                      <Wand2 className="mr-2 h-4 w-4" />
-                      Generate Story
-                    </>
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Right panel - Story Display */}
-          <div className="space-y-6">
-            <Card className={`${darkMode ? 'bg-black/50' : 'bg-white/90'} backdrop-blur border-purple-500/20`}>
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <BookOpen className="h-5 w-5" />
-                    Your Story and Video
-                  </CardTitle>
-                  {generatedScript && (
-                    <div className="flex gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={handleCopyToClipboard}
-                        className="text-white hover:bg-white/20"
+                  {/* Story Prompt */}
+                  <div className="space-y-2">
+                    <Label className="text-purple-200">Story Prompt</Label>
+                    <Textarea
+                      value={prompt}
+                      onChange={(e) => setPrompt(e.target.value)}
+                      placeholder="Describe your story idea..."
+                      className="h-32 bg-black/50 resize-none"
+                      maxLength={characterLimit}
+                    />
+                    <div className="flex justify-between text-sm text-purple-300">
+                      <span>{prompt.length} / {characterLimit} characters</span>
+                      <button
+                        className="hover:text-purple-100"
+                        onClick={() => setPrompt('')}
                       >
-                        {copied ? (
-                          <Check className="h-4 w-4" />
-                        ) : (
-                          <Copy className="h-4 w-4" />
-                        )}
-                      </Button>
-                      {/* <Button
+                        Clear
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Generation Button */}
+                  <Button
+                    className="w-full bg-purple-600 hover:bg-purple-700"
+                    onClick={handleGenerate}
+                    disabled={loading || !prompt.trim()}
+                  >
+                    {loading ? (
+                      <>
+                        <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                        Crafting Your Story
+                      </>
+                    ) : (
+                      <>
+                        <Wand2 className="mr-2 h-4 w-4" />
+                        Generate Story
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Right panel - Story Display */}
+            <div className="space-y-6">
+              <Card className={`${darkMode ? 'bg-black/50' : 'bg-white/90'} backdrop-blur border-purple-500/20`}>
+                <CardHeader>
+                  <div className="flex justify-between items-center">
+                    <CardTitle className="text-white flex items-center gap-2">
+                      <BookOpen className="h-5 w-5" />
+                      Your Story and Video
+                    </CardTitle>
+                    {generatedScript && (
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={handleCopyToClipboard}
+                          className="text-white hover:bg-white/20"
+                        >
+                          {copied ? (
+                            <Check className="h-4 w-4" />
+                          ) : (
+                            <Copy className="h-4 w-4" />
+                          )}
+                        </Button>
+                        {/* <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => setShowHistoryDialog(true)}
@@ -650,110 +652,110 @@ export default function EnhancedStoryGenerator() {
                       >
                         <History className="h-4 w-4" />
                       </Button> */}
-                    </div>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-[600px] rounded-md border border-purple-500/20 p-4">
+                      </div>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <ScrollArea className="h-[600px] rounded-md border border-purple-500/20 p-4">
 
-                  {videoUrl ? (
-                    <video
-                      src={videoUrl}
-                      controls
-                      className="w-full h-64 rounded-lg object-contain bg-black"
-                      preload="auto"
-                      onError={(e) => console.error("Video error:", e)}
-                    />
-                  ) : loading ?
-                    (
-                      <div className="w-full h-64 rounded-lg bg-black/30 flex flex-col items-center justify-center">
-                        <div
-                          className="p-2 animate-spin drop-shadow-2xl bg-gradient-to-bl from-pink-400 via-purple-400 to-indigo-600 md:w-20 md:h-20 h-16 w-16 aspect-square rounded-full"
-                        >
+                    {videoUrl ? (
+                      <video
+                        src={videoUrl}
+                        controls
+                        className="w-full h-64 rounded-lg object-contain bg-black"
+                        preload="auto"
+                        onError={(e) => console.error("Video error:", e)}
+                      />
+                    ) : loading ?
+                      (
+                        <div className="w-full h-64 rounded-lg bg-black/30 flex flex-col items-center justify-center">
                           <div
-                            className="rounded-full h-full w-full bg-slate-100 dark:bg-zinc-900 background-blur-md"
-                          ></div>
-                        </div>
+                            className="p-2 animate-spin drop-shadow-2xl bg-gradient-to-bl from-pink-400 via-purple-400 to-indigo-600 md:w-20 md:h-20 h-16 w-16 aspect-square rounded-full"
+                          >
+                            <div
+                              className="rounded-full h-full w-full bg-slate-100 dark:bg-zinc-900 background-blur-md"
+                            ></div>
+                          </div>
 
-                        <div className="loader">
-                          <p>Generating</p>
-                          <div className="words">
-                            <span className="word">Story</span>
-                            <span className="word">Speech</span>
-                            <span className="word">Character</span>
-                            <span className="word">Video</span>
-                            <span className="word">Story</span>
+                          <div className="loader">
+                            <p>Generating</p>
+                            <div className="words">
+                              <span className="word">Story</span>
+                              <span className="word">Speech</span>
+                              <span className="word">Character</span>
+                              <span className="word">Video</span>
+                              <span className="word">Story</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )
-                    :
-                    (
-                      <div className="w-full h-64 rounded-lg bg-black/30 flex items-center justify-center">
-                        <p className="text-gray-400">Your video will appear here</p>
+                      )
+                      :
+                      (
+                        <div className="w-full h-64 rounded-lg bg-black/30 flex items-center justify-center">
+                          <p className="text-gray-400">Your video will appear here</p>
+                        </div>
+                      )}
+
+                    {videoUrl && (
+                      <div className="grid grid-cols-2 gap-3 pt-4">
+                        <Button
+                          variant="secondary"
+
+                          onClick={handleDownloadVideo}
+                        >
+                          <Download className="mr-2 h-4 w-4" />
+                          Download
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          onClick={() => setShowShareDialog(true)}
+                        >
+                          <Share className="mr-2 h-4 w-4" />
+                          Share
+                        </Button>
                       </div>
                     )}
 
-                  {videoUrl && (
-                    <div className="grid grid-cols-2 gap-3 pt-4">
-                      <Button
-                        variant="secondary"
+                    {generatedScript ? (
+                      <div className="prose prose-invert max-w-none py-20">
+                        <h2 className="text-2xl font-bold text-purple-100 mb-4">
+                          {videoTitle || 'Story Time Video'}
+                        </h2>
+                        <p className="text-purple-50 whitespace-pre-wrap leading-relaxed">
+                          {generatedScript}
+                        </p>
+                        {generateIllustrations && (
+                          <div className="mt-6 grid grid-cols-2 gap-4">
+                            <img
+                              src="/api/placeholder/400/300"
+                              alt="AI Generated Illustration"
+                              className="rounded-lg border border-purple-500/20"
+                            />
+                            <img
+                              src="/api/placeholder/400/300"
+                              alt="AI Generated Illustration"
+                              className="rounded-lg border border-purple-500/20"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className={`text-center text-purple-300 py-20 ${loading && ' animate-pulse '}`}>
+                        <BookOpen className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                        <p>Your story will appear here</p>
+                        <p className="text-sm mt-2 text-purple-400">
+                          Use the controls on the left to generate your story
+                        </p>
+                      </div>
+                    )}
+                  </ScrollArea>
 
-                        onClick={handleDownloadVideo}
-                      >
-                        <Download className="mr-2 h-4 w-4" />
-                        Download
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        onClick={() => setShowShareDialog(true)}
-                      >
-                        <Share className="mr-2 h-4 w-4" />
-                        Share
-                      </Button>
-                    </div>
-                  )}
-
-                  {generatedScript ? (
-                    <div className="prose prose-invert max-w-none py-20">
-                      <h2 className="text-2xl font-bold text-purple-100 mb-4">
-                        {videoTitle || 'Story Time Video'}
-                      </h2>
-                      <p className="text-purple-50 whitespace-pre-wrap leading-relaxed">
-                        {generatedScript}
-                      </p>
-                      {generateIllustrations && (
-                        <div className="mt-6 grid grid-cols-2 gap-4">
-                          <img
-                            src="/api/placeholder/400/300"
-                            alt="AI Generated Illustration"
-                            className="rounded-lg border border-purple-500/20"
-                          />
-                          <img
-                            src="/api/placeholder/400/300"
-                            alt="AI Generated Illustration"
-                            className="rounded-lg border border-purple-500/20"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className={`text-center text-purple-300 py-20 ${loading && ' animate-pulse '}`}>
-                      <BookOpen className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                      <p>Your story will appear here</p>
-                      <p className="text-sm mt-2 text-purple-400">
-                        Use the controls on the left to generate your story
-                      </p>
-                    </div>
-                  )}
-                </ScrollArea>
-
-                {generatedScript && (
-                  <div className="mt-4 space-y-4">
-                    <div className="flex justify-between items-center">
-                      <div className="flex gap-2">
-                        {/* <Button
+                  {generatedScript && (
+                    <div className="mt-4 space-y-4">
+                      <div className="flex justify-between items-center">
+                        <div className="flex gap-2">
+                          {/* <Button
                           variant="outline"
                           className="bg-black/30"
                           onClick={() => handleExport('pdf')}
@@ -761,20 +763,20 @@ export default function EnhancedStoryGenerator() {
                           <Download className="mr-2 h-4 w-4" />
                           Export
                         </Button> */}
-                        <Button
-                          variant="outline"
-                          className="bg-black/30"
-                          onClick={() => setShowShareDialog(true)}
-                        >
-                          <Share2 className="mr-2 h-4 w-4" />
-                          Share
-                        </Button>
-                      </div>
-                      <div className="flex gap-4 items-center">
-                        <Badge variant="outline" className="bg-black/30">
-                          {genre}
-                        </Badge>
-                        {/* <Button
+                          <Button
+                            variant="outline"
+                            className="bg-black/30"
+                            onClick={() => setShowShareDialog(true)}
+                          >
+                            <Share2 className="mr-2 h-4 w-4" />
+                            Share
+                          </Button>
+                        </div>
+                        <div className="flex gap-4 items-center">
+                          <Badge variant="outline" className="bg-black/30">
+                            {genre}
+                          </Badge>
+                          {/* <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => {
@@ -793,132 +795,133 @@ export default function EnhancedStoryGenerator() {
                         >
                           <Heart className={`h-4 w-4 ${generatedStory.likes > 0 ? 'fill-current' : ''}`} />
                         </Button> */}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </div>
-        </div>
 
-        {/* Dialogs */}
-        <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
-          <DialogContent className="bg-black/90 border-purple-500/20">
-            <DialogHeader>
-              <DialogTitle className="text-white">Share Your Story</DialogTitle>
-              <DialogDescription className="text-purple-200">
-                Share your creation across platforms
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid grid-cols-2 gap-4">
-              {[
-                { name: 'Twitter', icon: '🐦' },
-                { name: 'Facebook', icon: '👤' },
-                { name: 'Reddit', icon: '🤖' },
-                { name: 'Email', icon: '📧' }
-              ].map(platform => (
-                <Button
-                  key={platform.name}
-                  variant="outline"
-                  className="w-full bg-black/30"
-                  onClick={() => setShowShareDialog(false)}
-                >
-                  <span className="mr-2">{platform.icon}</span>
-                  {platform.name}
-                </Button>
-              ))}
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* Settings Dialog */}
-        <Dialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog}>
-          <DialogContent className="bg-black/90 border-purple-500/20">
-            <DialogHeader>
-              <DialogTitle className="text-white">Settings</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-purple-200">Background Style</Label>
-                <Select value={backgroundStyle} onValueChange={setBackgroundStyle}>
-                  <SelectTrigger className="bg-black/50">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="gradient">Dynamic Gradient</SelectItem>
-                    <SelectItem value="particles">Particle Effect</SelectItem>
-                    <SelectItem value="animated">Animated Gradient</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-purple-200">Character Limit</Label>
-                <Slider
-                  value={[characterLimit]}
-                  min={500}
-                  max={5000}
-                  step={100}
-                  onValueChange={([value]) => setCharacterLimit(value)}
-                />
-                <div className="text-right text-sm text-purple-300">
-                  {characterLimit.toLocaleString()} characters
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-purple-200">Auto-save Stories</Label>
-                <Switch
-                  checked={autoSave}
-                  onCheckedChange={setAutoSave}
-                />
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* History Dialog */}
-        <Dialog open={showHistoryDialog} onOpenChange={setShowHistoryDialog}>
-          <DialogContent className="bg-black/90 border-purple-500/20 max-w-4xl">
-            <DialogHeader>
-              <DialogTitle className="text-white">Story History</DialogTitle>
-            </DialogHeader>
-            <ScrollArea className="h-[60vh]">
-              <div className="space-y-4">
-                {storyHistory.map((item) => (
-                  <Card key={item.id} className="bg-black/50">
-                    <CardHeader>
-                      <CardTitle className="text-white text-sm flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          {genres.find(g => g.value === item.genre)?.icon}
-                          <span>{new Date(item.createdAt).toLocaleDateString()}</span>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setGeneratedStory(item);
-                            setPrompt(item.prompt);
-                            setGenre(item.genre);
-                            setShowHistoryDialog(false);
-                          }}
-                        >
-                          Load
-                        </Button>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <h3 className="text-purple-100 font-semibold mb-2">{item.title}</h3>
-                      <p className="text-purple-200 line-clamp-3">{item.content}</p>
-                    </CardContent>
-                  </Card>
+          {/* Dialogs */}
+          <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
+            <DialogContent className="bg-black/90 border-purple-500/20">
+              <DialogHeader>
+                <DialogTitle className="text-white">Share Your Story</DialogTitle>
+                <DialogDescription className="text-purple-200">
+                  Share your creation across platforms
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { name: 'Twitter', icon: '🐦' },
+                  { name: 'Facebook', icon: '👤' },
+                  { name: 'Reddit', icon: '🤖' },
+                  { name: 'Email', icon: '📧' }
+                ].map(platform => (
+                  <Button
+                    key={platform.name}
+                    variant="outline"
+                    className="w-full bg-black/30"
+                    onClick={() => setShowShareDialog(false)}
+                  >
+                    <span className="mr-2">{platform.icon}</span>
+                    {platform.name}
+                  </Button>
                 ))}
               </div>
-            </ScrollArea>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+
+          {/* Settings Dialog */}
+          <Dialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog}>
+            <DialogContent className="bg-black/90 border-purple-500/20">
+              <DialogHeader>
+                <DialogTitle className="text-white">Settings</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label className="text-purple-200">Background Style</Label>
+                  <Select value={backgroundStyle} onValueChange={setBackgroundStyle}>
+                    <SelectTrigger className="bg-black/50">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="gradient">Dynamic Gradient</SelectItem>
+                      <SelectItem value="particles">Particle Effect</SelectItem>
+                      <SelectItem value="animated">Animated Gradient</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-purple-200">Character Limit</Label>
+                  <Slider
+                    value={[characterLimit]}
+                    min={500}
+                    max={5000}
+                    step={100}
+                    onValueChange={([value]) => setCharacterLimit(value)}
+                  />
+                  <div className="text-right text-sm text-purple-300">
+                    {characterLimit.toLocaleString()} characters
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-purple-200">Auto-save Stories</Label>
+                  <Switch
+                    checked={autoSave}
+                    onCheckedChange={setAutoSave}
+                  />
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* History Dialog */}
+          <Dialog open={showHistoryDialog} onOpenChange={setShowHistoryDialog}>
+            <DialogContent className="bg-black/90 border-purple-500/20 max-w-4xl">
+              <DialogHeader>
+                <DialogTitle className="text-white">Story History</DialogTitle>
+              </DialogHeader>
+              <ScrollArea className="h-[60vh]">
+                <div className="space-y-4">
+                  {storyHistory.map((item) => (
+                    <Card key={item.id} className="bg-black/50">
+                      <CardHeader>
+                        <CardTitle className="text-white text-sm flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            {genres.find(g => g.value === item.genre)?.icon}
+                            <span>{new Date(item.createdAt).toLocaleDateString()}</span>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setGeneratedStory(item);
+                              setPrompt(item.prompt);
+                              setGenre(item.genre);
+                              setShowHistoryDialog(false);
+                            }}
+                          >
+                            Load
+                          </Button>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <h3 className="text-purple-100 font-semibold mb-2">{item.title}</h3>
+                        <p className="text-purple-200 line-clamp-3">{item.content}</p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </ScrollArea>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
-    </div>
+    // {/* </Layout> */}
   );
 }

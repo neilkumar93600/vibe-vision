@@ -11,7 +11,9 @@ import {
   Star,
   History,
   Heart,
-  X
+  X,
+  SparklesIcon,
+  LogInIcon
 } from "lucide-react"
 
 import { cn } from "../../lib/utils"
@@ -31,23 +33,30 @@ interface NavItem {
   icon: React.ElementType
   label: string
   href: string
-  badge?: string
+  badge?: string;
   badgeVariant?: "default" | "secondary" | "destructive" | "outline"
+  secondaryIcon?: React.ElementType
 }
 
 // Updated navigation items with correct app directory routing
-const mainNavItems: NavItem[] = [
+const authenticatedNavItems: NavItem[] = [
   { icon: Home, label: "Home", href: "/" },
   { icon: Tv, label: "Entertainment Hub", href: "/entertainment-hub", badge: "Hot", badgeVariant: "destructive" },
   { icon: Music2, label: "Music Studio", href: "/music-studio" },
   { icon: Mic2, label: "Comedy Lab", href: "/comedy-lab" },
 ]
 
+const nonAuthenticatedNavItems: NavItem[] = [
+  { icon: Home, label: "Home", href: "/" },
+  { icon: Tv, label: "Entertainment Hub", href: "/entertainment-hub", badge: "Hot", badgeVariant: "destructive" },
+  { icon: LogInIcon, label: "Login to Generate", href: "/login", secondaryIcon: SparklesIcon },
+]
+
 const libraryItems: NavItem[] = [
   { icon: ListVideo, label: "Your Playlists", href: "/playlists" },
   { icon: Clock, label: "Watch Later", href: "/watch-later", badge: "3", badgeVariant: "secondary" },
   { icon: Star, label: "Favorites", href: "/favorites" },
-  { icon: Heart, label: "Liked Content", href: "/liked", badge: "2", badgeVariant: "outline"  },
+  { icon: Heart, label: "Liked Content", href: "/liked", badge: "2", badgeVariant: "outline" },
   { icon: History, label: "History", href: "/history" },
 ]
 
@@ -57,15 +66,16 @@ interface NavItemProps extends NavItem {
   onClose?: () => void
 }
 
-function NavItem({ 
-  icon: Icon, 
-  label, 
-  href, 
-  badge, 
-  badgeVariant = "default", 
-  isActive, 
+function NavItem({
+  icon: Icon,
+  label,
+  href,
+  badge,
+  badgeVariant = "default",
+  secondaryIcon: SecondaryIcon,
+  isActive,
   isCollapsed,
-  onClose 
+  onClose
 }: NavItemProps) {
   const content = (
     <Link href={href} passHref legacyBehavior>
@@ -104,6 +114,9 @@ function NavItem({
               {badge}
             </Badge>
           )}
+          { SecondaryIcon &&
+            <SecondaryIcon fill='#6366f1' color='#6366f1' className='ml-auto bg/-indigo-500' />
+          }
         </a>
       </Button>
     </Link>
@@ -158,6 +171,7 @@ function NavSection({ title, items, currentPath, isCollapsed, onClose }: NavSect
             badge={item.badge}
             badgeVariant={item.badgeVariant}
             isActive={currentPath === item.href}
+            secondaryIcon={item.secondaryIcon}
             isCollapsed={isCollapsed}
             onClose={onClose}
           />
@@ -209,25 +223,32 @@ export function Sidebar({ isOpen, isCollapsed, onClose }: SidebarProps) {
         <ScrollArea className="flex-1">
           <nav className="flex flex-col gap-2 p-2">
             {/* Main Navigation */}
-            <NavSection
+            {localStorage.getItem('token') ? <NavSection
               title="Main"
-              items={mainNavItems}
+              items={authenticatedNavItems}
               currentPath={pathname}
               isCollapsed={isCollapsed}
               onClose={onClose}
-            />
+            /> :
+              <NavSection
+                title="Main"
+                items={nonAuthenticatedNavItems}
+                currentPath={pathname}
+                isCollapsed={isCollapsed}
+                onClose={onClose}
+              />
 
+            }
             <Separator className="my-2" />
-
             {/* Library Section */}
-            <NavSection
+            {/* <NavSection
               title="Library"
               items={libraryItems}
               currentPath={pathname}
               isCollapsed={isCollapsed}
               onClose={onClose}
-            />
-                        <Separator className="my-2" />
+            /> */}
+            {/* <Separator className="my-2" /> */}
           </nav>
 
         </ScrollArea>

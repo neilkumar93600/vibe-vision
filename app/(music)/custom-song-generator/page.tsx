@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {AnimatedGenerateButton} from "@/components/ui/ai-button"
+import { AnimatedGenerateButton } from "@/components/ui/ai-button"
 import { Slider } from "@/components/ui/slider";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -33,9 +33,19 @@ import {
     Shuffle,
     ListMusic,
     Music2,
-    Info
+    Info,
+    GuitarIcon,
+    Settings,
+    Music,
+    Download,
+    Share,
+    Maximize2,
+    Minimize2
 } from 'lucide-react';
 import { Layout } from "../../../components/layout/layout";
+import { Icon } from '@radix-ui/react-select';
+import axios from 'axios';
+import { BASE_URL } from '@/config';
 
 interface Song {
     id: number;
@@ -55,10 +65,18 @@ interface GenerateSongPayload {
 }
 
 const musicGenres: string[] = [
-    'Pop', 'Rock', 'Hip Hop', 'R&B', 'Jazz',
-    'Classical', 'Electronic', 'Country', 'Folk', 'Blues',
-    'Metal', 'Reggae', 'Latin', 'Indie', 'Soul',
-    'Funk', 'Disco', 'House', 'Techno', 'Gospel'
+    'Pop', 'Rock', 'Hip Hop',
+    'Anime', 'Lofi', 'R&B/Soul', 'Chillout', 'Holiday',
+    'Children’s Music', 'Jazz', 'Classical', 'Electronic',
+    'Country', 'Folk', 'Blues', 'Metal', 'Reggae', 'Latin',
+    'Indie', 'Soul', 'Funk', 'Disco', 'House', 'Techno', 'Gospel'
+];
+
+const musicThemes: string[] = [
+    'Love', 'Adventure', 'Fantasy', 'Fantasy/Mythology',
+    'Nature', 'Celebration', 'Sadness', 'Uplifting/Positive',
+    'Relaxation', 'Spiritual', 'Inspirational', 'War',
+    'Space/Science Fiction', 'Epic', 'Blues'
 ];
 
 const formatTime = (time: number | null): string => {
@@ -71,8 +89,10 @@ const formatTime = (time: number | null): string => {
 export default function SongGeneratorPage(): JSX.Element {
     // Form state
     const [title, setTitle] = useState<string>('');
+    const [prompt, setPrompt] = useState<string>('');
     const [lyrics, setLyrics] = useState<string>('');
     const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+    const [selectedThemes, setSelectedTheme] = useState<string[]>([]);
     const [isInstrumental, setIsInstrumental] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
@@ -92,22 +112,53 @@ export default function SongGeneratorPage(): JSX.Element {
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const currentSong: Song | null = currentSongIndex !== null ? generatedSongs[currentSongIndex] : null;
 
-    useEffect(() => {
-        if (audioRef.current) {
-            audioRef.current.addEventListener('loadedmetadata', () => {
-                setDuration(audioRef.current?.duration || 0);
-            });
-            audioRef.current.addEventListener('timeupdate', () => {
-                setCurrentTime(audioRef.current?.currentTime || 0);
-            });
-            audioRef.current.addEventListener('ended', handleSongEnd);
-        }
-        return () => {
-            if (audioRef.current) {
-                audioRef.current.removeEventListener('ended', handleSongEnd);
-            }
-        };
-    }, [currentSongIndex, isRepeat, isShuffle]);
+
+    const [musicUrl, setMusicUrl] = useState<string>('');
+    const [imageUrl, setImageUrl] = useState<string>('');
+    const [musicTitle, setMusicTitle] = useState<string>('');
+    const [generatedLyrics, setGeneratedLyrics] = useState<string>('');
+
+    const [isMusicPlayerFullScreen, setIsMusicPlayerFullScreen] = useState<boolean>(false)
+
+    const [showShareDialog, setShowShareDialog] = useState<boolean>(false);
+
+    const playerScreenRef = useRef<HTMLDivElement>(null)
+
+    const alt_musicUrl = `${BASE_URL}/uploads/6729fde142e71c53dbec2d78_jukebox_1730976610659_music.mp3`
+    const alt_imageUrl = `${BASE_URL}/uploads/6729fde142e71c53dbec2d78_jukebox_1730976610659_image.png`
+    // const alt_imageUrl = `https://images.pexels.com/photos/1955134/pexels-photo-1955134.jpeg`
+    const alt_musicTitle = `Hello Kitty's Dream`
+    const alt_musicLyrics =
+        `[Verse]
+Hello Kitty in a dream
+Running wild by a moonlit stream
+Whiskers twitch in the midnight gleam
+Heartbeats racing steam by steam
+    [Verse 2]
+Stars are falling from the skies
+Adventure sparkles in her eyes
+Every wish those lights comprise
+Makes her spirit start to rise
+    [Chorus]
+Hello Kitty here to stay
+In this fantasy parade
+Love and laughter pave the way
+To a dream where we'll all play
+    [Bridge]
+Climbing rainbows touch the stars
+Riding comets near and far
+    Fantasy in every bar
+In this world you know you are
+    [Verse 3]
+Glitter trails where she goes
+Music's rhythm softly flows
+Tiny pawprints in the snow
+Love's adventure always grows
+    [Chorus]
+Hello Kitty here to stay
+In this fantasy parade
+Love and laughter pave the way
+To a dream where we'll all play`
 
     const handleGenreSelect = (genre: string): void => {
         setSelectedGenres(prev =>
@@ -117,67 +168,12 @@ export default function SongGeneratorPage(): JSX.Element {
         );
     };
 
-    const generateSong = async (): Promise<void> => {
-        if (!title.trim()) {
-            setError('Please enter a song title');
-            return;
-        }
-
-        if (!isInstrumental && !lyrics.trim()) {
-            setError('Please enter lyrics or enable instrumental mode');
-            return;
-        }
-
-        if (selectedGenres.length === 0) {
-            setError('Please select at least one genre');
-            return;
-        }
-
-        setIsLoading(true);
-        setError('');
-
-        try {
-            const payload: GenerateSongPayload = {
-                title,
-                lyrics: isInstrumental ? '' : lyrics,
-                genres: selectedGenres,
-                isInstrumental
-            };
-
-            const response = await fetch('/api/generate-song', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            if (!response.ok) throw new Error('Failed to generate song');
-
-            const data = await response.json();
-
-            const newSong: Song = {
-                id: Date.now(),
-                title,
-                genres: selectedGenres,
-                coverArt: "/api/placeholder/300/300",
-                audioUrl: data.audioUrl,
-                duration: 180,
-                timestamp: new Date().toISOString()
-            };
-
-            setGeneratedSongs(prev => [newSong, ...prev]);
-            setCurrentSongIndex(0);
-            setIsPlaying(true);
-
-            // Reset form
-            setTitle('');
-            setLyrics('');
-            setSelectedGenres([]);
-
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'An error occurred');
-        } finally {
-            setIsLoading(false);
-        }
+    const handleThemeSelect = (theme: string): void => {
+        setSelectedTheme(prev =>
+            prev.includes(theme)
+                ? prev.filter(g => g !== theme)
+                : [...prev, theme]
+        );
     };
 
     const handlePlayPause = (): void => {
@@ -229,6 +225,90 @@ export default function SongGeneratorPage(): JSX.Element {
         setIsPlaying(true);
     };
 
+    const testFunction = () => {
+
+        const newSong: Song = {
+            id: Date.now(),
+            title: alt_musicTitle,
+            genres: selectedGenres,
+            coverArt: alt_imageUrl,
+            audioUrl: alt_musicUrl,
+            duration: audioRef.current?.duration || 180,
+            timestamp: new Date().toISOString()
+        };
+
+        setGeneratedSongs(prev => [newSong, ...prev]);
+        setCurrentSongIndex(0)
+    }
+
+    const handleGenerateMusic = async () => {
+        const token = localStorage.getItem('token');
+
+        if (!prompt.trim()) {
+            setError('Please ensure prompt is provided.');
+            return;
+        }
+
+        let currentTime = Date.now();
+
+        const finalPrompt = `Create a ${selectedGenres} song with the theme of ${selectedThemes} not more than 1 minute long. "${prompt}". The music should capture the essence of ${selectedThemes}. Ensure that elements typical of ${selectedGenres} music, like its instruments, rhythm, and mood, are present.`;
+
+        setError('');
+        setIsLoading(true);
+
+        const apiUrl = `${BASE_URL}/api/generate-audio/jukebox`;
+
+        const data = {
+            title: title,
+            userPrompt: prompt,
+            prompt: finalPrompt,
+            instrumental: isInstrumental,
+            currentTime: currentTime,
+            contentType: "jukebox",
+        };
+
+        try {
+            const response = await axios.post(
+                apiUrl,
+                data,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                }
+            );
+
+            console.log('Response data:', response.data);
+
+            setMusicUrl(`${BASE_URL}/${response.data.musicUrl}`);
+            setImageUrl(`${BASE_URL}/${response.data.imageUrl}`);
+            setGeneratedLyrics(response.data.lyrics);
+            setMusicTitle(response.data.songTitle);
+
+
+            const newSong: Song = {
+                id: Date.now(),
+                title,
+                genres: selectedGenres,
+                coverArt: alt_imageUrl,
+                audioUrl: alt_musicUrl,
+                duration: 180,
+                timestamp: new Date().toISOString()
+            };
+
+
+            setGeneratedSongs(prev => [newSong, ...prev]);
+
+        } catch (error: any) {
+            console.error('Error generating music:', error.response ? error.response.data : error.message);
+            setError('Failed to generate music. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+
     const handleTimeChange = (value: number[]): void => {
         if (audioRef.current) {
             audioRef.current.currentTime = value[0];
@@ -253,41 +333,173 @@ export default function SongGeneratorPage(): JSX.Element {
         }
     };
 
-    return (
-        <Layout>
-            <div className="min-h-screen bg-gradient-to-b from-gray-900 via-purple-900 to-gray-900">
-                <div className="container mx-auto px-24 py-32">
-                    {/* Title */}
-                    <h1 className="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-purple-400 via-purple-900 to-teal-400 bg-clip-text text-transparent">
-                        Custom Song Generator
-                    </h1>
+    const handleDownloadAudio = async () => {
+        if (alt_musicUrl) {
+            try {
+                // Fetch the video file as a blob using Axios
+                const response = await axios.get(alt_musicUrl, {
+                    responseType: 'blob',
+                });
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Song Generation Form */}
-                        <Card className="bg-black/20 backdrop-blur">
-                            <CardContent className="p-6">
-                                {/* Title Input */}
-                                <div className="mb-6">
-                                    <label className="block text-sm font-medium mb-2">Title</label>
+                const blob = new Blob([response.data], { type: 'audio/mp3' });
+                const url = URL.createObjectURL(blob);
+
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${alt_musicTitle}.mp3`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+                URL.revokeObjectURL(url); // Clean up the URL object
+            } catch (error) {
+                console.error("Error downloading video:", error);
+            }
+        }
+    };
+
+    const maximizeScreen = () => {
+        if (playerScreenRef.current) {
+            if (playerScreenRef.current.requestFullscreen) {
+                playerScreenRef.current.requestFullscreen();
+                setIsMusicPlayerFullScreen(true)
+            } else if ((playerScreenRef.current as any).mozRequestFullScreen) { // Firefox
+                (playerScreenRef.current as any).mozRequestFullScreen();
+                setIsMusicPlayerFullScreen(true)
+            } else if ((playerScreenRef.current as any).webkitRequestFullscreen) { // Chrome, Safari, Opera
+                (playerScreenRef.current as any).webkitRequestFullscreen();
+                setIsMusicPlayerFullScreen(true)
+            } else if ((playerScreenRef.current as any).msRequestFullscreen) { // IE/Edge
+                (playerScreenRef.current as any).msRequestFullscreen();
+                setIsMusicPlayerFullScreen(true)
+            }
+        }
+    };
+    
+    const minimizeScreen = () => {
+        if (document.fullscreenElement) {
+            // Check if the document is in full-screen mode and exit
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+                setIsMusicPlayerFullScreen(false)
+            } else if ((document as any).mozCancelFullScreen) { // Firefox
+                (document as any).mozCancelFullScreen();
+                setIsMusicPlayerFullScreen(false)
+            } else if ((document as any).webkitExitFullscreen) { // Chrome, Safari, Opera
+                (document as any).webkitExitFullscreen();
+                setIsMusicPlayerFullScreen(false)
+            } else if ((document as any).msExitFullscreen) { // IE/Edge
+                (document as any).msExitFullscreen();
+                setIsMusicPlayerFullScreen(false)
+            }
+        }
+    };
+
+    return (
+        // <Layout>
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
+            <div className="container mx-auto px-24 py-32">
+                {/* Title */}
+                <header className="flex justify-between items-center mb-8">
+                    <div className="flex items-center gap-4">
+                        <h1 className="text-4xl font-bold text-white flex items-center gap-2">
+                            <Music className="h-8 w-8" />
+                            Jukebox AI
+                        </h1>
+                        {/* <Badge variant="outline" className="text-white">
+                            v2.0
+                        </Badge> */}
+                    </div>
+
+                    {/* <div className="flex items-center gap-4">
+                        <Button
+                            variant="outline"
+                            className="bg-black/30"
+                            onClick={() => setShowSettingsDialog(true)}
+                        >
+                            <Settings className="h-4 w-4 mr-2" />
+                            Settings
+                        </Button>
+                    </div> */}
+                </header>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Song Generation Form */}
+                    <Card className="bg-black/20 backdrop-blur">
+                        <CardContent className="p-6">
+
+                            {/* Prompt Input */}
+                            <div className="mb-6">
+                                <label className="block text-sm font-medium mb-2">Prompt</label>
+                                <div className='w-full h-28 min-h-28 p-[1px] bg-gradient-to-br from-blue-300 via-blue-500 via-40% to-purple-500 rounded-md'>
+                                    <Textarea
+                                        value={prompt}
+                                        onChange={(e) => setPrompt(e.target.value)}
+                                        placeholder="Enter your prompt "
+                                        maxLength={1000}
+                                        className='resize-none h-full w-full outline-none bg-gradient-to-br from-gray-900 via-black to-gray-900'
+                                    />
+                                </div>
+                                <p className="text-xs text-gray-400 mt-1">{title.length}/1000</p>
+                            </div>
+
+                            {/* Title Input */}
+                            <div className="mb-6">
+                                <label className="block text-sm font-medium mb-2">Title</label>
+
+                                <div className='w-full p-[1px] bg-gradient-to-br from-blue-300 via-blue-500 via-40% to-purple-500 rounded-md'>
                                     <Input
                                         value={title}
                                         onChange={(e) => setTitle(e.target.value)}
-                                        placeholder="Enter song title"
+                                        placeholder="Enter song title (optional)"
                                         maxLength={80}
+                                        className='h-full w-full p-3 outline-none bg-gradient-to-br from-gray-900 via-black to-gray-900'
                                     />
-                                    <p className="text-xs text-gray-400 mt-1">{title.length}/80</p>
                                 </div>
+                                <p className="text-xs text-gray-400 mt-1">{title.length}/80</p>
+                            </div>
 
-                                {/* Genre Selection */}
-                                <div className="mb-6">
-                                    <label className="block text-sm font-medium mb-2">Genres</label>
-                                    <ScrollArea className="h-20 w-full rounded-md border p-2">
+                            {/* Instrumental Toggle */}
+                            <div className="flex flex-row-reverse items-center justify-end gap-4 mb-6">
+                                <label className="text-sm font-medium">Is Instrumental?</label>
+                                {/* <Switch
+                                        checked={isInstrumental}
+                                        onCheckedChange={setIsInstrumental}
+                                    /> */}
+                                <label
+                                    className={`p-[1px] rounded-lg transition-all duration-200 ${isInstrumental
+                                        ? 'bg-gradient-to-br from-blue-300 via-blue-500 via-40% to-purple-500 rounded-lg'
+                                        : 'bg-transparent'
+                                        }`}
+                                >
+                                    <div className='bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-lg text-gray-500'>
+                                        <input
+                                            type="checkbox"
+                                            className="h-[1px] opacity-0 overflow-hidden absolute whitespace-nowrap w-[1px] peer"
+                                            checked={isInstrumental}
+                                            onChange={() => setIsInstrumental(val => !val)}
+                                        />
+                                        <span
+                                            className="peer-checked:bg-gradient-to-br from-blue-300 via-blue-500 via-40% to-purple-500 bg-clip-text peer-checked:shadow-blue-400/10 peer-checked:text-indigo-400 peer-checked:before:border-none peer-checked:before:bg-gradient-to-br peer-checked:before:opacity-100 peer-checked:before:scale-100 peer-checked:before:content-['✔'] flex flex-col items-center justify-center w-28 h-16 max-h-12 rounded-lg shadow-lg transition-all duration-300 bg-white cursor-pointer relative before:absolute before:w-5 before:h-5 before:border-[2px] before:border-gray-500 before:rounded-full before:top-1 before:left-1 before:opacity-0 before:transition-all before:scale-0 before:text-neutral-200 before:text-base before:flex before:items-center before:justify-center hover:border-blue-400 hover:before:scale-100 hover:before:opacity-100"
+                                        >
+                                            <GuitarIcon className='size-10' />
+                                        </span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            {/* Genre Selection */}
+                            <div className="mb-6">
+                                <label className="block text-sm font-medium mb-2">Genres</label>
+
+                                <div className='h-fit w-fit p-[1px] bg-gradient-to-br from-blue-300 via-blue-500 via-40% to-purple-500 rounded-md'>
+                                    <ScrollArea className="h-28 hover:h-fit min-h-28 duration-500 transition-all w-full rounded-md border p-2 bg-gradient-to-br from-gray-900 via-black to-gray-900">
                                         <div className="flex flex-wrap gap-2">
                                             {musicGenres.map((genre) => (
                                                 <Badge
                                                     key={genre}
-                                                    variant={selectedGenres.includes(genre) ? "default" : "outline"}
-                                                    className="cursor-pointer"
+                                                    variant={selectedGenres.includes(genre) ? "tertiary" : "outline"}
+                                                    className="cursor-pointer px-4 py-1"
                                                     onClick={() => handleGenreSelect(genre)}
                                                 >
                                                     {genre}
@@ -296,18 +508,31 @@ export default function SongGeneratorPage(): JSX.Element {
                                         </div>
                                     </ScrollArea>
                                 </div>
+                            </div>
 
-                                {/* Instrumental Toggle */}
-                                <div className="flex items-center justify-between mb-6">
-                                    <label className="text-sm font-medium">Instrumental Mode</label>
-                                    <Switch
-                                        checked={isInstrumental}
-                                        onCheckedChange={setIsInstrumental}
-                                    />
+                            {/* Theme Selection */}
+                            <div className="mb-6">
+                                <label className="block text-sm font-medium mb-2">Theme</label>
+                                <div className='h-fit w-fit p-[1px] bg-gradient-to-br from-blue-300 via-blue-500 via-40% to-purple-500 rounded-md'>
+                                    <ScrollArea className="h-28 hover:h-fit min-h-28 duration-500 transition-all w-full rounded-md border p-2 bg-gradient-to-br from-gray-900 via-black to-gray-900">
+                                        <div className="flex flex-wrap gap-2">
+                                            {musicThemes.map((theme) => (
+                                                <Badge
+                                                    key={theme}
+                                                    variant={selectedThemes.includes(theme) ? "tertiary" : "outline"}
+                                                    className="cursor-pointer px-4 py-1"
+                                                    onClick={() => handleThemeSelect(theme)}
+                                                >
+                                                    {theme}
+                                                </Badge>
+                                            ))}
+                                        </div>
+                                    </ScrollArea>
                                 </div>
+                            </div>
 
-                                {/* Lyrics Input */}
-                                <div className="mb-6">
+                            {/* Lyrics Input */}
+                            {/* <div className="mb-6">
                                     <label className="block text-sm font-medium mb-2">Lyrics</label>
                                     <Textarea
                                         value={lyrics}
@@ -318,103 +543,208 @@ export default function SongGeneratorPage(): JSX.Element {
                                         maxLength={3000}
                                     />
                                     <p className="text-xs text-gray-400 mt-1">{lyrics.length}/3000</p>
-                                </div>
+                                </div> */}
 
-                                {/* Generate Button */}
-                                <AnimatedGenerateButton 
-  onClick={generateSong}
-  isLoading={isLoading}
-/>
+                            {/* Generate Button */}
+                            <AnimatedGenerateButton
+                                onClick={handleGenerateMusic}
+                                isLoading={isLoading}
+                            />
 
-                                {error && (
-                                    <Alert variant="destructive" className="mt-4">
-                                        <AlertDescription>{error}</AlertDescription>
-                                    </Alert>
-                                )}
-                            </CardContent>
-                        </Card>
+                            <Button onClick={testFunction}> Test Button </Button>
 
-                        {/* Generated Songs List */}
-                        <Card className="bg-black/20 backdrop-blur">
-                            <CardHeader>
-                                <CardTitle>Generated Songs</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <ScrollArea className="h-[calc(100vh-400px)]">
-                                    {generatedSongs.map((song, index) => (
-                                        <div
-                                            key={song.id}
-                                            className={`flex items-center gap-4 p-3 rounded-lg cursor-pointer hover:bg-white/5 ${currentSongIndex === index ? "bg-white/10" : ""
-                                                }`}
-                                            onClick={() => {
-                                                setCurrentSongIndex(index);
-                                                setIsPlaying(true);
-                                            }}
-                                        >
-                                            <img
-                                                src={song.coverArt}
-                                                alt={song.title}
-                                                className="w-12 h-12 rounded object-cover"
-                                            />
-                                            <div className="flex-1">
-                                                <p className="font-medium">{song.title}</p>
-                                                <p className="text-sm text-gray-400">
-                                                    {song.genres.join(', ')}
-                                                </p>
+                            {error && (
+                                <Alert variant="destructive" className="mt-4">
+                                    <AlertDescription>{error}</AlertDescription>
+                                </Alert>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    {/* Generated Songs List */}
+                    <Card className="bg-black/20 backdrop-blur">
+                        <CardHeader>
+                            <CardTitle>Generated Song</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <ScrollArea className="h-[calc(100vh-400px)]/ h-full">
+                                {isLoading ?
+                                    (
+                                        <div className="p-4 w-full h-full gap-8 text-gray-400 flex flex-col justify-center items-center overflow-hidden">
+                                            <div className="w-full h-96 rounded-3xl bg-[#0f0f0f] animate-pulse flex flex-col items-center justify-center">
+                                                <div
+                                                    className="p-2 animate-spin drop-shadow-2xl bg-gradient-to-bl from-pink-400 via-purple-400 to-indigo-600 md:w-20 md:h-20 h-16 w-16 aspect-square rounded-full"
+                                                >
+                                                    <div
+                                                        className="rounded-full h-full w-full bg-slate-100 dark:bg-zinc-900 background-blur-md"
+                                                    ></div>
+                                                </div>
+
+                                                <div className="loader">
+                                                    <p>Generating</p>
+                                                    <div className="words">
+                                                        <span className="word">Music</span>
+                                                        <span className="word">Lyrics</span>
+                                                        <span className="word">Verses</span>
+                                                        <span className="word">Chorus</span>
+                                                        <span className="word">Music</span>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    if (currentSongIndex === index) {
-                                                        handlePlayPause();
-                                                    } else {
-                                                        setCurrentSongIndex(index);
-                                                        setIsPlaying(true);
-                                                    }
-                                                }}
-                                            >
-                                                {currentSongIndex === index && isPlaying ? (
-                                                    <Pause className="h-5 w-5" />
-                                                ) : (
-                                                    <Play className="h-5 w-5" />
-                                                )}
-                                            </Button>
+                                            <div className="w-full p-8 gap-3 h-80 rounded-3xl overflow-clip bg-[#0f0f0f] animate-pulse flex flex-col items-start justify-start">
+                                                <div className='bg-gray-400/70 rounded-full min-h-3 w-20 mb-2' />
+                                                <div className='bg-gray-400/70 rounded-full min-h-3 w-64 mb-2' />
+                                                <div className='bg-gray-400/70 rounded-full min-h-3 w-72 mb-2' />
+                                                <div className='bg-gray-400/70 rounded-full min-h-3 w-64 mb-2' />
+                                                <div className='bg-gray-400/70 rounded-full min-h-3 w-72 mb-4' />
+                                                <div className='bg-gray-400/70 rounded-full min-h-3 w-20 mb-2' />
+                                                <div className='bg-gray-400/70 rounded-full min-h-3 w-64 mb-2' />
+                                                <div className='bg-gray-400/70 rounded-full min-h-3 w-72 mb-2' />
+                                                <div className='bg-gray-400/70 rounded-full min-h-3 w-64 mb-2' />
+                                                <div className='bg-gray-400/70 rounded-full min-h-3 w-72 mb-2' />
+                                            </div>
                                         </div>
-                                    ))}
-                                </ScrollArea>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </div>
+                                    )
+                                    :
+                                    (
+                                        <div className="p-4 w-full h-full gap-8 text-gray-400 flex flex-col justify-center items-center overflow-hidden">
 
-                {/* Music Player */}
-                {currentSong && (
-                    <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur border-t">
+                                            <div className='w-full xl:h-96 rounded-3xl flex flex-col items-center xl:flex-row gap-8'>
+                                                <div
+                                                    className="bg-neutral-900 w-fit h-fit flex flex-col gap-6 text-center bg-cover justify-center items-center rounded-3xl p-6">
+                                                    <div className='relative h-48 w-48 group cursor-pointer'>
+                                                        <div
+                                                            style={{
+                                                                backgroundImage: `url('${alt_imageUrl}')`,
+                                                                filter: "blur(14px)",
+                                                                opacity: 0.5
+                                                            }}
+                                                            className='top-2 left-1 z-10 group-hover:scale-105 duration-300 absolute w-48 h-48 bg-cover rounded-full' />
+                                                        <div
+                                                            style={{ backgroundImage: `url('${alt_imageUrl}')` }}
+                                                            className='group-hover:scale-105 relative z-20 opacity-90 duration-300 group-hover:opacity-100 w-48 h-48 flex flex-col bg-cover justify-center items-center rounded-full'>
+                                                            <div className='size-12 bg-neutral-900/60 rounded-full backdrop-blur' />
+                                                        </div>
+                                                    </div>
+                                                    <div className="w-full items-center justify-center flex flex-col gap-2">
+                                                        <h3 className="text-white text-lg">{`${alt_musicTitle}`}</h3>
+                                                        <p className="text-gray-200 text-sm">Vibe Vision Music.</p>
+                                                        <div className='p-2 cursor-pointer hover:scale-105 duration-300'>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" className="bi bi-play-circle-fill" viewBox="0 0 16 16">
+                                                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z" />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="gap-8 flex flex-col w-full xl:h-96">
+                                                    <Button
+                                                        className='w-full xl:h-full p-4 bg-neutral-900 flex xl:flex-col justify-center items-center gap-4 rounded-3xl'
+                                                        onClick={handleDownloadAudio}
+                                                    >
+                                                        <Download className="size-4" />
+                                                        Download
+                                                    </Button>
+                                                    <Button
+                                                        className='w-full xl:h-full p-4 bg-neutral-900 flex xl:flex-col justify-center items-center gap-4 rounded-3xl'
+                                                        onClick={() => setShowShareDialog(true)}
+                                                    >
+                                                        <Share className="size-4" />
+                                                        Share
+                                                    </Button>
+                                                </div>
+                                            </div>
+
+                                            <div className="p-8 w-full bg-gradient-to-br max-h-80 overflow-auto from-neutral-950 via-gray-950 to-indigo-950 rounded-3xl">
+                                                <h3 className="font-semibold text-lg mb-2">Lyrics</h3>
+                                                <p className="whitespace-pre-wrap text-gray-400">{alt_musicLyrics || "Nothing to show here yet"}</p>
+                                            </div>
+                                        </div>
+                                    )
+                                }
+                            </ScrollArea>
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+
+
+            <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
+                <DialogContent className="bg-black/90 border-purple-500/20">
+                    <DialogHeader>
+                        <DialogTitle className="text-white">Share Your Story</DialogTitle>
+                        <DialogDescription className="text-purple-200">
+                            Share your creation across platforms
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid grid-cols-2 gap-4">
+                        {[
+                            { name: 'Twitter', icon: '🐦' },
+                            { name: 'Facebook', icon: '👤' },
+                            { name: 'Reddit', icon: '🤖' },
+                            { name: 'Email', icon: '📧' }
+                        ].map(platform => (
+                            <Button
+                                key={platform.name}
+                                variant="outline"
+                                className="w-full bg-black/30"
+                                onClick={() => setShowShareDialog(false)}
+                            >
+                                <span className="mr-2">{platform.icon}</span>
+                                {platform.name}
+                            </Button>
+                        ))}
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Music Player */}
+            {
+                currentSong && (
+                    <div
+                        ref={playerScreenRef}
+                        // style={{ backgroundImage: `url(${alt_imageUrl})` }}
+                        className={`fixed bottom-0 left-0 right-0 flex flex-col-reverse bg-background/95 backdrop-blur border-t ${isMusicPlayerFullScreen ? 'h-screen bg-no-repeat bg-cover bg-opacity-90' : ''}`}>
                         <Progress
                             value={(currentTime / duration) * 100}
                             className="h-1"
                         />
-                        <div className="p-4">
-                            <div className="flex items-center gap-4">
+                        {isMusicPlayerFullScreen ?
+                            // <div className="p-4 w-full">
+                            <div className="flex items-center h-full/ w-full justify-center flex-col gap-4 p-16">
                                 {/* Song Info */}
-                                <div className="flex items-center gap-4 min-w-[240px]">
+                                <div className="flex items-center gap-4 w-full min-w-[240px] m-20">
                                     <img
                                         src={currentSong.coverArt}
                                         alt={currentSong.title}
-                                        className="w-12 h-12 rounded"
+                                        className="size-48 rounded"
                                     />
-                                    <div>
-                                        <h3 className="font-medium">{currentSong.title}</h3>
-                                        <p className="text-sm text-gray-400">
+                                    <div className='flex flex-col justify-end h-full px-8 gap-4'>
+                                        <h3 className="font-bold text-5xl">{currentSong.title}</h3>
+                                        <h3 className="font-bold text-xl opacity-50">VibeVision Music.</h3>
+                                        {/* <p className="text-sm text-gray-400">
                                             {currentSong.genres.join(', ')}
-                                        </p>
+                                        </p> */}
                                     </div>
                                 </div>
 
                                 {/* Player Controls */}
-                                <div className="flex-1">
+                                <div className="w-full">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-sm text-gray-400">
+                                            {formatTime(currentTime)}
+                                        </span>
+                                        <Slider
+                                            value={[currentTime]}
+                                            max={duration}
+                                            step={1}
+                                            onValueChange={handleTimeChange}
+                                            className="flex-1"
+                                        />
+                                        <span className="text-sm text-gray-400">
+                                            {formatTime(duration)}
+                                        </span>
+                                    </div>
                                     <div className="flex justify-center items-center gap-4 mb-2">
                                         <Button
                                             variant="ghost"
@@ -459,25 +789,10 @@ export default function SongGeneratorPage(): JSX.Element {
                                             <Repeat className="h-5 w-5" />
                                         </Button>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-sm text-gray-400">
-                                            {formatTime(currentTime)}
-                                        </span>
-                                        <Slider
-                                            value={[currentTime]}
-                                            max={duration}
-                                            step={1}
-                                            onValueChange={handleTimeChange}
-                                            className="flex-1"
-                                        />
-                                        <span className="text-sm text-gray-400">
-                                            {formatTime(duration)}
-                                        </span>
-                                    </div>
                                 </div>
 
                                 {/* Additional Controls */}
-                                <div className="flex items-center gap-2 min-w-[240px] justify-end">
+                                <div className="flex items-center gap-2 w-full min-w-[240px] justify-end">
                                     <Button
                                         variant="ghost"
                                         size="icon"
@@ -525,9 +840,168 @@ export default function SongGeneratorPage(): JSX.Element {
                                             </DialogHeader>
                                         </DialogContent>
                                     </Dialog>
+
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        // onClick={() => setIsMusicPlayerFullScreen(val => !val)}
+                                        onClick={minimizeScreen}
+                                        className={`hover:text-white 'text-gray-400'`}
+                                    >
+                                        {!isMusicPlayerFullScreen ? <Maximize2 className="h-5 w-5" />
+                                            : <Minimize2 className="h-5 w-5" />}
+                                    </Button>
+
                                 </div>
                             </div>
-                        </div>
+
+                            :
+
+                            <div className="p-4 w-full">
+                                <div className="flex items-center gap-4">
+                                    {/* Song Info */}
+                                    <div className="flex items-center gap-4 min-w-[240px]">
+                                        <img
+                                            src={currentSong.coverArt}
+                                            alt={currentSong.title}
+                                            className="w-12 h-12 rounded"
+                                        />
+                                        <div>
+                                            <h3 className="font-medium">{currentSong.title}</h3>
+                                            <p className="text-sm text-gray-400">
+                                                {currentSong.genres.join(', ')}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Player Controls */}
+                                    <div className="flex-1">
+                                        <div className="flex justify-center items-center gap-4 mb-2">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => setIsShuffle(!isShuffle)}
+                                                className={`hover:text-white ${isShuffle ? 'text-primary' : 'text-gray-400'}`}
+                                            >
+                                                <Shuffle className="h-5 w-5" />
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={handlePrevious}
+                                            >
+                                                <SkipBack className="h-5 w-5" />
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-10 w-10"
+                                                onClick={handlePlayPause}
+                                            >
+                                                {isPlaying ? (
+                                                    <Pause className="h-6 w-6" />
+                                                ) : (
+                                                    <Play className="h-6 w-6" />
+                                                )}
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={handleNext}
+                                            >
+                                                <SkipForward className="h-5 w-5" />
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => setIsRepeat(!isRepeat)}
+                                                className={`hover:text-white ${isRepeat ? 'text-primary' : 'text-gray-400'}`}
+                                            >
+                                                <Repeat className="h-5 w-5" />
+                                            </Button>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-sm text-gray-400">
+                                                {formatTime(currentTime)}
+                                            </span>
+                                            <Slider
+                                                value={[currentTime]}
+                                                max={duration}
+                                                step={1}
+                                                onValueChange={handleTimeChange}
+                                                className="flex-1"
+                                            />
+                                            <span className="text-sm text-gray-400">
+                                                {formatTime(duration)}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Additional Controls */}
+                                    <div className="flex items-center gap-2 min-w-[240px] justify-end">
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => setIsLiked(!isLiked)}
+                                            className={`hover:text-white ${isLiked ? 'text-red-500' : 'text-gray-400'}`}
+                                        >
+                                            <Heart className="h-5 w-5" />
+                                        </Button>
+                                        <div className="flex items-center gap-2">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={toggleMute}
+                                            >
+                                                {isMuted ? (
+                                                    <VolumeX className="h-5 w-5" />
+                                                ) : (
+                                                    <Volume2 className="h-5 w-5" />
+                                                )}
+                                            </Button>
+                                            <Slider
+                                                value={[isMuted ? 0 : volume]}
+                                                max={1}
+                                                step={0.01}
+                                                onValueChange={handleVolumeChange}
+                                                className="w-24"
+                                            />
+                                        </div>
+                                        <Dialog>
+                                            <DialogTrigger asChild>
+                                                <Button variant="ghost" size="icon">
+                                                    <Info className="h-5 w-5" />
+                                                </Button>
+                                            </DialogTrigger>
+                                            <DialogContent>
+                                                <DialogHeader>
+                                                    <DialogTitle>Song Information</DialogTitle>
+                                                    <DialogDescription>
+                                                        <div className="space-y-2">
+                                                            <p><strong>Title:</strong> {currentSong.title}</p>
+                                                            <p><strong>Genres:</strong> {currentSong.genres.join(', ')}</p>
+                                                            <p><strong>Generated:</strong> {new Date(currentSong.timestamp).toLocaleString()}</p>
+                                                        </div>
+                                                    </DialogDescription>
+                                                </DialogHeader>
+                                            </DialogContent>
+                                        </Dialog>
+
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            // onClick={() => setIsMusicPlayerFullScreen(val => !val)}
+                                            onClick={maximizeScreen}
+                                            className={`hover:text-white 'text-gray-400'`}
+                                        >
+                                            {!isMusicPlayerFullScreen ? <Maximize2 className="h-5 w-5" />
+                                                : <Minimize2 className="h-5 w-5" />}
+                                        </Button>
+
+                                    </div>
+                                </div>
+                            </div>
+                        }
 
                         {/* Hidden audio element */}
                         <audio
@@ -537,8 +1011,9 @@ export default function SongGeneratorPage(): JSX.Element {
                             onPause={() => setIsPlaying(false)}
                         />
                     </div>
-                )}
-            </div>
-        </Layout>
+                )
+            }
+        </div >
+        // </Layout>
     );
 }

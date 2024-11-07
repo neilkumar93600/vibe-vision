@@ -325,7 +325,7 @@ const SongCreationPage = () => {
                 </div>
 
                 {/* Music Player */}
-                <MusicPlayer
+                {/* <MusicPlayer
                     song={currentSong}
                     isPlaying={isPlaying}
                     onPlayPause={setIsPlaying}
@@ -333,7 +333,7 @@ const SongCreationPage = () => {
                         setCurrentSong(null);
                         setIsPlaying(false);
                     }}
-                />
+                /> */}
             </div>
         </Layout>
     );

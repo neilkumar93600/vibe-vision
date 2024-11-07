@@ -22,9 +22,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../components/ui
 import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../../components/ui/tooltip";
 import { Badge } from "../../../components/ui/badge";
-import LyricsDisplay from '../../../components/media/lyrics-display';
 import MusicPlayer from '../../../components/media/music-player';
-import Playlist from '../../../components/media/playlist-component';
 import { Layout } from "../../../components/layout/layout";
 import { LampContainer } from "../../../components/ui/lamp";
 

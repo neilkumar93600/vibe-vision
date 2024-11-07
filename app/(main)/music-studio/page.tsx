@@ -25,7 +25,7 @@ import Playlist from '../../../components/media/playlist-component';
 import { Layout } from "../../../components/layout/layout";
 import { LampContainer } from "../../../components/ui/lamp";
 
-interface Song = {
+interface Song {
   id: number;
   title: string;
   artist: string;
@@ -123,17 +123,32 @@ const popularArtists = [
 ];
 
 
-const HomePage = () => {
+const MusicStudio = () => {
     const router = useRouter();
-    const [currentTrack, setCurrentTrack] = useState(null);
+    const [currentTrack, setCurrentTrack] = useState<{ id: number; title: string; artist: string; audioUrl: string } | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
     const [volume, setVolume] = useState(0.8);
     const [selectedGenre, setSelectedGenre] = useState('all');
-    const [trendingSongs, setTrendingSongs] = useState([]);
-    const [followers, setFollowers] = useState({});
-    const [audioRef, setAudioRef] = useState(null);
+    const [trendingSongs, setTrendingSongs] = useState<{
+        id: number;
+        title: string;
+        artist: string;
+        genre: string;
+        views: string;
+        likes: string;
+        duration: number;
+        releaseDate: string;
+        coverArt: string;
+        audioUrl: string;
+        waveformData: number[];
+        bpm: number;
+        key: string;
+        tags: string[];
+    }[]>([]);
+    const [followers, setFollowers] = useState<{ [key: number]: boolean }>({});
+    const [audioRef, setAudioRef] = useState<HTMLAudioElement | null>(null);
 
     // Enhanced trending songs data with more metadata
     useEffect(() => {
@@ -612,4 +627,4 @@ const HomePage = () => {
     );
 };
 
-export default HomePage;
+export default MusicStudio;

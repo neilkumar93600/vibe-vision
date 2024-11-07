@@ -233,7 +233,7 @@ const ENTERTAINMENT_ITEMS = [
   }
 ];
 
-export const EntertainmentHero = () => {
+const EntertainmentHero = () => {
   const ref = React.useRef(null);
   const { scrollYProgress } = useScroll({
     target: ref,

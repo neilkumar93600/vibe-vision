@@ -2,7 +2,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AnimatedGenerateButton } from "@/components/ui/ai-button"
 import { Slider } from "@/components/ui/slider";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -552,11 +551,24 @@ export default function SongGeneratorPage(): JSX.Element {
                                 </div> */}
 
                                 {/* Generate Button */}
-                                <AnimatedGenerateButton
+                               <Button
+                                    size="lg"
+                                    className="w-full h-14 text-lg"
                                     onClick={handleGenerateMusic}
-                                    isLoading={isLoading}
-                                />
-
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? (
+                                        <div className="flex items-center space-x-2">
+                                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent" />
+                                            <span>Creating...</span>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <Music className="mr-2" />
+                                            Create
+                                        </>
+                                    )}
+                                </Button>
                                 {/* <Button onClick={playGeneratedSong}> Test Button </Button> */}
 
                                 {error && (

@@ -44,14 +44,26 @@ import {
   Info
 } from 'lucide-react';
 
-const formatTime = (time) => {
+// Define an interface for playlist items
+interface PlaylistItem {
+  id: number;
+  title: string;
+  artist: string;
+  album: string;
+  duration: number;
+  coverArt: string;
+}
+
+// Format time function with type annotation
+const formatTime = (time: number | null): string => {
   if (time === null || isNaN(time)) return '0:00';
   const minutes = Math.floor(time / 60);
   const seconds = Math.floor(time % 60);
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 };
 
-const defaultPlaylist = [
+// Default playlist with type annotation
+const defaultPlaylist: PlaylistItem[] = [
   {
     id: 1,
     title: "Midnight Dreams",
@@ -79,31 +91,31 @@ const defaultPlaylist = [
 ];
 
 export default function EnhancedMusicPlayer() {
-  // State management
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(0.7);
-  const [isRepeat, setIsRepeat] = useState(false);
-  const [isShuffle, setIsShuffle] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const [showPlaylist, setShowPlaylist] = useState(false);
-  const [currentSongIndex, setCurrentSongIndex] = useState(0);
-  const [playlist] = useState(defaultPlaylist);
-  const [isRadioMode, setIsRadioMode] = useState(false);
-  const [showLyrics, setShowLyrics] = useState(false);
+  // State management with types
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [currentTime, setCurrentTime] = useState<number>(0);
+  const [duration, setDuration] = useState<number>(0);
+  const [volume, setVolume] = useState<number>(0.7);
+  const [isRepeat, setIsRepeat] = useState<boolean>(false);
+  const [isShuffle, setIsShuffle] = useState<boolean>(false);
+  const [isLiked, setIsLiked] = useState<boolean>(false);
+  const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [showPlaylist, setShowPlaylist] = useState<boolean>(false);
+  const [currentSongIndex, setCurrentSongIndex] = useState<number>(0);
+  const [playlist] = useState<PlaylistItem[]>(defaultPlaylist);
+  const [isRadioMode, setIsRadioMode] = useState<boolean>(false);
+  const [showLyrics, setShowLyrics] = useState<boolean>(false);
 
-  const audioRef = useRef(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
   const currentSong = playlist[currentSongIndex];
 
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.addEventListener('loadedmetadata', () => {
-        setDuration(audioRef.current.duration);
+        setDuration(audioRef.current ? audioRef.current.duration : 0);
       });
       audioRef.current.addEventListener('timeupdate', () => {
-        setCurrentTime(audioRef.current.currentTime);
+        setCurrentTime(audioRef.current ? audioRef.current.currentTime : 0);
       });
       audioRef.current.addEventListener('ended', handleSongEnd);
     }
@@ -115,7 +127,7 @@ export default function EnhancedMusicPlayer() {
   }, [currentSongIndex, isRepeat, isShuffle]);
 
   const handleSongEnd = () => {
-    if (isRepeat) {
+    if (isRepeat && audioRef.current) {
       audioRef.current.currentTime = 0;
       audioRef.current.play();
     } else if (isShuffle) {
@@ -138,16 +150,12 @@ export default function EnhancedMusicPlayer() {
   };
 
   const handleNext = () => {
-    if (currentSongIndex < playlist.length - 1) {
-      setCurrentSongIndex(prev => prev + 1);
-    } else {
-      setCurrentSongIndex(0);
-    }
+    setCurrentSongIndex(prev => (prev < playlist.length - 1 ? prev + 1 : 0));
     setIsPlaying(true);
   };
 
   const handlePrevious = () => {
-    if (currentTime > 3) {
+    if (currentTime > 3 && audioRef.current) {
       audioRef.current.currentTime = 0;
     } else if (currentSongIndex > 0) {
       setCurrentSongIndex(prev => prev - 1);
@@ -157,14 +165,14 @@ export default function EnhancedMusicPlayer() {
     setIsPlaying(true);
   };
 
-  const handleTimeChange = (value) => {
+  const handleTimeChange = (value: number[]) => {
     if (audioRef.current) {
       audioRef.current.currentTime = value[0];
       setCurrentTime(value[0]);
     }
   };
 
-  const handleVolumeChange = (value) => {
+  const handleVolumeChange = (value: number[]) => {
     const newVolume = value[0];
     setVolume(newVolume);
     if (audioRef.current) {

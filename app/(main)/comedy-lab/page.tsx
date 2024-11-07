@@ -26,37 +26,37 @@ const ComedyStudioPlatform = () => {
   
   const features = [
     {
-      title: '15 Sec Reel',
-      description: 'Generate unique comedy storylines with AI',
+      title: 'Roast My Pic!',
+      description: 'Tell VibeVision AI to roast an Image you submit!',
         icon: <Play className="w-8 h-8" />,
         gradient: 'from-purple-500 to-pink-500',
         path: '/15-reel',
         bgPattern: "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239C92AC' fill-opacity='0.4' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E\")"
     },
+    // {
+    //   title: 'Comedy Script',
+    //   description: 'Write hilarious scripts with AI suggestions',
+    //     icon: <Mic className="w-8 h-8" />,
+    //     gradient: 'from-blue-500 to-teal-500',
+    //     path: '/comedy-script',
+    //     bgPattern: "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20v20H0V0zm10 17l-7-7h14l-7 7z' fill='%239C92AC' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E\")"
+    // },
     {
-      title: 'Comedy Script',
-      description: 'Write hilarious scripts with AI suggestions',
-        icon: <Mic className="w-8 h-8" />,
-        gradient: 'from-blue-500 to-teal-500',
-        path: '/comedy-script',
-        bgPattern: "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20v20H0V0zm10 17l-7-7h14l-7 7z' fill='%239C92AC' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E\")"
-    },
-    {
-      title: 'Story Generation',
+      title: 'Story Forge AI',
       description: 'Generate unique comedy storylines with AI',
         icon: <Sparkles className="w-8 h-8" />,
         gradient: 'from-orange-500 to-red-500',
         path: '/story-generation',
         bgPattern: "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2 0h16a2 2 0 012 2v16a2 2 0 01-2 2H2a2 2 0 01-2-2V2a2 2 0 012-2zm0 2v16h16V2H2z' fill='%239C92AC' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E\")"
     },
-    {
-      title: 'Caption Generator',
-      description: 'Create witty captions for your content',
-        icon: <MessageCircle className="w-8 h-8" />,
-        gradient: 'from-green-500 to-emerald-500',
-        path: '/caption-generator',
-        bgPattern: "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20L10 10zm10 10L20 20V0zM0 20h20L10 10z' fill='%239C92AC' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E\")"
-    }
+    // {
+    //   title: 'Caption Generator',
+    //   description: 'Create witty captions for your content',
+    //     icon: <MessageCircle className="w-8 h-8" />,
+    //     gradient: 'from-green-500 to-emerald-500',
+    //     path: '/caption-generator',
+    //     bgPattern: "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20L10 10zm10 10L20 20V0zM0 20h20L10 10z' fill='%239C92AC' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E\")"
+    // }
 ];
   return (
     <Layout>

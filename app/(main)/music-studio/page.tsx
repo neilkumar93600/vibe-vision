@@ -7,7 +7,8 @@ import { Navigation, Pagination, Autoplay, EffectCoverflow, Mousewheel, Keyboard
 import {
     Play, Pause, Heart, Star, Share2, Sparkles, Music,
     Mic, RefreshCw, TrendingUp, ChevronRight, Volume2,
-    SkipBack, SkipForward, Shuffle, Repeat, User
+    SkipBack, SkipForward, Shuffle, Repeat, User,
+    Joystick
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from "../../../components/ui/button";
@@ -26,38 +27,62 @@ import { LampContainer } from "../../../components/ui/lamp";
 
 // Enhanced features data with gradients and hover states
 const features = [
+    // {
+    //     title: 'Lofi Conversion',
+    //     description: 'Transform any track into a chill lofi masterpiece with AI',
+    //     icon: <Music className="w-8 h-8" />,
+    //     gradient: 'from-purple-500 to-pink-500',
+    //     path: '/lofi',
+    //     bgPattern: "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239C92AC' fill-opacity='0.4' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E\")"
+    // },
     {
-        title: 'Lofi Conversion',
-        description: 'Transform any track into a chill lofi masterpiece with AI',
+        title: 'Jukebox',
+        description: 'AI Jukebox for custom AI generated music to your liking.',
         icon: <Music className="w-8 h-8" />,
         gradient: 'from-purple-500 to-pink-500',
-        path: '/lofi',
+        path: '/custom-song-generator',
         bgPattern: "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239C92AC' fill-opacity='0.4' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E\")"
     },
     {
-        title: 'Song Creation',
-        description: 'Create original songs with AI assistance and professional tools',
-        icon: <Mic className="w-8 h-8" />,
+        title: "Kid's Music",
+        description: 'Generate some great music for your kids',
+        icon: <Joystick className="w-8 h-8" />,
         gradient: 'from-blue-500 to-teal-500',
-        path: '/song-creation',
+        path: '/kids-music',
         bgPattern: "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20v20H0V0zm10 17l-7-7h14l-7 7z' fill='%239C92AC' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E\")"
     },
-    {
-        title: 'Custom Song',
-        description: 'Personalize existing tracks with AI-powered remixing tools',
-        icon: <Sparkles className="w-8 h-8" />,
-        gradient: 'from-orange-500 to-red-500',
-        path: '/custom-song-generator',
-        bgPattern: "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2 0h16a2 2 0 012 2v16a2 2 0 01-2 2H2a2 2 0 01-2-2V2a2 2 0 012-2zm0 2v16h16V2H2z' fill='%239C92AC' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E\")"
-    },
-    {
-        title: 'Song Extension',
-        description: 'Extend your favorite tracks with AI-generated content',
-        icon: <RefreshCw className="w-8 h-8" />,
-        gradient: 'from-green-500 to-emerald-500',
-        path: '/create/extend',
-        bgPattern: "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20L10 10zm10 10L20 20V0zM0 20h20L10 10z' fill='%239C92AC' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E\")"
-    }
+    // {
+    //     title: 'Song Creation',
+    //     description: 'Create original songs with AI assistance and professional tools',
+    //     icon: <Mic className="w-8 h-8" />,
+    //     gradient: 'from-blue-500 to-teal-500',
+    //     path: '/song-creation',
+    //     bgPattern: "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20v20H0V0zm10 17l-7-7h14l-7 7z' fill='%239C92AC' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E\")"
+    // },
+    // {
+    //     title: 'Lofi Mix',
+    //     description: 'Generate Relaxing Lofi Music videos for you!',
+    //     icon: <Sparkles className="w-8 h-8" />,
+    //     gradient: 'from-orange-500 to-red-500',
+    //     path: '/custom-song-generator',
+    //     bgPattern: "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2 0h16a2 2 0 012 2v16a2 2 0 01-2 2H2a2 2 0 01-2-2V2a2 2 0 012-2zm0 2v16h16V2H2z' fill='%239C92AC' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E\")"
+    // },
+    // {
+    //     title: 'Custom Song',
+    //     description: 'Personalize existing tracks with AI-powered remixing tools',
+    //     icon: <Sparkles className="w-8 h-8" />,
+    //     gradient: 'from-orange-500 to-red-500',
+    //     path: '/custom-song-generator',
+    //     bgPattern: "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2 0h16a2 2 0 012 2v16a2 2 0 01-2 2H2a2 2 0 01-2-2V2a2 2 0 012-2zm0 2v16h16V2H2z' fill='%239C92AC' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E\")"
+    // },
+    // {
+    //     title: 'Song Extension',
+    //     description: 'Extend your favorite tracks with AI-generated content',
+    //     icon: <RefreshCw className="w-8 h-8" />,
+    //     gradient: 'from-green-500 to-emerald-500',
+    //     path: '/create/extend',
+    //     bgPattern: "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20L10 10zm10 10L20 20V0zM0 20h20L10 10z' fill='%239C92AC' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E\")"
+    // }
 ];
 
 // Popular artists data

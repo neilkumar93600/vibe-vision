@@ -319,7 +319,7 @@ export const EntertainmentHero = () => {
   );
 };
 
-const ContentCard = ({ item, translate }) => {
+const ContentCard = ({ item, translate }: any) => {
   const Icon = item.icon;
   
   return (

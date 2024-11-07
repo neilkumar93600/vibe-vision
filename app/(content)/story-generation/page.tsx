@@ -328,7 +328,7 @@ export default function EnhancedStoryGenerator() {
   // };
 
   return (
-    // <Layout>
+    <Layout>
       <div
         ref={containerRef}
         className={`min-h-screen ${getBackgroundClass()} p-6 overflow-hidden relative`}
@@ -922,6 +922,6 @@ export default function EnhancedStoryGenerator() {
           </Dialog>
         </div>
       </div>
-    // {/* </Layout> */}
+    </Layout >
   );
 }

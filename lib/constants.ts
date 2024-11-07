@@ -24,6 +24,8 @@ export const SITE_CONFIG = {
         { title: 'Lofi', href: '/lofi' },
         { title: 'Custom Songs', href: '/custom-song-generator' },
         { title: 'Song Creation', href: '/song-creation' },
+        { title: 'Lofi Mix', href: '/lofi-mix' },
+        { title: "Kid's Music", href: '/kids-music' },
       ],
     },
     {

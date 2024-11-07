@@ -114,7 +114,7 @@ function NavItem({
               {badge}
             </Badge>
           )}
-          { SecondaryIcon &&
+          {!isCollapsed && SecondaryIcon &&
             <SecondaryIcon fill='#6366f1' color='#6366f1' className='ml-auto bg/-indigo-500' />
           }
         </a>

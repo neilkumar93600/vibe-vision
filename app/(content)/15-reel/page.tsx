@@ -221,6 +221,7 @@ export default function RoastVideoCreator() {
         setAudioBlob(null);
         setVideoUrl('');
         showAlert('Content cleared', 'default');
+        setIsVideoGenerated(false)
     };
 
     // const handleDownloadVideo = () => {

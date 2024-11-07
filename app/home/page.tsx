@@ -21,16 +21,16 @@ import {
   Wand2,
   Clock,
   Gift,
-  Sparkles, 
-  Music, 
-  Mic, 
-  Video, 
-  Headphones, 
-  Radio, 
-  MessageSquare, 
-  Palette, 
+  Sparkles,
+  Music,
+  Mic,
+  Video,
+  Headphones,
+  Radio,
+  MessageSquare,
+  Palette,
   Speaker,
-  Library, 
+  Library,
   PartyPopper,
 } from "lucide-react"
 
@@ -154,13 +154,13 @@ export function GoogleGeminiEffectDemo() {
     target: ref,
     offset: ["start start", "end start"],
   });
- 
+
   const pathLengthFirst = useTransform(scrollYProgress, [0, 0.8], [0.2, 1.2]);
   const pathLengthSecond = useTransform(scrollYProgress, [0, 0.8], [0.15, 1.2]);
   const pathLengthThird = useTransform(scrollYProgress, [0, 0.8], [0.1, 1.2]);
   const pathLengthFourth = useTransform(scrollYProgress, [0, 0.8], [0.05, 1.2]);
   const pathLengthFifth = useTransform(scrollYProgress, [0, 0.8], [0, 1.2]);
- 
+
   return (
     <div
       className="h-[400vh] bg-black w-full dark:border dark:border-white/[0.1] rounded-md relative pt-40 overflow-clip"
@@ -321,7 +321,7 @@ export const EntertainmentHero = () => {
 
 const ContentCard = ({ item, translate }: any) => {
   const Icon = item.icon;
-  
+
   return (
     <motion.div
       style={{
@@ -353,7 +353,7 @@ export default function HomePage() {
   return (
     <Layout>
       {/* Hero Section */}
-      <EntertainmentHero/>
+      <EntertainmentHero />
 
       {/* Stats Section */}
       <section className="py-16 px-8 bg-muted/50">
@@ -452,102 +452,102 @@ export default function HomePage() {
       </section>
 
       <section className="py-8 sm:py-12 lg:py-16 px-4 sm:px-6 bg-muted/20 relative">
-    {/* Adjusted FlickeringGrid with fixed dimensions */}
-    <FlickeringGrid
-      className="z-0 absolute inset-0 w-full h-full"
-      squareSize={4}
-      gridGap={6}
-      color="#672F83"
-      maxOpacity={0.5}
-      flickerChance={0.1}
-      // Use larger height to accommodate stacked cards on mobile
-      height={2500}
-      // Use a fixed width that works across breakpoints
-      width={1528}
-    />
-    
-    <div className="max-w-[320px] sm:max-w-2xl lg:max-w-6xl mx-auto">
-      <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">
-        Flexible Pricing for Every Creator
-      </h2>
-      
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        {advancedPricingPlans.map(plan => (
-          <Card 
-            key={plan.name} 
-            className={`relative h-full ${plan.recommended ? 'border-primary' : ''}`}
-          >
-            {plan.recommended && (
-              <Badge className="absolute top-2 right-2 bg-primary">
-                Most Popular
-              </Badge>
-            )}
-            
-            <CardHeader className="space-y-4">
-              <div className="flex items-center gap-4">
-                {plan.icon}
-                <div>
-                  <CardTitle className="text-lg sm:text-xl">{plan.name}</CardTitle>
-                  <CardDescription>{plan.billingType}</CardDescription>
-                </div>
-              </div>
-              
-              <div className="text-3xl sm:text-4xl font-bold">
-                ${plan.price}
-                <span className="text-xs sm:text-sm font-normal text-muted-foreground">
-                  /month
-                </span>
-              </div>
-            </CardHeader>
-            
-            <CardContent>
-              <div className="space-y-2 mb-4">
-                <h4 className="font-semibold">Features:</h4>
-                {plan.features.map(feature => (
-                  <div 
-                    key={feature} 
-                    className="flex items-center gap-2 text-xs sm:text-sm"
-                  >
-                    <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
-                    {feature}
-                  </div>
-                ))}
-              </div>
-              
-              <Separator className="my-4" />
-              
-              <div className="space-y-2">
-                <h4 className="font-semibold text-xs sm:text-sm text-muted-foreground">
-                  Limitations:
-                </h4>
-                {plan.limitations.map(limitation => (
-                  <div 
-                    key={limitation} 
-                    className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground"
-                  >
-                    <Star className="h-2.5 w-2.5 sm:h-3 sm:w-3 opacity-50" />
-                    {limitation}
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-            
-            <CardFooter>
-              <Button 
-                variant={plan.recommended ? 'default' : 'outline'} 
-                className="w-full text-sm sm:text-base"
+        {/* Adjusted FlickeringGrid with fixed dimensions */}
+        <FlickeringGrid
+          className="z-0 absolute top-0 mx-auto inset-0 w-full h-full"
+          squareSize={4}
+          gridGap={6}
+          color="#672F83"
+          maxOpacity={0.5}
+          flickerChance={0.1}
+          // Use larger height to accommodate stacked cards on mobile
+          height={2500}
+          // Use a fixed width that works across breakpoints
+          width={1800}
+        />
+
+        <div className="max-w-[320px] sm:max-w-2xl lg:max-w-6xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">
+            Flexible Pricing for Every Creator
+          </h2>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {advancedPricingPlans.map(plan => (
+              <Card
+                key={plan.name}
+                className={`relative h-full ${plan.recommended ? 'border-primary' : ''}`}
               >
-                Choose {plan.name}
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
-    </div>
-  </section>
+                {plan.recommended && (
+                  <Badge className="absolute top-2 right-2 bg-primary">
+                    Most Popular
+                  </Badge>
+                )}
+
+                <CardHeader className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    {plan.icon}
+                    <div>
+                      <CardTitle className="text-lg sm:text-xl">{plan.name}</CardTitle>
+                      <CardDescription>{plan.billingType}</CardDescription>
+                    </div>
+                  </div>
+
+                  <div className="text-3xl sm:text-4xl font-bold">
+                    ${plan.price}
+                    <span className="text-xs sm:text-sm font-normal text-muted-foreground">
+                      /month
+                    </span>
+                  </div>
+                </CardHeader>
+
+                <CardContent>
+                  <div className="space-y-2 mb-4">
+                    <h4 className="font-semibold">Features:</h4>
+                    {plan.features.map(feature => (
+                      <div
+                        key={feature}
+                        className="flex items-center gap-2 text-xs sm:text-sm"
+                      >
+                        <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
+                        {feature}
+                      </div>
+                    ))}
+                  </div>
+
+                  <Separator className="my-4" />
+
+                  <div className="space-y-2">
+                    <h4 className="font-semibold text-xs sm:text-sm text-muted-foreground">
+                      Limitations:
+                    </h4>
+                    {plan.limitations.map(limitation => (
+                      <div
+                        key={limitation}
+                        className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground"
+                      >
+                        <Star className="h-2.5 w-2.5 sm:h-3 sm:w-3 opacity-50" />
+                        {limitation}
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+
+                <CardFooter>
+                  <Button
+                    variant={plan.recommended ? 'default' : 'outline'}
+                    className="w-full text-sm sm:text-base"
+                  >
+                    Choose {plan.name}
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
       {/* GoogleGeminiEffect */}
-      <GoogleGeminiEffectDemo/>
-      
+      <GoogleGeminiEffectDemo />
+
       {/* Testimonials Section */}
       <section className="py-16 px-8 bg-muted/50">
         <div className="max-w-screen-xl mx-auto">
@@ -569,12 +569,12 @@ export default function HomePage() {
                   )}
                 >
                   <div className="flex flex-row items-center gap-2">
-                    <img 
-                      className="rounded-full" 
-                      width="32" 
-                      height="32" 
-                      alt={review.name} 
-                      src={review.image} 
+                    <img
+                      className="rounded-full"
+                      width="32"
+                      height="32"
+                      alt={review.name}
+                      src={review.image}
                     />
                     <div className="flex flex-col">
                       <figcaption className="text-sm font-medium dark:text-white">
@@ -603,12 +603,12 @@ export default function HomePage() {
                   )}
                 >
                   <div className="flex flex-row items-center gap-2">
-                    <img 
-                      className="rounded-full" 
-                      width="32" 
-                      height="32" 
-                      alt={review.name} 
-                      src={review.image} 
+                    <img
+                      className="rounded-full"
+                      width="32"
+                      height="32"
+                      alt={review.name}
+                      src={review.image}
                     />
                     <div className="flex flex-col">
                       <figcaption className="text-sm font-medium dark:text-white">

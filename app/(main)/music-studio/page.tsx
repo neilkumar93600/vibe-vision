@@ -172,7 +172,7 @@ const HomePage = () => {
     // Enhanced Hero Section with dynamic waveform
     const HeroSection = () => (
         <LampContainer>
-            <section className="container mx-auto py-20 text-center">
+            <section className="container mx-auto w-full py-20 text-center flex flex-col items-center">
                 <motion.h1
                     className="text-6xl font-bold bg-gradient-to-r from-primary via-purple-500 to-primary bg-clip-text text-transparent mt-8"
                     initial={{ y: 20, opacity: 0 }}
@@ -182,7 +182,7 @@ const HomePage = () => {
                     AI-Powered Music Creation
                 </motion.h1>
                 <motion.p
-                    className="text-xl text-muted-foreground max-w-2xl mt-8"
+                    className="text-xl /text-nowrap text-muted-foreground max-w-2xl mt-8"
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.4 }}
@@ -570,7 +570,7 @@ const HomePage = () => {
                         <FeaturesGrid />
                     </section>
 
-                    <section>
+                    {/* <section>
                         <h2 className="text-3xl font-bold mb-6">Trending Music</h2>
                         <TrendingSection />
                     </section>
@@ -588,7 +588,7 @@ const HomePage = () => {
                     <section>
                         <h2 className="text-3xl font-bold mb-6">Collaborative Playlists</h2>
                         <CollaborativePlaylists />
-                    </section>
+                    </section> */}
                 </div>
                 {currentTrack && <MusicPlayer />}
             </div>

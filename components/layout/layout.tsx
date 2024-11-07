@@ -12,7 +12,7 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   // State for both mobile sidebar visibility and desktop sidebar collapse
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true)
 
   // Handler for mobile sidebar toggle
   const handleSidebarOpen = () => {
@@ -30,7 +30,7 @@ export function Layout({ children }: LayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-clip">
       <Header 
         onSidebarOpen={handleSidebarOpen}
         isSidebarCollapsed={isSidebarCollapsed}
@@ -41,7 +41,7 @@ export function Layout({ children }: LayoutProps) {
         isCollapsed={isSidebarCollapsed}
         onClose={handleSidebarClose}
       />
-      <main className={`lg:pl-${isSidebarCollapsed ? '16' : '72'} transition-all duration-300`}>
+      <main className={`${isSidebarCollapsed ? 'lg:pl-[72px]' : 'lg:pl-72'} pt-[100px] transition-all duration-300`}>
         <div className="h-[calc(100vh-4rem)]">
           {children}
         </div>

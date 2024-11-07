@@ -451,6 +451,7 @@ export function Header({
               variant="ghost"
               size="icon"
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="hidden"
             >
               {theme === 'dark' ? '🌞' : '🌙'}
               <span className="sr-only">Toggle theme</span>

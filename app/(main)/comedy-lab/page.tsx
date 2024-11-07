@@ -83,7 +83,7 @@ const ComedyStudioPlatform = () => {
         </LampContainer>
 
         {/* Features Section */}
-        <section>
+        <section className='py-12 px-6 lg:px-16'>
           <h2 className="text-3xl font-bold mb-6">Create with AI</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
               {features.map((feature, index) => (
@@ -129,7 +129,7 @@ const ComedyStudioPlatform = () => {
         </section>
 
         {/* Tutorial Videos Section */}
-        <section className="container mx-auto py-16">
+        <section className="container mx-auto py-16 hidden">
           <h2 className="text-4xl font-bold text-white mb-12 text-center">Tutorial Videos</h2>
           <Swiper
             modules={[Navigation, Pagination, Autoplay]}
@@ -165,7 +165,7 @@ const ComedyStudioPlatform = () => {
         </section>
 
         {/* 15-Reel Section */}
-        <section className="container mx-auto py-16">
+        <section className="container mx-auto py-16 hidden">
           <h2 className="text-4xl font-bold text-white mb-12 text-center">Trending Reels</h2>
           <Swiper
             modules={[Navigation, Pagination, Autoplay]}
@@ -222,7 +222,7 @@ const ComedyStudioPlatform = () => {
         </section>
 
         {/* Comedy Shows Section */}
-        <section className="container mx-auto py-16">
+        <section className="container mx-auto py-16 hidden">
           <h2 className="text-4xl font-bold text-white mb-12 text-center">Popular Shows</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map((show) => (

@@ -113,7 +113,7 @@ const VideoPlatform = () => {
 
   return (
     <Layout>
-      <div className="w-full bg-background pt-24 pl-20">
+      <div className="w-full bg-background pt-24/ /pl-20">
         {/* Categories ScrollArea */}
         <ScrollArea className="w-full border-b">
           <div className="flex p-4 gap-2">

@@ -37,7 +37,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../../../components/ui/tooltip";
-import { useToast } from "../../../components/ui/use-toast";
+import { useToast } from '@/hooks/use-toast';
 import { 
   CloudIcon, 
   RefreshCcw,

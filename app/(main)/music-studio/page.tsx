@@ -166,6 +166,7 @@ const MusicStudio = () => {
         key: string;
         tags: string[];
     }[]>([]);
+    const [hoveredArtist, setHoveredArtist] = useState<number | null>(null);
     const [followers, setFollowers] = useState<{ [key: number]: boolean }>({});
     const [audioRef, setAudioRef] = useState<HTMLAudioElement | null>(null);
 
@@ -578,94 +579,94 @@ const MusicStudio = () => {
 
     // Enhanced Artists Section with dynamic follow functionality
     const ArtistsSection = () => {
-        const [hoveredArtist, setHoveredArtist] = useState(null);
-        const [followedArtists, setFollowedArtists] = useState(new Set());
+    const [hoveredArtist, setHoveredArtist] = useState<number | null>(null);
+    const [followedArtists, setFollowedArtists] = useState<Set<number>>(new Set());
 
-        const handleFollow = (artistId: any) => {
-            setFollowedArtists(prev => {
-                const newSet = new Set(prev);
-                if (newSet.has(artistId)) {
-                    newSet.delete(artistId);
-                } else {
-                    newSet.add(artistId);
-                }
-                return newSet;
-            });
-        };
+    const handleFollow = (artistId: number) => {
+        setFollowedArtists(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(artistId)) {
+                newSet.delete(artistId);
+            } else {
+                newSet.add(artistId);
+            }
+            return newSet;
+        });
+    };
 
-        return (
-            <Card className="p-6">
-                <CardHeader>
-                    <div className="flex items-center justify-between">
-                        <CardTitle>Creators You May Like</CardTitle>
-                        <Button variant="ghost" onClick={() => router.push('/artists')}>
-                            View All Artists
-                        </Button>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    <Swiper
-                        modules={[Navigation, Keyboard]}
-                        spaceBetween={20}
-                        slidesPerView={5}
-                        navigation={true}
-                    keyboard={{ enabled: true, }}
+    return (
+        <Card className="p-6">
+            <CardHeader>
+                <div className="flex items-center justify-between">
+                    <CardTitle>Creators You May Like</CardTitle>
+                    <Button variant="ghost" onClick={() => router.push('/artists')}>
+                        View All Artists
+                    </Button>
+                </div>
+            </CardHeader>
+            <CardContent>
+                <Swiper
+                    modules={[Navigation, Keyboard]}
+                    spaceBetween={20}
+                    slidesPerView={5}
+                    navigation={true}
+                    keyboard={{ enabled: true }}
                 >
-                        {popularArtists.map((artist) => (
-                            <SwiperSlide key={artist.id}>
+                    {popularArtists.map((artist) => (
+                        <SwiperSlide key={artist.id}>
+                            <motion.div
+                                whileHover={{ scale: 1.05 }}
+                                className="relative text-center space-y-4"
+                                onHoverStart={() => setHoveredArtist(artist.id)}
+                                onHoverEnd={() => setHoveredArtist(null)}
+                            >
+                                <div className="relative">
+                                    <Avatar className="w-32 h-32 mx-auto">
+                                        <AvatarImage src={artist.avatar} alt={artist.name} />
+                                        <AvatarFallback>{artist.name[0]}</AvatarFallback>
+                                    </Avatar>
+                                    {hoveredArtist === artist.id && (
+                                        <motion.div
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full"
+                                        >
+                                            <Button
+                                                variant="secondary"
+                                                size="sm"
+                                                onClick={() => handlePlayPause(artist.popularTrack)}
+                                            >
+                                                Play Track
+                                            </Button>
+                                        </motion.div>
+                                    )}
+                                </div>
+                                <div>
+                                    <h3 className="font-medium text-lg">{artist.name}</h3>
+                                    <p className="text-sm text-gray-400">{artist.followers} followers</p>
+                                    <p className="text-xs text-gray-400 mt-1">Popular: {artist.popularTrack}</p>
+                                </div>
                                 <motion.div
                                     whileHover={{ scale: 1.05 }}
-                                    className="relative text-center space-y-4"
-                                    onHoverStart={() => setHoveredArtist(artist.id)}
-                                    onHoverEnd={() => setHoveredArtist(null)}
+                                    whileTap={{ scale: 0.95 }}
                                 >
-                                    <div className="relative">
-                                        <Avatar className="w-32 h-32 mx-auto">
-                                            <AvatarImage src={artist.avatar} alt={artist.name} />
-                                            <AvatarFallback>{artist.name[0]}</AvatarFallback>
-                                        </Avatar>
-                                        {hoveredArtist === artist.id && (
-                                            <motion.div
-                                                initial={{ opacity: 0 }}
-                                                animate={{ opacity: 1 }}
-                                                className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full"
-                                            >
-                                                <Button
-                                                    variant="secondary"
-                                                    size="sm"
-                                                    onClick={() => handlePlayPause(artist.popularTrack)}
-                                                >
-                                                    Play Track
-                                                </Button>
-                                            </motion.div>
-                                        )}
-                                    </div>
-                                    <div>
-                                        <h3 className="font-medium text-lg">{artist.name}</h3>
-                                        <p className="text-sm text-gray-400">{artist.followers} followers</p>
-                                        <p className="text-xs text-gray-400 mt-1">Popular: {artist.popularTrack}</p>
-                                    </div>
-                                    <motion.div
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
+                                    <Button
+                                        variant={followedArtists.has(artist.id) ? "secondary" : "outline"}
+                                        size="sm"
+                                        className="w-full"
+                                        onClick={() => handleFollow(artist.id)}
                                     >
-                                        <Button
-                                            variant={followedArtists.has(artist.id) ? "secondary" : "outline"}
-                                            size="sm"
-                                            className="w-full"
-                                            onClick={() => handleFollow(artist.id)}
-                                        >
-                                            {followedArtists.has(artist.id) ? 'Following' : 'Follow'}
-                                        </Button>
-                                    </motion.div>
+                                        {followedArtists.has(artist.id) ? 'Following' : 'Follow'}
+                                    </Button>
                                 </motion.div>
-                            </SwiperSlide>
-                        ))}
-                    </Swiper>
-                </CardContent>
-            </Card>
-        );
-    };
+                            </motion.div>
+                        </SwiperSlide>
+                    ))}
+                </Swiper>
+            </CardContent>
+        </Card>
+    );
+};
 
     // Weekly Challenge Section
     const WeeklyChallenge = () => (

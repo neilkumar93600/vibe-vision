@@ -9,15 +9,31 @@ import {
   AudioLinesIcon,
   CheckCircle2,
   Download,
+  Heart,
   Image,
+  Info,
+  Maximize2,
+  Minimize2,
   MoreVertical,
+  Pause,
   PauseCircleIcon,
+  Play,
+  Repeat,
   Share,
-  Video
+  Shuffle,
+  SkipBack,
+  SkipForward,
+  Video,
+  Volume2,
+  VolumeX
 } from 'lucide-react';
 import axios from 'axios';
 import { BASE_URL } from '@/config';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import EnhancedMusicPlayer from '@/components/media/music-player';
+import { Progress } from '@/components/ui/progress';
+import { Slider } from '@/components/ui/slider';
+import { Badge } from '@/components/ui/badge';
 
 type ContentItem = {
   _id: string;
@@ -33,23 +49,189 @@ type ContentItem = {
   userPrompt: string;
 };
 
+interface Song {
+  id: string;
+  title: string;
+  genres: string[];
+  coverArt: string;
+  audioUrl: string;
+  duration: number;
+  timestamp: string;
+}
+
 const VideoPlatform = () => {
-  const [activeCategory, setActiveCategory] = useState('All');
+  const [activeCategory, setActiveCategory] = useState('');
   const [videoModal, setVideoModal] = useState<boolean>(false)
   const [currentVideoUrl, setCurrentVideoUrl] = useState<string | null>(null)
   const [currentVideoContent, setCurrentVideoContent] = useState<ContentItem | null>(null)
   const [showShareDialog, setShowShareDialog] = useState<boolean>(false);
   const videoModalRef = useRef<HTMLDivElement>(null)
 
+
+  const [currentSongIndex, setCurrentSongIndex] = useState<number | null>(null);
+  const [generatedSongs, setGeneratedSongs] = useState<Song[]>([]);
+  const currentSong: Song | null = currentSongIndex !== null ? generatedSongs[currentSongIndex] : null;
+  const playerScreenRef = useRef<HTMLDivElement>(null)
+  const [isMusicPlayerFullScreen, setIsMusicPlayerFullScreen] = useState<boolean>(false)
+
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [musicUrl, setMusicUrl] = useState<string | null>(null)
+
+  const [currentTime, setCurrentTime] = useState<number>(0);
+  const [duration, setDuration] = useState<number>(0);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isShuffle, setIsShuffle] = useState<boolean>(false);
+  const [isLiked, setIsLiked] = useState<boolean>(false);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+
+  const [volume, setVolume] = useState<number>(0.7);
+  const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [isRepeat, setIsRepeat] = useState<boolean>(false);
+
+  // const categories = [
+  //   'All', 'Roast My Pic', 'Jukebox', 'Kids Music', 'Story Time' 
+  // ];
+
   const categories = [
-    'All', 'Gaming', 'Republic of Gamers', 'Live', 'Gaming computers',
-    'Rendering', 'Podcasts', 'Reaction videos', 'Electrical Engineering',
-    'Mango TV', 'AI'
+    { id: 1, contentType: '', content: 'All' },
+    { id: 2, contentType: 'roast-my-pic', content: 'Roast My Pic' },
+    { id: 3, contentType: 'jukebox', content: 'Jukebox' },
+    { id: 4, contentType: 'kids-music', content: 'Kids Music' },
+    { id: 5, contentType: 'story-time', content: 'Story Time' },
   ];
 
   const [data, setData] = useState<ContentItem[]>([]);
 
+  const filteredData = activeCategory
+    ? data.filter((dataItem) => dataItem.contentType === activeCategory)
+    : data;
+
+  // const sortedData: number = filteredData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  // const filteredData = data.filter((dataItem) => dataItem.contentType === currentCategory);
+
+  const handleTimeChange = (value: number[]): void => {
+    if (audioRef.current) {
+      // audioRef.current.currentTime = value[0];
+      setCurrentTime(audioRef.current.currentTime);
+    }
+  };
+
+  const handleNext = (): void => {
+    if (currentSongIndex !== null) {
+      if (currentSongIndex < generatedSongs.length - 1) {
+        setCurrentSongIndex(currentSongIndex + 1);
+      } else {
+        setCurrentSongIndex(0);
+      }
+      setIsPlaying(true);
+    }
+  };
+
+  const handlePrevious = (): void => {
+    if (!audioRef.current) return;
+
+    if (currentTime > 3) {
+      audioRef.current.currentTime = 0;
+    } else if (currentSongIndex !== null) {
+      if (currentSongIndex > 0) {
+        setCurrentSongIndex(currentSongIndex - 1);
+      } else {
+        setCurrentSongIndex(generatedSongs.length - 1);
+      }
+    }
+    setIsPlaying(true);
+  };
+
+  const handlePlayPause = (): void => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const handleVolumeChange = (value: number[]): void => {
+    const newVolume = value[0];
+    setVolume(newVolume);
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume;
+    }
+    setIsMuted(newVolume === 0);
+  };
+
+  const toggleMute = (): void => {
+    if (audioRef.current) {
+      const newMutedState = !isMuted;
+      setIsMuted(newMutedState);
+      audioRef.current.volume = newMutedState ? 0 : volume;
+    }
+  };
+
+  const maximizeScreen = () => {
+    if (playerScreenRef.current) {
+      if (playerScreenRef.current.requestFullscreen) {
+        playerScreenRef.current.requestFullscreen();
+        setIsMusicPlayerFullScreen(true)
+      } else if ((playerScreenRef.current as any).mozRequestFullScreen) {
+        (playerScreenRef.current as any).mozRequestFullScreen();
+        setIsMusicPlayerFullScreen(true)
+      } else if ((playerScreenRef.current as any).webkitRequestFullscreen) {
+        (playerScreenRef.current as any).webkitRequestFullscreen();
+        setIsMusicPlayerFullScreen(true)
+      } else if ((playerScreenRef.current as any).msRequestFullscreen) {
+        (playerScreenRef.current as any).msRequestFullscreen();
+        setIsMusicPlayerFullScreen(true)
+      }
+    }
+  };
+
+  const minimizeScreen = () => {
+    if (document.fullscreenElement) {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+        setIsMusicPlayerFullScreen(false)
+      } else if ((document as any).mozCancelFullScreen) {
+        (document as any).mozCancelFullScreen();
+        setIsMusicPlayerFullScreen(false)
+      } else if ((document as any).webkitExitFullscreen) {
+        (document as any).webkitExitFullscreen();
+        setIsMusicPlayerFullScreen(false)
+      } else if ((document as any).msExitFullscreen) {
+        (document as any).msExitFullscreen();
+        setIsMusicPlayerFullScreen(false)
+      }
+    }
+  };
+
+  const playGeneratedSong = (content: ContentItem) => {
+
+    // setGeneratedSongs([])
+
+    if (!isPlaying) {
+      const newSong: Song = {
+        id: content._id,
+        title: content.musicTitle || 'No Title Found',
+        genres: ['test', 'test'],
+        coverArt: content.audioUrl || '',
+        audioUrl: content.imageUrl || content.thumbnail_alt || '',
+        duration: audioRef.current?.duration || 180,
+        timestamp: new Date().toISOString()
+      };
+
+      setGeneratedSongs(prev => [newSong, ...prev]);
+      setCurrentSongIndex(0)
+
+      audioRef.current?.play()
+    } else {
+      audioRef.current?.pause()
+    }
+  }
+
   const openVideoModal = (videourl: string, videoContent: ContentItem) => {
+    setGeneratedSongs([])
     setCurrentVideoUrl(videourl);
     setCurrentVideoContent(videoContent)
     setVideoModal(true);
@@ -179,6 +361,10 @@ const VideoPlatform = () => {
     };
     fetchData();
 
+    
+  }, [BASE_URL]);
+
+  useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
       if (videoModalRef.current && !videoModalRef.current.contains(event.target as Node)) {
         closeVideoModal();
@@ -190,7 +376,15 @@ const VideoPlatform = () => {
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
     };
-  }, [closeVideoModal, BASE_URL]);
+  }, [closeVideoModal])
+  
+
+  const formatTime = (time: number | null): string => {
+    if (time === null || isNaN(time)) return '0:00';
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
 
 
   return (
@@ -201,12 +395,12 @@ const VideoPlatform = () => {
           <div className="flex p-4 gap-2">
             {categories.map((category) => (
               <Button
-                key={category}
-                variant={activeCategory === category ? "default" : "secondary"}
+                key={category.id}
+                variant={activeCategory === category.contentType ? "default" : "secondary"}
                 className="whitespace-nowrap"
-                onClick={() => setActiveCategory(category)}
+                onClick={() => setActiveCategory(category.contentType)}
               >
-                {category}
+                {category.content}
               </Button>
             ))}
           </div>
@@ -215,12 +409,13 @@ const VideoPlatform = () => {
 
         {/* Videos Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
-          {data.map((dataItem) => (
+          {filteredData.map((dataItem) => (
             <Card key={dataItem._id} className="border-0 shadow-none ">
               {!(dataItem.contentType === 'jukebox' || dataItem.contentType === 'kids-music') ?
                 <CardContent
                   onClick={() => { openVideoModal(`${BASE_URL}/${dataItem.videoUrl}`, dataItem) }}
-                  className="p-0 h-[240px] bg-neutral-950 rounded-3xl">
+                  className="p-0 h-[240px] bg-neutral-950 rounded-3xl relative">
+                  <Badge className='absolute top-2 left-2 z-10'> {dataItem.contentType} </Badge>
                   {/* Thumbnail Container */}
                   <div className="relative">
                     <img
@@ -245,8 +440,9 @@ const VideoPlatform = () => {
                 </CardContent>
                 :
                 <CardContent
-                  className="bg-neutral-950 w-fit/ w-full h-[240px] /h-fit flex flex-row gap-6 p-8 text-center bg-cover justify-center items-center rounded-3xl">
+                  className="bg-neutral-950 w-fit/ w-full h-[240px] /h-fit flex flex-row gap-6 p-8 text-center bg-cover justify-center items-center rounded-3xl relative">
                   {/* <div className='h-full w-full p-0'> */}
+                  <Badge className='absolute top-2 left-2 z-10'> {dataItem.contentType} </Badge>
                   <div className={`relative h-full w-full flex justify-center items-center group cursor-pointer`}>
                     <div
                       style={{
@@ -282,8 +478,8 @@ const VideoPlatform = () => {
                   <div className="w-full items-center justify-center flex flex-col gap-2">
                     <h3 className="text-white text-md">{`${dataItem.musicTitle}`}</h3>
                     <p className="text-gray-200 text-xs">Vibe Vision Music.</p>
-                    <div onClick={() => { }} className='p-2 cursor-pointer hover:scale-105 duration-300'>
-                      {!true ?
+                    <div onClick={() => playGeneratedSong(dataItem)} className='p-2 cursor-pointer hover:scale-105 duration-300'>
+                      {currentSong?.id !== dataItem._id ?
                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" className="bi bi-play-circle-fill" viewBox="0 0 16 16">
                           <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z" />
                         </svg>
@@ -362,6 +558,11 @@ const VideoPlatform = () => {
             </div>
           </div>
         )}
+        {/* <EnhancedMusicPlayer /> */}
+
+        {/* Music Player */}
+        <EnhancedMusicPlayer currentSong={currentSong || null} />
+
 
         <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
           <DialogContent className="bg-black/90 border-purple-500/20">
@@ -397,3 +598,648 @@ const VideoPlatform = () => {
 };
 
 export default VideoPlatform;
+
+// CUSTOM_SONG_GENERATOR
+
+// {
+//   currentSong && (
+//       <div
+//           ref={playerScreenRef}
+//           className={`fixed bottom-0 left-0 right-0 flex flex-col-reverse bg-background/95 backdrop-blur border-t`}>
+//           <div
+//               style={{ backgroundImage: isMusicPlayerFullScreen ? `url(${imageUrl})` : '', }}
+//               className='absolute w-full h-full bg-no-repeat bg-cover opacity-30 blur-md pointer-events-none'>
+//           </div>
+//           <Progress
+//               value={(currentTime / duration) * 100}
+//               className="h-1"
+//           />
+//           {isMusicPlayerFullScreen ?
+//               // <div className="p-4 w-full">
+//               <div className="flex items-center h-full/ w-full justify-center flex-col gap-4 p-16">
+//                   {/* Song Info */}
+//                   <div className="flex items-center gap-4 w-full min-w-[240px] m-20">
+//                       <img
+//                           src={currentSong.coverArt}
+//                           alt={currentSong.title}
+//                           className="size-48 rounded"
+//                       />
+//                       <div className='flex flex-col justify-end h-full px-8 gap-4'>
+//                           <h3 className="font-bold text-5xl">{currentSong.title}</h3>
+//                           <h3 className="font-bold text-xl opacity-50">VibeVision Music.</h3>
+//                           {/* <p className="text-sm text-gray-400">
+//                               {currentSong.genres.join(', ')}
+//                           </p> */}
+//                       </div>
+//                   </div>
+
+//                   {/* Player Controls */}
+//                   <div className="w-full">
+//                       <div className="flex items-center gap-2">
+//                           <span className="text-sm text-gray-400">
+//                               {formatTime(currentTime)}
+//                           </span>
+//                           <Slider
+//                               value={[currentTime]}
+//                               max={duration}
+//                               step={1}
+//                               onValueChange={handleTimeChange}
+//                               className="flex-1"
+//                           />
+//                           <span className="text-sm text-gray-400">
+//                               {formatTime(duration)}
+//                           </span>
+//                       </div>
+//                       <div className="flex justify-center items-center gap-4 mb-2">
+//                           <Button
+//                               variant="ghost"
+//                               size="icon"
+//                               onClick={() => setIsShuffle(!isShuffle)}
+//                               className={`hover:text-white ${isShuffle ? 'text-primary' : 'text-gray-400'}`}
+//                           >
+//                               <Shuffle className="h-5 w-5" />
+//                           </Button>
+//                           <Button
+//                               variant="ghost"
+//                               size="icon"
+//                               onClick={handlePrevious}
+//                           >
+//                               <SkipBack className="h-5 w-5" />
+//                           </Button>
+//                           <Button
+//                               variant="ghost"
+//                               size="icon"
+//                               className="h-10 w-10"
+//                               onClick={handlePlayPause}
+//                           >
+//                               {isPlaying ? (
+//                                   <Pause className="h-6 w-6" />
+//                               ) : (
+//                                   <Play className="h-6 w-6" />
+//                               )}
+//                           </Button>
+//                           <Button
+//                               variant="ghost"
+//                               size="icon"
+//                               onClick={handleNext}
+//                           >
+//                               <SkipForward className="h-5 w-5" />
+//                           </Button>
+//                           <Button
+//                               variant="ghost"
+//                               size="icon"
+//                               onClick={() => setIsRepeat(!isRepeat)}
+//                               className={`hover:text-white ${isRepeat ? 'text-primary' : 'text-gray-400'}`}
+//                           >
+//                               <Repeat className="h-5 w-5" />
+//                           </Button>
+//                       </div>
+//                   </div>
+
+//                   {/* Additional Controls */}
+//                   <div className="flex items-center gap-2 w-full min-w-[240px] justify-end">
+//                       <Button
+//                           variant="ghost"
+//                           size="icon"
+//                           onClick={() => setIsLiked(!isLiked)}
+//                           className={`hover:text-white ${isLiked ? 'text-red-500' : 'text-gray-400'}`}
+//                       >
+//                           <Heart className="h-5 w-5" />
+//                       </Button>
+//                       <div className="flex items-center gap-2">
+//                           <Button
+//                               variant="ghost"
+//                               size="icon"
+//                               onClick={toggleMute}
+//                           >
+//                               {isMuted ? (
+//                                   <VolumeX className="h-5 w-5" />
+//                               ) : (
+//                                   <Volume2 className="h-5 w-5" />
+//                               )}
+//                           </Button>
+//                           <Slider
+//                               value={[isMuted ? 0 : volume]}
+//                               max={1}
+//                               step={0.01}
+//                               onValueChange={handleVolumeChange}
+//                               className="w-24"
+//                           />
+//                       </div>
+//                       <Dialog>
+//                           <DialogTrigger asChild>
+//                               <Button variant="ghost" size="icon">
+//                                   <Info className="h-5 w-5" />
+//                               </Button>
+//                           </DialogTrigger>
+//                           <DialogContent>
+//                               <DialogHeader>
+//                                   <DialogTitle>Song Information</DialogTitle>
+//                                   <DialogDescription>
+//                                       <div className="space-y-2">
+//                                           <p><strong>Title:</strong> {currentSong.title}</p>
+//                                           <p><strong>Genres:</strong> {currentSong.genres.join(', ')}</p>
+//                                           <p><strong>Generated:</strong> {new Date(currentSong.timestamp).toLocaleString()}</p>
+//                                       </div>
+//                                   </DialogDescription>
+//                               </DialogHeader>
+//                           </DialogContent>
+//                       </Dialog>
+
+//                       <Button
+//                           variant="ghost"
+//                           size="icon"
+//                           // onClick={() => setIsMusicPlayerFullScreen(val => !val)}
+//                           onClick={minimizeScreen}
+//                           className={`hover:text-white 'text-gray-400'`}
+//                       >
+//                           {!isMusicPlayerFullScreen ? <Maximize2 className="h-5 w-5" />
+//                               : <Minimize2 className="h-5 w-5" />}
+//                       </Button>
+
+//                   </div>
+//               </div>
+
+//               :
+
+//               <div className="p-4 w-full">
+//                   <div className="flex items-center gap-4">
+//                       {/* Song Info */}
+//                       <div className="flex items-center gap-4 min-w-[240px]">
+//                           <img
+//                               src={currentSong.coverArt}
+//                               alt={currentSong.title}
+//                               className="w-12 h-12 rounded"
+//                           />
+//                           <div>
+//                               <h3 className="font-medium">{currentSong.title}</h3>
+//                               <p className="text-sm text-gray-400">
+//                                   {currentSong.genres.join(', ')}
+//                               </p>
+//                           </div>
+//                       </div>
+
+//                       {/* Player Controls */}
+//                       <div className="flex-1">
+//                           <div className="flex justify-center items-center gap-4 mb-2">
+//                               <Button
+//                                   variant="ghost"
+//                                   size="icon"
+//                                   onClick={() => setIsShuffle(!isShuffle)}
+//                                   className={`hover:text-white ${isShuffle ? 'text-primary' : 'text-gray-400'}`}
+//                               >
+//                                   <Shuffle className="h-5 w-5" />
+//                               </Button>
+//                               <Button
+//                                   variant="ghost"
+//                                   size="icon"
+//                                   onClick={handlePrevious}
+//                               >
+//                                   <SkipBack className="h-5 w-5" />
+//                               </Button>
+//                               <Button
+//                                   variant="ghost"
+//                                   size="icon"
+//                                   className="h-10 w-10"
+//                                   onClick={handlePlayPause}
+//                               >
+//                                   {isPlaying ? (
+//                                       <Pause className="h-6 w-6" />
+//                                   ) : (
+//                                       <Play className="h-6 w-6" />
+//                                   )}
+//                               </Button>
+//                               <Button
+//                                   variant="ghost"
+//                                   size="icon"
+//                                   onClick={handleNext}
+//                               >
+//                                   <SkipForward className="h-5 w-5" />
+//                               </Button>
+//                               <Button
+//                                   variant="ghost"
+//                                   size="icon"
+//                                   onClick={() => setIsRepeat(!isRepeat)}
+//                                   className={`hover:text-white ${isRepeat ? 'text-primary' : 'text-gray-400'}`}
+//                               >
+//                                   <Repeat className="h-5 w-5" />
+//                               </Button>
+//                           </div>
+//                           <div className="flex items-center gap-2">
+//                               <span className="text-sm text-gray-400">
+//                                   {formatTime(currentTime)}
+//                               </span>
+//                               <Slider
+//                                   value={[currentTime]}
+//                                   max={duration}
+//                                   step={1}
+//                                   onValueChange={handleTimeChange}
+//                                   className="flex-1"
+//                               />
+//                               <span className="text-sm text-gray-400">
+//                                   {formatTime(duration)}
+//                               </span>
+//                           </div>
+//                       </div>
+
+//                       {/* Additional Controls */}
+//                       <div className="flex items-center gap-2 min-w-[240px] justify-end">
+//                           <Button
+//                               variant="ghost"
+//                               size="icon"
+//                               onClick={() => setIsLiked(!isLiked)}
+//                               className={`hover:text-white ${isLiked ? 'text-red-500' : 'text-gray-400'}`}
+//                           >
+//                               <Heart className="h-5 w-5" />
+//                           </Button>
+//                           <div className="flex items-center gap-2">
+//                               <Button
+//                                   variant="ghost"
+//                                   size="icon"
+//                                   onClick={toggleMute}
+//                               >
+//                                   {isMuted ? (
+//                                       <VolumeX className="h-5 w-5" />
+//                                   ) : (
+//                                       <Volume2 className="h-5 w-5" />
+//                                   )}
+//                               </Button>
+//                               <Slider
+//                                   value={[isMuted ? 0 : volume]}
+//                                   max={1}
+//                                   step={0.01}
+//                                   onValueChange={handleVolumeChange}
+//                                   className="w-24"
+//                               />
+//                           </div>
+//                           <Dialog>
+//                               <DialogTrigger asChild>
+//                                   <Button variant="ghost" size="icon">
+//                                       <Info className="h-5 w-5" />
+//                                   </Button>
+//                               </DialogTrigger>
+//                               <DialogContent>
+//                                   <DialogHeader>
+//                                       <DialogTitle>Song Information</DialogTitle>
+//                                       <DialogDescription>
+//                                           <div className="space-y-2">
+//                                               <p><strong>Title:</strong> {currentSong.title}</p>
+//                                               <p><strong>Genres:</strong> {currentSong.genres.join(', ')}</p>
+//                                               <p><strong>Generated:</strong> {new Date(currentSong.timestamp).toLocaleString()}</p>
+//                                           </div>
+//                                       </DialogDescription>
+//                                   </DialogHeader>
+//                               </DialogContent>
+//                           </Dialog>
+
+//                           <Button
+//                               variant="ghost"
+//                               size="icon"
+//                               // onClick={() => setIsMusicPlayerFullScreen(val => !val)}
+//                               onClick={maximizeScreen}
+//                               className={`hover:text-white 'text-gray-400'`}
+//                           >
+//                               {!isMusicPlayerFullScreen ? <Maximize2 className="h-5 w-5" />
+//                                   : <Minimize2 className="h-5 w-5" />}
+//                           </Button>
+
+//                       </div>
+//                   </div>
+//               </div>
+//           }
+
+//           {/* Hidden audio element */}
+//           <audio
+//               autoPlay={true}
+//               ref={audioRef}
+//               src={musicUrl}
+//               onPlay={() => setIsPlaying(true)}
+//               onPause={() => setIsPlaying(false)}
+//           />
+//       </div>
+//   )
+// }
+
+
+
+// ENTERTAINMENT_HUB
+
+
+// {
+//   currentSong && (
+//     <div
+//       ref={playerScreenRef}
+//       className={`fixed bottom-0 left-0 right-0 flex flex-col-reverse bg-background/95 backdrop-blur border-t`}>
+//       <div
+//         style={{ backgroundImage: isMusicPlayerFullScreen ? `url(${imageUrl})` : '', }}
+//         className='absolute w-full h-full bg-no-repeat bg-cover opacity-30 blur-md pointer-events-none'>
+//       </div>
+//       <Progress
+//         value={(currentTime / duration) * 100}
+//         className="h-1"
+//       />
+//       {isMusicPlayerFullScreen ?
+//         // <div className="p-4 w-full">
+//         <div className="flex items-center h-full/ w-full justify-center flex-col gap-4 p-16">
+//           {/* Song Info */}
+//           <div className="flex items-center gap-4 w-full min-w-[240px] m-20">
+//             <img
+//               src={currentSong.coverArt}
+//               alt={currentSong.title}
+//               className="size-48 rounded"
+//             />
+//             <div className='flex flex-col justify-end h-full px-8 gap-4'>
+//               <h3 className="font-bold text-5xl">{currentSong.title}</h3>
+//               <h3 className="font-bold text-xl opacity-50">VibeVision Music.</h3>
+//               {/* <p className="text-sm text-gray-400">
+//                                     {currentSong.genres.join(', ')}
+//                                 </p> */}
+//             </div>
+//           </div>
+
+//           {/* Player Controls */}
+//           <div className="w-full">
+//             <div className="flex items-center gap-2">
+//               <span className="text-sm text-gray-400">
+//                 {formatTime(currentTime)}
+//               </span>
+//               <Slider
+//                 value={[currentTime]}
+//                 max={duration}
+//                 step={1}
+//                 onValueChange={handleTimeChange}
+//                 className="flex-1"
+//               />
+//               <span className="text-sm text-gray-400">
+//                 {formatTime(duration)}
+//               </span>
+//             </div>
+//             <div className="flex justify-center items-center gap-4 mb-2">
+//               <Button
+//                 variant="ghost"
+//                 size="icon"
+//                 onClick={() => setIsShuffle(!isShuffle)}
+//                 className={`hover:text-white ${isShuffle ? 'text-primary' : 'text-gray-400'}`}
+//               >
+//                 <Shuffle className="h-5 w-5" />
+//               </Button>
+//               <Button
+//                 variant="ghost"
+//                 size="icon"
+//                 onClick={handlePrevious}
+//               >
+//                 <SkipBack className="h-5 w-5" />
+//               </Button>
+//               <Button
+//                 variant="ghost"
+//                 size="icon"
+//                 className="h-10 w-10"
+//                 onClick={handlePlayPause}
+//               >
+//                 {isPlaying ? (
+//                   <Pause className="h-6 w-6" />
+//                 ) : (
+//                   <Play className="h-6 w-6" />
+//                 )}
+//               </Button>
+//               <Button
+//                 variant="ghost"
+//                 size="icon"
+//                 onClick={handleNext}
+//               >
+//                 <SkipForward className="h-5 w-5" />
+//               </Button>
+//               <Button
+//                 variant="ghost"
+//                 size="icon"
+//                 onClick={() => setIsRepeat(!isRepeat)}
+//                 className={`hover:text-white ${isRepeat ? 'text-primary' : 'text-gray-400'}`}
+//               >
+//                 <Repeat className="h-5 w-5" />
+//               </Button>
+//             </div>
+//           </div>
+
+//           {/* Additional Controls */}
+//           <div className="flex items-center gap-2 w-full min-w-[240px] justify-end">
+//             <Button
+//               variant="ghost"
+//               size="icon"
+//               onClick={() => setIsLiked(!isLiked)}
+//               className={`hover:text-white ${isLiked ? 'text-red-500' : 'text-gray-400'}`}
+//             >
+//               <Heart className="h-5 w-5" />
+//             </Button>
+//             <div className="flex items-center gap-2">
+//               <Button
+//                 variant="ghost"
+//                 size="icon"
+//                 onClick={toggleMute}
+//               >
+//                 {isMuted ? (
+//                   <VolumeX className="h-5 w-5" />
+//                 ) : (
+//                   <Volume2 className="h-5 w-5" />
+//                 )}
+//               </Button>
+//               <Slider
+//                 value={[isMuted ? 0 : volume]}
+//                 max={1}
+//                 step={0.01}
+//                 onValueChange={handleVolumeChange}
+//                 className="w-24"
+//               />
+//             </div>
+//             <Dialog>
+//               <DialogTrigger asChild>
+//                 <Button variant="ghost" size="icon">
+//                   <Info className="h-5 w-5" />
+//                 </Button>
+//               </DialogTrigger>
+//               <DialogContent>
+//                 <DialogHeader>
+//                   <DialogTitle>Song Information</DialogTitle>
+//                   <DialogDescription>
+//                     <div className="space-y-2">
+//                       <p><strong>Title:</strong> {currentSong.title}</p>
+//                       <p><strong>Genres:</strong> {currentSong.genres.join(', ')}</p>
+//                       <p><strong>Generated:</strong> {new Date(currentSong.timestamp).toLocaleString()}</p>
+//                     </div>
+//                   </DialogDescription>
+//                 </DialogHeader>
+//               </DialogContent>
+//             </Dialog>
+
+//             <Button
+//               variant="ghost"
+//               size="icon"
+//               // onClick={() => setIsMusicPlayerFullScreen(val => !val)}
+//               onClick={minimizeScreen}
+//               className={`hover:text-white 'text-gray-400'`}
+//             >
+//               {!isMusicPlayerFullScreen ? <Maximize2 className="h-5 w-5" />
+//                 : <Minimize2 className="h-5 w-5" />}
+//             </Button>
+
+//           </div>
+//         </div>
+
+//         :
+
+//         <div className="p-4 w-full">
+//           <div className="flex items-center gap-4">
+//             {/* Song Info */}
+//             <div className="flex items-center gap-4 min-w-[240px]">
+//               <img
+//                 src={currentSong.coverArt}
+//                 alt={currentSong.title}
+//                 className="w-12 h-12 rounded"
+//               />
+//               <div>
+//                 <h3 className="font-medium">{currentSong.title}</h3>
+//                 <p className="text-sm text-gray-400">
+//                   {currentSong.genres.join(', ')}
+//                 </p>
+//               </div>
+//             </div>
+
+//             {/* Player Controls */}
+//             <div className="flex-1">
+//               <div className="flex justify-center items-center gap-4 mb-2">
+//                 <Button
+//                   variant="ghost"
+//                   size="icon"
+//                   onClick={() => setIsShuffle(!isShuffle)}
+//                   className={`hover:text-white ${isShuffle ? 'text-primary' : 'text-gray-400'}`}
+//                 >
+//                   <Shuffle className="h-5 w-5" />
+//                 </Button>
+//                 <Button
+//                   variant="ghost"
+//                   size="icon"
+//                   onClick={handlePrevious}
+//                 >
+//                   <SkipBack className="h-5 w-5" />
+//                 </Button>
+//                 <Button
+//                   variant="ghost"
+//                   size="icon"
+//                   className="h-10 w-10"
+//                   onClick={handlePlayPause}
+//                 >
+//                   {isPlaying ? (
+//                     <Pause className="h-6 w-6" />
+//                   ) : (
+//                     <Play className="h-6 w-6" />
+//                   )}
+//                 </Button>
+//                 <Button
+//                   variant="ghost"
+//                   size="icon"
+//                   onClick={handleNext}
+//                 >
+//                   <SkipForward className="h-5 w-5" />
+//                 </Button>
+//                 <Button
+//                   variant="ghost"
+//                   size="icon"
+//                   onClick={() => setIsRepeat(!isRepeat)}
+//                   className={`hover:text-white ${isRepeat ? 'text-primary' : 'text-gray-400'}`}
+//                 >
+//                   <Repeat className="h-5 w-5" />
+//                 </Button>
+//               </div>
+//               <div className="flex items-center gap-2">
+//                 <span className="text-sm text-gray-400">
+//                   {formatTime(currentTime)}
+//                 </span>
+//                 <Slider
+//                   value={[currentTime]}
+//                   max={duration}
+//                   step={1}
+//                   onValueChange={handleTimeChange}
+//                   className="flex-1"
+//                 />
+//                 <span className="text-sm text-gray-400">
+//                   {formatTime(duration)}
+//                 </span>
+//               </div>
+//             </div>
+
+//             {/* Additional Controls */}
+//             <div className="flex items-center gap-2 min-w-[240px] justify-end">
+//               <Button
+//                 variant="ghost"
+//                 size="icon"
+//                 onClick={() => setIsLiked(!isLiked)}
+//                 className={`hover:text-white ${isLiked ? 'text-red-500' : 'text-gray-400'}`}
+//               >
+//                 <Heart className="h-5 w-5" />
+//               </Button>
+//               <div className="flex items-center gap-2">
+//                 <Button
+//                   variant="ghost"
+//                   size="icon"
+//                   onClick={toggleMute}
+//                 >
+//                   {isMuted ? (
+//                     <VolumeX className="h-5 w-5" />
+//                   ) : (
+//                     <Volume2 className="h-5 w-5" />
+//                   )}
+//                 </Button>
+//                 <Slider
+//                   value={[isMuted ? 0 : volume]}
+//                   max={1}
+//                   step={0.01}
+//                   onValueChange={handleVolumeChange}
+//                   className="w-24"
+//                 />
+//               </div>
+//               <Dialog>
+//                 <DialogTrigger asChild>
+//                   <Button variant="ghost" size="icon">
+//                     <Info className="h-5 w-5" />
+//                   </Button>
+//                 </DialogTrigger>
+//                 <DialogContent>
+//                   <DialogHeader>
+//                     <DialogTitle>Song Information</DialogTitle>
+//                     <DialogDescription>
+//                       <div className="space-y-2">
+//                         <p><strong>Title:</strong> {currentSong.title}</p>
+//                         <p><strong>Genres:</strong> {currentSong.genres.join(', ')}</p>
+//                         <p><strong>Generated:</strong> {new Date(currentSong.timestamp).toLocaleString()}</p>
+//                       </div>
+//                     </DialogDescription>
+//                   </DialogHeader>
+//                 </DialogContent>
+//               </Dialog>
+
+//               <Button
+//                 variant="ghost"
+//                 size="icon"
+//                 // onClick={() => setIsMusicPlayerFullScreen(val => !val)}
+//                 onClick={maximizeScreen}
+//                 className={`hover:text-white 'text-gray-400'`}
+//               >
+//                 {!isMusicPlayerFullScreen ? <Maximize2 className="h-5 w-5" />
+//                   : <Minimize2 className="h-5 w-5" />}
+//               </Button>
+
+//             </div>
+//           </div>
+//         </div>
+//       }
+
+//       {/* Hidden audio element */}
+//       <audio
+//         autoPlay={true}
+//         ref={audioRef}
+//         src={musicUrl || ''}
+//         onPlay={() => setIsPlaying(true)}
+//         onPause={() => setIsPlaying(false)}
+//       />
+//     </div>
+//   )
+// }

@@ -13,7 +13,8 @@ import {
   Heart,
   X,
   SparklesIcon,
-  LogInIcon
+  LogInIcon,
+  User
 } from "lucide-react"
 
 import { cn } from "../../lib/utils"
@@ -44,6 +45,7 @@ const authenticatedNavItems: NavItem[] = [
   { icon: Tv, label: "Entertainment Hub", href: "/entertainment-hub", badge: "Hot", badgeVariant: "destructive" },
   { icon: Music2, label: "Music Studio", href: "/music-studio" },
   { icon: Mic2, label: "Comedy Lab", href: "/comedy-lab" },
+  { icon: User, label: "Profile", href: "/profile-page" },
 ]
 
 const nonAuthenticatedNavItems: NavItem[] = [

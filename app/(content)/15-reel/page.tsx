@@ -105,6 +105,13 @@ export default function RoastVideoCreator() {
         roastStyle: 'funny'
     });
 
+    const [localStorageInstance,  setLocalStorageInstance] = useState<Storage | null>(null)
+  
+    useEffect(() => {
+      setLocalStorageInstance(localStorage);
+    }, [])
+    
+
     const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
 
         const file = e.target.files ? e.target.files[0] : null;
@@ -121,15 +128,13 @@ export default function RoastVideoCreator() {
 
     const handleGenerate = async () => {
         let currentTime = Date.now();
-        const token = localStorage.getItem('token');
+        const token = localStorageInstance?.getItem('token');
 
         if (!imageFile) {
             //   alert('Please upload an image before submitting.');
             showAlert('Please upload an image before submitting.')
             return;
         }
-
-        // const currentUserToken = localStorage.getItem('token')
 
         setIsLoading(true);
         const formData = new FormData();

@@ -1,7 +1,7 @@
 // components/layout/Layout.tsx
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Header } from "./Header"
 import { Sidebar } from "./Sidebar"
 
@@ -13,6 +13,7 @@ export function Layout({ children }: LayoutProps) {
   // State for both mobile sidebar visibility and desktop sidebar collapse
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true)
+  const [localStorageInstance,  setLocalStorageInstance] = useState<Storage | null>(null)
 
   // Handler for mobile sidebar toggle
   const handleSidebarOpen = () => {
@@ -29,12 +30,18 @@ export function Layout({ children }: LayoutProps) {
     setIsSidebarCollapsed(!isSidebarCollapsed)
   }
 
+  useEffect(() => {
+    setLocalStorageInstance(localStorage)
+  }, [])
+  
+
   return (
     <div className="min-h-screen bg-background overflow-x-clip">
       <Header 
         onSidebarOpen={handleSidebarOpen}
         isSidebarCollapsed={isSidebarCollapsed}
         onSidebarCollapse={handleSidebarCollapse}
+        isAuthenticated={ Boolean(localStorageInstance?.getItem('token') || false)}
       />
       <Sidebar 
         isOpen={isSidebarOpen}

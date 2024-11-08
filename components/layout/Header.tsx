@@ -303,7 +303,7 @@ interface HeaderProps {
 
 export function Header({ 
   onSidebarOpen, 
-  isAuthenticated = Boolean(localStorage.getItem('token')), 
+  isAuthenticated, 
   isSidebarCollapsed,
   onSidebarCollapse 
 }: HeaderProps) {
@@ -315,6 +315,13 @@ export function Header({
   const [unreadCount, setUnreadCount] = useState(5)
   const [showNotifications, setShowNotifications] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
+
+  const [localStorageInstance,  setLocalStorageInstance] = useState<Storage | null>(null)
+  
+  useEffect(() => {
+    setLocalStorageInstance(localStorage);
+  }, [])
+  
 
   const searchPlaceholders = [
     "Search for videos...",
@@ -388,9 +395,9 @@ export function Header({
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('loggedInUser');
-    localStorage.removeItem('loggedInUserEmail');
+    localStorageInstance?.removeItem('token');
+    localStorageInstance?.removeItem('loggedInUser');
+    localStorageInstance?.removeItem('loggedInUserEmail');
     
     // Redirect to login page
     router.push('/');
@@ -476,7 +483,7 @@ export function Header({
               <DropdownMenuContent align="end" className="w-56">
                 {isAuthenticated ? (
                   <>
-                    <DropdownMenuLabel>My Account | {localStorage.getItem('loggedInUser')}</DropdownMenuLabel>
+                    <DropdownMenuLabel>My Account | {localStorageInstance?.getItem('loggedInUser')}</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem>
                       <User className="mr-2 h-4 w-4" />

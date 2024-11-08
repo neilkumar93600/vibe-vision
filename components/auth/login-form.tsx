@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"; // Corrected import
@@ -27,6 +27,7 @@ const loginSchema = z.object({
 
 export function LoginForm() {
   const [isLoading, setIsLoading] = React.useState(false);
+  const [localStorageInstance,  setLocalStorageInstance] = useState<Storage | null>(null)
 
   const form = useForm({
     resolver: zodResolver(loginSchema),
@@ -38,17 +39,17 @@ export function LoginForm() {
 
   async function onSubmit(data: z.infer<typeof loginSchema>) {
     setIsLoading(true);
-  
+
     const url = `${BASE_URL}/auth/login`;
     try {
       const response = await axios.post(url, data);
       const { jwtToken, name, email } = response.data;
-  
+
       // Save data to localStorage
-      localStorage.setItem('token', jwtToken);
-      localStorage.setItem('loggedInUser', name);
-      localStorage.setItem('loggedInUserEmail', email);
-  
+      localStorageInstance?.setItem('token', jwtToken);
+      localStorageInstance?.setItem('loggedInUser', name);
+      localStorageInstance?.setItem('loggedInUserEmail', email);
+
       toast.success("Logged in successfully!");
       // Redirect to the gallery page (adjust URL if needed)
       window.location.href = "/entertainment-hub";
@@ -59,6 +60,11 @@ export function LoginForm() {
       setIsLoading(false);
     }
   }
+
+  useEffect(() => {
+    // localStorageInstance = localStorage
+    setLocalStorageInstance(localStorage)
+  }, []);
 
   return (
     <Card className="w-full max-w-md mx-auto">

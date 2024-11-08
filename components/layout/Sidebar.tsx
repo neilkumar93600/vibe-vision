@@ -183,6 +183,12 @@ function NavSection({ title, items, currentPath, isCollapsed, onClose }: NavSect
 
 export function Sidebar({ isOpen, isCollapsed, onClose }: SidebarProps) {
   const pathname = usePathname()
+  const [localStorageInstance,  setLocalStorageInstance] = React.useState<Storage | null>(null)
+  
+  React.useEffect(() => {
+    setLocalStorageInstance(localStorage);
+  }, [])
+  
 
   return (
     <>
@@ -223,7 +229,7 @@ export function Sidebar({ isOpen, isCollapsed, onClose }: SidebarProps) {
         <ScrollArea className="flex-1">
           <nav className="flex flex-col gap-2 p-2">
             {/* Main Navigation */}
-            {localStorage.getItem('token') ? <NavSection
+            {localStorageInstance?.getItem('token') ? <NavSection
               title="Main"
               items={authenticatedNavItems}
               currentPath={pathname}

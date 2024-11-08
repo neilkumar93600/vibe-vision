@@ -194,6 +194,13 @@ export default function EnhancedStoryGenerator() {
   const [generatedScript, setGeneratedScript] = useState<string>('');
   const [videoTitle, setVideoTitle] = useState<string>('');
 
+  const [localStorageInstance,  setLocalStorageInstance] = useState<Storage | null>(null)
+  
+  useEffect(() => {
+    setLocalStorageInstance(localStorage);
+  }, [])
+  
+
   // Dynamic background classes
   const getBackgroundClass = () => {
     const baseClasses = 'transition-all duration-500 ease-in-out';
@@ -211,7 +218,7 @@ export default function EnhancedStoryGenerator() {
 
   const handleGenerate = async () => {
     let currentTime = Date.now();
-    const token = localStorage.getItem('token');
+    const token = localStorageInstance?.getItem('token');
 
     if (!prompt.trim()) {
       setError('Please enter a prompt.');
@@ -282,7 +289,6 @@ export default function EnhancedStoryGenerator() {
   // Initialize
   // useEffect(() => {
   //   // Load saved stories
-  //   const savedStories = localStorage.getItem('storyHistory');
   //   if (savedStories) {
   //     setStoryHistory(JSON.parse(savedStories));
   //   }

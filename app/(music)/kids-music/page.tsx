@@ -124,6 +124,13 @@ export default function SongGeneratorPage(): JSX.Element {
 
     const playerScreenRef = useRef<HTMLDivElement>(null)
 
+    const [localStorageInstance, setLocalStorageInstance] = useState<Storage | null>(null)
+
+    useEffect(() => {
+        setLocalStorageInstance(localStorage);
+    }, [])
+
+
     //     const alt_musicUrl = `${BASE_URL}/uploads/6729fde142e71c53dbec2d78_jukebox_1730976610659_music.mp3`
     //     const alt_imageUrl = `${BASE_URL}/uploads/6729fde142e71c53dbec2d78_jukebox_1730976610659_image.png`
     //     // const alt_imageUrl = `https://images.pexels.com/photos/1955134/pexels-photo-1955134.jpeg`
@@ -248,7 +255,7 @@ export default function SongGeneratorPage(): JSX.Element {
     }
 
     const handleGenerateMusic = async () => {
-        const token = localStorage.getItem('token');
+        const token = localStorageInstance?.getItem('token');
 
         if (!prompt.trim()) {
             setError('Please ensure prompt is provided.');
@@ -551,7 +558,7 @@ export default function SongGeneratorPage(): JSX.Element {
                                 </div> */}
 
                                 {/* Generate Button */}
-                               <Button
+                                <Button
                                     size="lg"
                                     className="w-full h-14 text-lg"
                                     onClick={handleGenerateMusic}

@@ -6,10 +6,10 @@ import { cn } from "../../lib/utils";
 import Marquee from "../../components/animata/container/marquee";
 import FlickeringGrid from "../../components/ui/flickering-grid";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
-import { GoogleGeminiEffect } from "../../components/ui/google-gemini-effect";
 import {
   Users,
   CheckCircle2,
+  ArrowRight,
   Calendar,
   Music2,
   Star,
@@ -45,7 +45,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "../../components/ui/accordion"
+import { BackgroundBeamsWithCollision } from "@/components/ui/background-beams-with-collision";
+import { HeroHighlight, Highlight } from "@/components/ui/hero-highlight";
+import { TextGenerateEffect } from "@/components/ui/text-generate-effect"
 
+const words = `Transform your creative vision into reality with AI-powered music and comedy production.`;
 const advancedPricingPlans = [
   {
     name: "Starter",
@@ -146,205 +150,109 @@ const testimonials = [
     image: "/api/placeholder/64/64",
     rating: 4,
   },
-]
-
-const GoogleGeminiEffectDemo = () => {
-  const ref = React.useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start start", "end start"],
-  });
-
-  const pathLengthFirst = useTransform(scrollYProgress, [0, 0.8], [0.2, 1.2]);
-  const pathLengthSecond = useTransform(scrollYProgress, [0, 0.8], [0.15, 1.2]);
-  const pathLengthThird = useTransform(scrollYProgress, [0, 0.8], [0.1, 1.2]);
-  const pathLengthFourth = useTransform(scrollYProgress, [0, 0.8], [0.05, 1.2]);
-  const pathLengthFifth = useTransform(scrollYProgress, [0, 0.8], [0, 1.2]);
-
+]// Animated particle component for the background
+const Particle = ({ className }:any) => {
+  const randomDelay = Math.random() * 5;
   return (
-    <div
-      className="h-[400vh] bg-black w-full dark:border dark:border-white/[0.1] rounded-md relative pt-40 overflow-clip"
-      ref={ref}
-    >
-      <GoogleGeminiEffect
-        pathLengths={[
-          pathLengthFirst,
-          pathLengthSecond,
-          pathLengthThird,
-          pathLengthFourth,
-          pathLengthFifth,
-        ]}
-      />
-    </div>
-  );
-}
-
-const ENTERTAINMENT_ITEMS = [
-  {
-    title: "Music Creation",
-    icon: Music,
-    gradient: "from-purple-500 to-indigo-600"
-  },
-  {
-    title: "Voice Generation",
-    icon: Mic,
-    gradient: "from-pink-500 to-rose-600"
-  },
-  {
-    title: "Video Content",
-    icon: Video,
-    gradient: "from-blue-500 to-cyan-600"
-  },
-  {
-    title: "Audio Effects",
-    icon: Headphones,
-    gradient: "from-green-500 to-emerald-600"
-  },
-  {
-    title: "Live Streaming",
-    icon: Radio,
-    gradient: "from-orange-500 to-red-600"
-  },
-  // Second row
-  {
-    title: "Comedy Writing",
-    icon: MessageSquare,
-    gradient: "from-violet-500 to-purple-600"
-  },
-  {
-    title: "Visual Effects",
-    icon: Palette,
-    gradient: "from-fuchsia-500 to-pink-600"
-  },
-  {
-    title: "Sound Design",
-    icon: Speaker,
-    gradient: "from-cyan-500 to-blue-600"
-  },
-  {
-    title: "Content Library",
-    icon: Library,
-    gradient: "from-teal-500 to-green-600"
-  },
-  {
-    title: "Live Shows",
-    icon: PartyPopper,
-    gradient: "from-red-500 to-orange-600"
-  }
-];
-
-const EntertainmentHero = () => {
-  const ref = React.useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start start", "end start"],
-  });
-
-  const springConfig = { stiffness: 300, damping: 30, bounce: 100 };
-
-  const translateX = useSpring(
-    useTransform(scrollYProgress, [0, 1], [0, 1000]),
-    springConfig
-  );
-  const translateXReverse = useSpring(
-    useTransform(scrollYProgress, [0, 1], [0, -1000]),
-    springConfig
-  );
-  const opacity = useSpring(
-    useTransform(scrollYProgress, [0, 0.2], [0.2, 1]),
-    springConfig
-  );
-  const rotateZ = useSpring(
-    useTransform(scrollYProgress, [0, 0.2], [20, 0]),
-    springConfig
-  );
-  const translateY = useSpring(
-    useTransform(scrollYProgress, [0, 0.2], [-700, 300]),
-    springConfig
-  );
-
-  const firstRow = ENTERTAINMENT_ITEMS.slice(0, 5);
-  const secondRow = ENTERTAINMENT_ITEMS.slice(5, 10);
-
-  return (
-    <div
-      ref={ref}
-      className="h-[200vh] py-20 overflow-hidden antialiased relative flex flex-col self-auto [perspective:1000px] [transform-style:preserve-3d]"
-    >
-      <div className="max-w-7xl relative mx-auto py-20 px-4 w-full">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="flex flex-col items-center text-center"
-        >
-          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-purple via-black to-purple bg-clip-text">
-            Create. Perform. Entertain.
-          </h1>
-          <p className="max-w-2xl text-base md:text-xl mt-8 text-muted-foreground">
-            Transform your ideas into music and comedy with our AI-powered platform.
-            Create custom songs, generate comedy content, and share your creativity.
-          </p>
-        </motion.div>
-      </div>
-
-      <motion.div
-        style={{
-          rotateZ,
-          translateY,
-          opacity,
-        }}
-        className="relative"
-      >
-        <motion.div className="flex flex-row-reverse space-x-reverse space-x-20 mb-20">
-          {firstRow.map((item) => (
-            <ContentCard
-              key={item.title}
-              item={item}
-              translate={translateX}
-            />
-          ))}
-        </motion.div>
-        <motion.div className="flex flex-row mb-20 space-x-20">
-          {secondRow.map((item) => (
-            <ContentCard
-              key={item.title}
-              item={item}
-              translate={translateXReverse}
-            />
-          ))}
-        </motion.div>
-      </motion.div>
-    </div>
+    <motion.div
+      className={`absolute w-1 h-1 rounded-full bg-primary/20 ${className}`}
+      animate={{
+        y: [-20, 20],
+        opacity: [0.2, 0.5, 0.2],
+        scale: [1, 1.5, 1],
+      }}
+      transition={{
+        duration: 3,
+        repeat: Infinity,
+        delay: randomDelay,
+      }}
+    />
   );
 };
 
-const ContentCard = ({ item, translate }: any) => {
-  const Icon = item.icon;
+// Floating element component for hero section
+const FloatingElement = ({ children, delay = 0 }:any) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{
+      duration: 0.8,
+      delay,
+      type: "spring",
+      stiffness: 100,
+    }}
+  >
+    {children}
+  </motion.div>
+);
+
+// Enhanced Hero Section
+const HeroSection = () => {
+  const { scrollY } = useScroll();
+  const y = useTransform(scrollY, [0, 300], [0, 50]);
+  const opacity = useTransform(scrollY, [0, 300], [1, 0]);
+  
+  // Generate particles
+  const particles = Array.from({ length: 50 }).map((_, i) => (
+    <Particle 
+      key={i} 
+      className={`left-[${Math.random() * 100}%] top-[${Math.random() * 100}%]`}
+    />
+  ));
 
   return (
-    <motion.div
-      style={{
-        x: translate,
-      }}
-      whileHover={{
-        y: -20,
-        scale: 1.05,
-      }}
-      className="group relative h-64 w-64 flex-shrink-0"
-    >
-      <div className={`h-full w-full rounded-xl bg-gradient-to-br ${item.gradient} p-8 
-                      flex flex-col items-center justify-center gap-4
-                      transition-all duration-300 shadow-lg
-                      group-hover:shadow-2xl`}>
-        <div className="p-4 bg-white/10 rounded-full">
-          <Icon className="h-12 w-12 text-white" />
-        </div>
-        <h2 className="text-white text-xl font-semibold text-center">
-          {item.title}
-        </h2>
+    <BackgroundBeamsWithCollision>
+    <section className="min-h-screen relative overflow-hidden flex items-center justify-center py-20 px-8">
+      {/* Animated background */}
+      <div className="absolute inset-0 overflow-hidden">
+        {particles}
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-background/50 to-background" />
       </div>
-    </motion.div>
+
+      {/* Main content */}
+      <motion.div
+        style={{ y, opacity }}
+        className="relative max-w-screen-xl mx-auto text-center z-10"
+      >
+        <FloatingElement delay={0.2}>
+          <h1 className="text-6xl md:text-8xl font-bold tracking-tight">
+            <span className="inline-block bg-gradient-to-r from-primary via-purple-500 to-blue-500 bg-clip-text text-transparent animate-gradient">
+              Driving growth
+            </span>
+            <br />
+            <span className="inline-block bg-gradient-to-r from-blue-500 via-purple-500 to-primary bg-clip-text text-transparent animate-gradient">
+              with AI
+            </span>
+          </h1>
+        </FloatingElement>
+
+        <FloatingElement delay={0.4}>
+          <p className="mt-8 text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto">
+            We turn businesses into industry leaders with AI-driven solutions
+          </p>
+        </FloatingElement>
+
+        <FloatingElement delay={0.6}>
+          <div className="mt-10 flex gap-4 justify-center">
+            <Button
+              size="lg"
+              className="text-lg px-8 bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 transition-all duration-300"
+            >
+              Get Started
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="text-lg px-8 border-2 hover:bg-primary/5 transition-all duration-300"
+            >
+              Learn More
+            </Button>
+          </div>
+        </FloatingElement>
+      </motion.div>
+    </section>
+    </BackgroundBeamsWithCollision>
   );
 };
 
@@ -353,7 +261,31 @@ export default function HomePage() {
   return (
     <Layout>
       {/* Hero Section */}
-      <EntertainmentHero />
+      <HeroHighlight>
+      <motion.h1
+        initial={{
+          opacity: 0,
+          y: 20,
+        }}
+        animate={{
+          opacity: 1,
+          y: [20, -5, 0],
+        }}
+        transition={{
+          duration: 0.5,
+          ease: [0.4, 0.0, 0.2, 1],
+        }}
+        className="text-2xl px-4 md:text-4xl lg:text-5xl font-bold text-neutral-700 dark:text-white max-w-4xl leading-relaxed lg:leading-snug text-center mx-auto "
+      >
+        
+        <Highlight className="text-black dark:text-white">
+        Create.
+Perform.
+Entertain.
+        </Highlight>
+        <TextGenerateEffect words={words} />
+      </motion.h1>
+    </HeroHighlight>
 
       {/* Stats Section */}
       <section className="py-16 px-8 bg-muted/50">
@@ -452,20 +384,6 @@ export default function HomePage() {
       </section>
 
       <section className="py-8 sm:py-12 lg:py-16 px-4 sm:px-6 bg-muted/20 relative">
-        {/* Adjusted FlickeringGrid with fixed dimensions */}
-        <FlickeringGrid
-          className="z-0 absolute top-0 mx-auto inset-0 w-full h-full"
-          squareSize={4}
-          gridGap={6}
-          color="#672F83"
-          maxOpacity={0.5}
-          flickerChance={0.1}
-          // Use larger height to accommodate stacked cards on mobile
-          height={2500}
-          // Use a fixed width that works across breakpoints
-          width={1800}
-        />
-
         <div className="max-w-[320px] sm:max-w-2xl lg:max-w-6xl mx-auto">
           <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">
             Flexible Pricing for Every Creator
@@ -545,8 +463,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-      {/* GoogleGeminiEffect */}
-      <GoogleGeminiEffectDemo />
 
       {/* Testimonials Section */}
       <section className="py-16 px-8 bg-muted/50">

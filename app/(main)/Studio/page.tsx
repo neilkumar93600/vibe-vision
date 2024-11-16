@@ -28,28 +28,31 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Layout } from '@/components/layout/layout';
 import { Button } from '@/components/ui/button';
 
-// TypeScript interfaces
+// Define the feature structure with additional styling properties
 interface Feature {
     title: string;
     description: string;
+    path: string;
     icon: React.ReactNode;
     gradient: string;
-    path: string;
     bgPattern: string;
 }
 
+// Define the features categories
 interface Features {
     music: Feature[];
     video: Feature[];
     text: Feature[];
 }
 
+// Props for the FeatureCard component
 interface FeatureCardProps {
     feature: Feature;
     onClick: (path: string) => void;
     isLoading: boolean;
 }
 
+// Props for the CategorySection component
 interface CategorySectionProps {
     title: string;
     icon: React.ReactNode;
@@ -62,11 +65,9 @@ interface SectionProps {
     isLoading: boolean;
 }
 
+// Main component props
 interface EnhancedFeatureGridProps {
-    onNavigate: (path: string) => void;
-    features: Array<string>;
-  title: string;
-  description?: string; 
+    onNavigate?: (path: string) => void;
 }
 
 const tutorials = [
@@ -490,7 +491,7 @@ const TrendingSection: React.FC<SectionProps> = ({ isLoading }) => {
             </h2>
 
             <Card className="overflow-hidden">
-            <CardHeader>
+                <CardHeader>
                     <div className="flex items-center justify-between">
                         <CardTitle className="text-2xl">Trending Now</CardTitle>
                         <div className="flex items-center space-x-4 ">
@@ -726,8 +727,8 @@ const ArtistsSection: React.FC<SectionProps> = ({ isLoading }) => {
             <CardHeader className="p-2 sm:p-4">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                     <CardTitle className="text-lg sm:text-xl">Creators You May Like</CardTitle>
-                    <Button 
-                        variant="ghost" 
+                    <Button
+                        variant="ghost"
                         onClick={() => router.push('/artists')}
                         className="w-full sm:w-auto"
                     >
@@ -880,7 +881,14 @@ const TutorialSection: React.FC<{ isLoading?: boolean }> = ({ isLoading }) => {
     );
 };
 
-const CategorySection: React.FC<CategorySectionProps> = ({ title, icon, features, onClick, isLoading }) => (
+// CategorySection component
+const CategorySection: React.FC<CategorySectionProps> = ({
+    title,
+    icon,
+    features,
+    onClick,
+    isLoading
+}) => (
     <div className="mb-12">
         <div className="flex items-center gap-3 mb-6">
             {icon}
@@ -891,7 +899,7 @@ const CategorySection: React.FC<CategorySectionProps> = ({ title, icon, features
                 <FeatureCard
                     key={feature.title}
                     feature={feature}
-                    onClick={onClick}  // Pass the handler here
+                    onClick={onClick}
                     isLoading={isLoading}
                 />
             ))}
@@ -899,7 +907,7 @@ const CategorySection: React.FC<CategorySectionProps> = ({ title, icon, features
     </div>
 );
 
-// Main Component (continued)
+// Main Component
 const EnhancedFeatureGrid: React.FC<EnhancedFeatureGridProps> = ({ onNavigate }) => {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const router = useRouter();
@@ -911,9 +919,15 @@ const EnhancedFeatureGrid: React.FC<EnhancedFeatureGridProps> = ({ onNavigate })
 
         return () => clearTimeout(timer);
     }, []);
+
     const handleNavigation = (path: string) => {
-        router.push(path);
+        if (onNavigate) {
+            onNavigate(path);
+        } else {
+            router.push(path);
+        }
     };
+
     const renderFeaturedProjects = () => (
         <div className="mb-16">
             <h2 className="text-3xl font-bold mb-6 flex items-center gap-2">

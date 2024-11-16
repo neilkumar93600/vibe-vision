@@ -4,6 +4,7 @@
 import React, { useEffect, useState } from "react"
 import { Header } from "./Header"
 import { Sidebar } from "./Sidebar"
+import useAuth from "@/hooks/use-auth"
 
 interface LayoutProps {
   children: React.ReactNode
@@ -14,6 +15,8 @@ export function Layout({ children }: LayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true)
   const [localStorageInstance,  setLocalStorageInstance] = useState<Storage | null>(null)
+
+  useAuth()
 
   // Handler for mobile sidebar toggle
   const handleSidebarOpen = () => {
@@ -33,7 +36,6 @@ export function Layout({ children }: LayoutProps) {
   useEffect(() => {
     setLocalStorageInstance(localStorage)
   }, [])
-  
 
   return (
     <div className="min-h-screen bg-background overflow-x-clip">

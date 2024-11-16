@@ -42,6 +42,7 @@ import {
   Share2,
   ThumbsUp,
   Volume2,
+  TriangleAlert,
   Play,
   Pause,
   Maximize,
@@ -79,6 +80,7 @@ import {
 import { BASE_URL } from '@/config';
 import axios from 'axios';
 import { Layout } from '@/components/layout/layout';
+import MessageToast from '@/components/ui/MessageToast';
 
 const genres: Genre[] = [
   {
@@ -144,6 +146,24 @@ const genres: Genre[] = [
 ];
 
 
+type ContentItem = {
+  _id: string;
+  userName: string;
+  contentType: string;
+  status: string;
+  videoUrl?: string;
+  audioUrl?: string;
+  imageUrl?: string | null;
+  thumbnail_alt?: string | null;
+  musicTitle?: string | null;
+  displayName?: string | null;
+  createdAt: string;
+  enhancedPrompt: string;
+  userPrompt: string;
+  songLyrics: string;
+};
+
+
 export default function EnhancedStoryGenerator() {
   // Core state
   const [genre, setGenre] = useState<string>(genres[0].value);
@@ -194,12 +214,59 @@ export default function EnhancedStoryGenerator() {
   const [generatedScript, setGeneratedScript] = useState<string>('');
   const [videoTitle, setVideoTitle] = useState<string>('');
 
-  const [localStorageInstance,  setLocalStorageInstance] = useState<Storage | null>(null)
-  
+  const [localStorageInstance, setLocalStorageInstance] = useState<Storage | null>(null)
+
+  const [toastVisible, setToastVisible] = useState(false);
+
+  const showToast = () => {
+    setToastVisible(true);
+    // The toast will auto-close after 2 seconds because of the useEffect in the Toast component
+  };
+
   useEffect(() => {
     setLocalStorageInstance(localStorage);
   }, [])
-  
+
+
+
+  const [data, setData] = useState<ContentItem[]>([]);
+
+  const filteredData = data.filter((dataItem) => dataItem.contentType === 'story-time')
+  const mostRecentData = filteredData.slice().reverse();
+
+  const fetchData = async () => {
+    if (typeof window !== 'undefined') {
+      // Access localStorage on the client side
+      setLocalStorageInstance(window.localStorage);
+      const token = window.localStorage.getItem('token');
+
+      try {
+        const response = await axios.get(
+          `${BASE_URL}/api/content/get-user-content`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+          }
+        );
+        console.log(response.data);
+        setData(response.data);
+      } catch (error) {
+        console.error("Error fetching content data:", error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    // Fetch data immediately and set an interval to fetch every 15 seconds
+    fetchData();
+    const interval = setInterval(fetchData, 15000); // 15000 ms = 15 seconds
+
+    // Cleanup function to clear the interval when the component unmounts
+    return () => clearInterval(interval);
+  }, [BASE_URL]);
+
 
   // Dynamic background classes
   const getBackgroundClass = () => {
@@ -219,6 +286,7 @@ export default function EnhancedStoryGenerator() {
   const handleGenerate = async () => {
     let currentTime = Date.now();
     const token = localStorageInstance?.getItem('token');
+    const loggedInUser = localStorageInstance?.getItem('loggedInUser');
 
     if (!prompt.trim()) {
       setError('Please enter a prompt.');
@@ -229,6 +297,10 @@ export default function EnhancedStoryGenerator() {
     setLoading(true);
 
     try {
+      showToast()
+
+      fetchData()
+
       const response = await axios.post(
         `${BASE_URL}/api/generate-video/story-time`,
         {
@@ -236,6 +308,7 @@ export default function EnhancedStoryGenerator() {
           theme: `${genre}, with ${genreDescription}`,
           tone: settings.tone,
           ageGroup: settings.ageGroup,
+          userName: loggedInUser,
           duration: settings.duration * 2,
           currentTime
         },
@@ -253,13 +326,13 @@ export default function EnhancedStoryGenerator() {
       console.log(response.data.data);
     } catch (error) {
       console.error('Error generating video:', error);
-      setError('Failed to generate video. Please try again.');
+      // setError('Failed to generate video. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDownloadVideo = async () => {
+  const handleDownloadVideo = async (videoUrl: string | null, displayName: string) => {
     if (videoUrl) {
       try {
         // Fetch the video file as a blob using Axios
@@ -272,14 +345,14 @@ export default function EnhancedStoryGenerator() {
 
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'roast-video.mp4';
+        a.download = `${displayName}.mp4`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
 
         URL.revokeObjectURL(url); // Clean up the URL object
       } catch (error) {
-        console.error("Error downloading video:", error);
+        console.error("Error downloading audio:", error);
       }
     }
   };
@@ -306,11 +379,11 @@ export default function EnhancedStoryGenerator() {
   // }, []);
 
   // Utility functions
-  const handleCopyToClipboard = async () => {
-    if (!generatedScript) return;
+  const handleCopyToClipboard = async (script: string) => {
+    if (!script) return;
 
     try {
-      await navigator.clipboard.writeText(generatedScript);
+      await navigator.clipboard.writeText(script);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
 
@@ -634,9 +707,9 @@ export default function EnhancedStoryGenerator() {
                   <div className="flex justify-between items-center">
                     <CardTitle className="text-white flex items-center gap-2">
                       <BookOpen className="h-5 w-5" />
-                      Your Story and Video
+                      Your Generated Stories and Videos
                     </CardTitle>
-                    {generatedScript && (
+                    {/* {generatedScript && (
                       <div className="flex gap-2">
                         <Button
                           variant="ghost"
@@ -650,111 +723,144 @@ export default function EnhancedStoryGenerator() {
                             <Copy className="h-4 w-4" />
                           )}
                         </Button>
-                        {/* <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setShowHistoryDialog(true)}
-                        className="text-white hover:bg-white/20"
-                      >
-                        <History className="h-4 w-4" />
-                      </Button> */}
                       </div>
-                    )}
+                    )} */}
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <ScrollArea className="h-[600px] rounded-md border border-purple-500/20 p-4">
+                  <ScrollArea className="h-[890px] rounded-md border border-purple-500/20 p-4 gap-4">
 
-                    {videoUrl ? (
-                      <video
-                        src={videoUrl}
-                        controls
-                        className="w-full h-64 rounded-lg object-contain bg-black"
-                        preload="auto"
-                        onError={(e) => console.error("Video error:", e)}
-                      />
-                    ) : loading ?
-                      (
-                        <div className="w-full h-64 rounded-lg bg-black/30 flex flex-col items-center justify-center">
-                          <div
-                            className="p-2 animate-spin drop-shadow-2xl bg-gradient-to-bl from-pink-400 via-purple-400 to-indigo-600 md:w-20 md:h-20 h-16 w-16 aspect-square rounded-full"
-                          >
-                            <div
-                              className="rounded-full h-full w-full bg-slate-100 dark:bg-zinc-900 background-blur-md"
-                            ></div>
-                          </div>
+                    {mostRecentData.length !== 0 ?
+                      mostRecentData.map((dataItem) =>
+                        < Card className='p-6 bg-black/30 mb-4'>
+                          {
+                            dataItem.status === 'success' ?
+                              (
+                                <>
+                                  <div className="prose prose-invert max-w-none py-4 rounded-xl bg-black/60 p-4 mb-4">
+                                    <h2 className="text-2xl font-bold text-purple-100 mb-4 flex justify-between">
+                                      {dataItem.userPrompt || 'Story Time Video'}
+                                      <div className="flex gap-2">
+                                        <Button
+                                          variant="ghost"
+                                          size="icon"
+                                          onClick={() => handleCopyToClipboard(dataItem.enhancedPrompt)}
+                                          className="text-white hover:bg-white/20"
+                                        >
+                                          {copied ? (
+                                            <Check className="h-4 w-4" />
+                                          ) : (
+                                            <Copy className="h-4 w-4" />
+                                          )}
+                                        </Button>
+                                      </div>
+                                    </h2>
+                                    <p className="text-purple-50 whitespace-pre-wrap leading-relaxed pr-4 max-h-40 overflow-y-auto">
+                                      {dataItem.enhancedPrompt}
+                                    </p>
+                                    {/* {generateIllustrations && (
+                                      <div className="mt-6 grid grid-cols-2 gap-4">
+                                        <img
+                                          src="/api/placeholder/400/300"
+                                          alt="AI Generated Illustration"
+                                          className="rounded-lg border border-purple-500/20"
+                                        />
+                                        <img
+                                          src="/api/placeholder/400/300"
+                                          alt="AI Generated Illustration"
+                                          className="rounded-lg border border-purple-500/20"
+                                        />
+                                      </div>
+                                    )} */}
+                                  </div>
+                                  <video
+                                    src={dataItem.videoUrl}
+                                    controls
+                                    className="w-full h-64 rounded-lg object-contain bg-black"
+                                    preload="auto"
+                                    onError={(e) => console.error("Video error:", e)}
+                                  />
+                                  <div className="grid grid-cols-2 gap-3 pt-4">
+                                    <Button
+                                      variant="secondary"
 
-                          <div className="loader">
-                            <p>Generating</p>
-                            <div className="words">
-                              <span className="word">Story</span>
-                              <span className="word">Speech</span>
-                              <span className="word">Character</span>
-                              <span className="word">Video</span>
-                              <span className="word">Story</span>
-                            </div>
-                          </div>
-                        </div>
+                                      onClick={() => handleDownloadVideo(dataItem.videoUrl || '', dataItem.userPrompt || '')}
+                                    >
+                                      <Download className="mr-2 h-4 w-4" />
+                                      Download
+                                    </Button>
+                                    <Button
+                                      variant="secondary"
+                                      onClick={() => setShowShareDialog(true)}
+                                    >
+                                      <Share className="mr-2 h-4 w-4" />
+                                      Share
+                                    </Button>
+                                  </div>
+                                </>
+                              ) :
+                              dataItem.status === 'waiting' ?
+                                (
+                                  <div className="w-full h-96 rounded-lg bg-black/30 flex flex-col items-center justify-center">
+                                    <div
+                                      className="p-2 animate-spin drop-shadow-2xl bg-gradient-to-bl from-pink-400 via-purple-400 to-indigo-600 md:w-20 md:h-20 h-16 w-16 aspect-square rounded-full"
+                                    >
+                                      <div
+                                        className="rounded-full h-full w-full bg-slate-100 dark:bg-zinc-900 background-blur-md"
+                                      ></div>
+                                    </div>
+
+                                    <div className="loader">
+                                      <p>Generating</p>
+                                      <div className="words">
+                                        <span className="word">Story</span>
+                                        <span className="word">Speech</span>
+                                        <span className="word">Character</span>
+                                        <span className="word">Video</span>
+                                        <span className="word">Story</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )
+                                :
+                                (
+                                  <CardContent
+                                    className="bg-[#0f0f0f]/ bg-red-900/30 border-2/ border-red-600 h-fit min-h-96 w-full p-0 flex flex-col justify-center pb-4 rounded-xl relative">
+                                    <div className="text-center">
+                                      <TriangleAlert className='size-16 text-red-500 mx-auto' />
+                                      <h2 className="text-zinc-900 dark:text-white mt-4">Error Generating Content!</h2>
+                                      <p className="text-zinc-600 dark:text-zinc-400">
+                                        The server wasn't able to generate your {dataItem.contentType}!
+                                      </p>
+                                      <div className='pt-1 text-sm opacity-60'>Please Try Again!</div>
+                                      <div className='pt-1 text-xs opacity-40'>{dataItem.userPrompt}</div>
+                                    </div>
+                                    {
+                                      dataItem.contentType === 'roast-my-pic' &&
+                                      (
+                                        <img
+                                          src={(dataItem.imageUrl || dataItem.thumbnail_alt) ? `${BASE_URL}/${dataItem.imageUrl || dataItem.thumbnail_alt}` : 'https://images.pexels.com/photos/1955134/pexels-photo-1955134.jpeg'}
+                                          alt={dataItem.displayName || dataItem.musicTitle || ''}
+                                          className={`size-24 aspect-square rounded-xl object-cover absolute bottom-4 right-4 hidden`}
+                                        />
+                                      )
+                                    }
+                                  </CardContent>
+                                )
+                          }
+                        </ Card>
                       )
                       :
                       (
-                        <div className="w-full h-64 rounded-lg bg-black/30 flex items-center justify-center">
-                          <p className="text-gray-400">Your video will appear here</p>
+                        <div className={`text-center text-purple-300 py-20 ${loading && ' animate-pulse '}`}>
+                          <BookOpen className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                          <p>Your stories will appear here</p>
+                          <p className="text-sm mt-2 text-purple-400">
+                            Use the controls on the left to generate your story
+                          </p>
                         </div>
-                      )}
-
-                    {videoUrl && (
-                      <div className="grid grid-cols-2 gap-3 pt-4">
-                        <Button
-                          variant="secondary"
-
-                          onClick={handleDownloadVideo}
-                        >
-                          <Download className="mr-2 h-4 w-4" />
-                          Download
-                        </Button>
-                        <Button
-                          variant="secondary"
-                          onClick={() => setShowShareDialog(true)}
-                        >
-                          <Share className="mr-2 h-4 w-4" />
-                          Share
-                        </Button>
-                      </div>
-                    )}
-
-                    {generatedScript ? (
-                      <div className="prose prose-invert max-w-none py-20">
-                        <h2 className="text-2xl font-bold text-purple-100 mb-4">
-                          {videoTitle || 'Story Time Video'}
-                        </h2>
-                        <p className="text-purple-50 whitespace-pre-wrap leading-relaxed">
-                          {generatedScript}
-                        </p>
-                        {generateIllustrations && (
-                          <div className="mt-6 grid grid-cols-2 gap-4">
-                            <img
-                              src="/api/placeholder/400/300"
-                              alt="AI Generated Illustration"
-                              className="rounded-lg border border-purple-500/20"
-                            />
-                            <img
-                              src="/api/placeholder/400/300"
-                              alt="AI Generated Illustration"
-                              className="rounded-lg border border-purple-500/20"
-                            />
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className={`text-center text-purple-300 py-20 ${loading && ' animate-pulse '}`}>
-                        <BookOpen className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                        <p>Your story will appear here</p>
-                        <p className="text-sm mt-2 text-purple-400">
-                          Use the controls on the left to generate your story
-                        </p>
-                      </div>
-                    )}
+                      )
+                    }
                   </ScrollArea>
 
                   {generatedScript && (
@@ -926,6 +1032,12 @@ export default function EnhancedStoryGenerator() {
               </ScrollArea>
             </DialogContent>
           </Dialog>
+
+          <MessageToast
+            message="Your creation is in progress! You can keep track in your profile."
+            visible={toastVisible}
+            onClose={() => setToastVisible(false)}
+          />
         </div>
       </div>
     </Layout >

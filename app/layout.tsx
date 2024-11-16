@@ -1,13 +1,16 @@
+// app/layout.tsx
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from '../components/providers/theme-provider';
 import { Toaster } from '../components/ui/toaster';
+import { SessionProvider } from 'next-auth/react'; // Import SessionProvider from next-auth
 import './globals.css';
+import AuthProvider from '@/components/providers/auth-provider';
 
 const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
-})
+});
 
 export const metadata: Metadata = {
   title: 'VibeVision - Create, Perform, Entertain',
@@ -25,17 +28,19 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <div className="relative min-h-screen bg-background">
-            {children}
-            <Toaster />
-          </div>
-        </ThemeProvider>
+        <AuthProvider> {/* Wrap with SessionProvider */}
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <div className="relative min-h-screen bg-background">
+              {children}
+              <Toaster />
+            </div>
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

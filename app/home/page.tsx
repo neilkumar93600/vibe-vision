@@ -4,7 +4,6 @@
 import React from "react"
 import { cn } from "../../lib/utils";
 import Marquee from "../../components/animata/container/marquee";
-import FlickeringGrid from "../../components/ui/flickering-grid";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import {
   Users,
@@ -151,7 +150,7 @@ const testimonials = [
     rating: 4,
   },
 ]// Animated particle component for the background
-const Particle = ({ className }:any) => {
+const Particle = ({ className }: any) => {
   const randomDelay = Math.random() * 5;
   return (
     <motion.div
@@ -171,7 +170,7 @@ const Particle = ({ className }:any) => {
 };
 
 // Floating element component for hero section
-const FloatingElement = ({ children, delay = 0 }:any) => (
+const FloatingElement = ({ children, delay = 0 }: any) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -191,67 +190,67 @@ const HeroSection = () => {
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 300], [0, 50]);
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
-  
+
   // Generate particles
   const particles = Array.from({ length: 50 }).map((_, i) => (
-    <Particle 
-      key={i} 
+    <Particle
+      key={i}
       className={`left-[${Math.random() * 100}%] top-[${Math.random() * 100}%]`}
     />
   ));
 
   return (
     <BackgroundBeamsWithCollision>
-    <section className="min-h-screen relative overflow-hidden flex items-center justify-center py-20 px-8">
-      {/* Animated background */}
-      <div className="absolute inset-0 overflow-hidden">
-        {particles}
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-background/50 to-background" />
-      </div>
+      <section className="min-h-screen relative overflow-hidden flex items-center justify-center py-20 px-8">
+        {/* Animated background */}
+        <div className="absolute inset-0 overflow-hidden">
+          {particles}
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-background/50 to-background" />
+        </div>
 
-      {/* Main content */}
-      <motion.div
-        style={{ y, opacity }}
-        className="relative max-w-screen-xl mx-auto text-center z-10"
-      >
-        <FloatingElement delay={0.2}>
-          <h1 className="text-6xl md:text-8xl font-bold tracking-tight">
-            <span className="inline-block bg-gradient-to-r from-primary via-purple-500 to-blue-500 bg-clip-text text-transparent animate-gradient">
-              Driving growth
-            </span>
-            <br />
-            <span className="inline-block bg-gradient-to-r from-blue-500 via-purple-500 to-primary bg-clip-text text-transparent animate-gradient">
-              with AI
-            </span>
-          </h1>
-        </FloatingElement>
+        {/* Main content */}
+        <motion.div
+          style={{ y, opacity }}
+          className="relative max-w-screen-xl mx-auto text-center z-10"
+        >
+          <FloatingElement delay={0.2}>
+            <h1 className="text-6xl md:text-8xl font-bold tracking-tight">
+              <span className="inline-block bg-gradient-to-r from-primary via-purple-500 to-blue-500 bg-clip-text text-transparent animate-gradient">
+                Driving growth
+              </span>
+              <br />
+              <span className="inline-block bg-gradient-to-r from-blue-500 via-purple-500 to-primary bg-clip-text text-transparent animate-gradient">
+                with AI
+              </span>
+            </h1>
+          </FloatingElement>
 
-        <FloatingElement delay={0.4}>
-          <p className="mt-8 text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto">
-            We turn businesses into industry leaders with AI-driven solutions
-          </p>
-        </FloatingElement>
+          <FloatingElement delay={0.4}>
+            <p className="mt-8 text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto">
+              We turn businesses into industry leaders with AI-driven solutions
+            </p>
+          </FloatingElement>
 
-        <FloatingElement delay={0.6}>
-          <div className="mt-10 flex gap-4 justify-center">
-            <Button
-              size="lg"
-              className="text-lg px-8 bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 transition-all duration-300"
-            >
-              Get Started
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="text-lg px-8 border-2 hover:bg-primary/5 transition-all duration-300"
-            >
-              Learn More
-            </Button>
-          </div>
-        </FloatingElement>
-      </motion.div>
-    </section>
+          <FloatingElement delay={0.6}>
+            <div className="mt-10 flex gap-4 justify-center">
+              <Button
+                size="lg"
+                className="text-lg px-8 bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 transition-all duration-300"
+              >
+                Get Started
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="text-lg px-8 border-2 hover:bg-primary/5 transition-all duration-300"
+              >
+                Learn More
+              </Button>
+            </div>
+          </FloatingElement>
+        </motion.div>
+      </section>
     </BackgroundBeamsWithCollision>
   );
 };
@@ -262,30 +261,30 @@ export default function HomePage() {
     <Layout>
       {/* Hero Section */}
       <HeroHighlight>
-      <motion.h1
-        initial={{
-          opacity: 0,
-          y: 20,
-        }}
-        animate={{
-          opacity: 1,
-          y: [20, -5, 0],
-        }}
-        transition={{
-          duration: 0.5,
-          ease: [0.4, 0.0, 0.2, 1],
-        }}
-        className="text-2xl px-4 md:text-4xl lg:text-5xl font-bold text-neutral-700 dark:text-white max-w-4xl leading-relaxed lg:leading-snug text-center mx-auto "
-      >
-        
-        <Highlight className="text-black dark:text-white">
-        Create.
-Perform.
-Entertain.
-        </Highlight>
-        <TextGenerateEffect words={words} />
-      </motion.h1>
-    </HeroHighlight>
+        <motion.h1
+          initial={{
+            opacity: 0,
+            y: 20,
+          }}
+          animate={{
+            opacity: 1,
+            y: [20, -5, 0],
+          }}
+          transition={{
+            duration: 0.5,
+            ease: [0.4, 0.0, 0.2, 1],
+          }}
+          className="text-2xl px-4 md:text-4xl lg:text-5xl font-bold text-neutral-700 dark:text-white max-w-4xl leading-relaxed lg:leading-snug text-center mx-auto "
+        >
+
+          <Highlight className="text-black dark:text-white">
+            Create.
+            Perform.
+            Entertain.
+          </Highlight>
+          <TextGenerateEffect words={words} />
+        </motion.h1>
+      </HeroHighlight>
 
       {/* Stats Section */}
       <section className="py-16 px-8 bg-muted/50">
@@ -454,6 +453,10 @@ Entertain.
                   <Button
                     variant={plan.recommended ? 'default' : 'outline'}
                     className="w-full text-sm sm:text-base"
+                    onClick={() => {
+                      const features = encodeURIComponent(plan.features.join('|'));
+                      window.location.href = `/checkout?plan=${encodeURIComponent(plan.name)}&price=${plan.price}&billing=${encodeURIComponent(plan.billingType)}&features=${features}`;
+                    }}
                   >
                     Choose {plan.name}
                   </Button>

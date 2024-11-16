@@ -25,6 +25,7 @@ import { Badge } from "../../../components/ui/badge";
 import MusicPlayer from '../../../components/media/music-player';
 import { Layout } from "../../../components/layout/layout";
 import { LampContainer } from "../../../components/ui/lamp";
+import EnhancedMusicPlayer from '../../../components/media/music-player';
 
 // Enhanced features data with gradients and hover states
 const features = [
@@ -783,7 +784,7 @@ const MusicStudio = () => {
                         <CollaborativePlaylists />
                     </section> */}
                 </div>
-                {currentTrack && <MusicPlayer currentSong={null} />}
+                {/* {currentTrack && <EnhancedMusicPlayer />} */}
             </div>
         </Layout>
     );

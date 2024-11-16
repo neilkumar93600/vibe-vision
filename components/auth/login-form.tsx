@@ -2,11 +2,13 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod"; // Corrected import
+import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Input } from "../ui/input2";
 import { Label } from "../ui/label2";
 import { Button } from "../ui/button";
+import { signIn, signOut, useSession } from 'next-auth/react';
+import { GoogleLogin } from '@react-oauth/google';
 import {
   Card,
   CardContent,
@@ -19,6 +21,7 @@ import { Icons } from "../ui/icons";
 import Link from "next/link";
 import axios from "axios";
 import { BASE_URL } from "@/config";
+import MessageToast from "../ui/MessageToast";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -27,7 +30,14 @@ const loginSchema = z.object({
 
 export function LoginForm() {
   const [isLoading, setIsLoading] = React.useState(false);
-  const [localStorageInstance,  setLocalStorageInstance] = useState<Storage | null>(null)
+  const [localStorageInstance, setLocalStorageInstance] = useState<Storage | null>(null)
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string>('No Message');
+  // const { data: session } = useSession();
+
+  const showToast = () => {
+    setToastVisible(true);
+  };
 
   const form = useForm({
     resolver: zodResolver(loginSchema),
@@ -40,29 +50,53 @@ export function LoginForm() {
   async function onSubmit(data: z.infer<typeof loginSchema>) {
     setIsLoading(true);
 
-    const url = `${BASE_URL}/auth/login`;
+    const url = `${BASE_URL}/api/auth/login`;
     try {
       const response = await axios.post(url, data);
       const { jwtToken, name, email } = response.data;
 
-      // Save data to localStorage
       localStorageInstance?.setItem('token', jwtToken);
       localStorageInstance?.setItem('loggedInUser', name);
       localStorageInstance?.setItem('loggedInUserEmail', email);
 
-      toast.success("Logged in successfully!");
-      // Redirect to the gallery page (adjust URL if needed)
+      setToastMessage("Logged in successfully!");
+      showToast()
       window.location.href = "/entertainment-hub";
     } catch (error) {
       console.error(error);
-      toast.error("Invalid email or password");
+      setToastMessage("Invalid email or password!");
+      showToast()
     } finally {
       setIsLoading(false);
     }
   }
 
+  const handleGoogleLogin = async (response: any) => {
+    if (response.credential) {
+      const googleAccessToken = response.credential;
+
+      // Send the Google Access Token to your backend for verification and login
+      try {
+        const res = await axios.post('http://localhost:8000/api/auth/google', {
+          googleAccessToken,
+        });
+
+        // Handle successful login response from the backend
+        if (res.data.success) {
+          localStorage.setItem('token', res.data.jwtToken);
+          localStorage.setItem('loggedInUser', res.data.name);
+          localStorage.setItem('loggedInUserEmail', res.data.email);
+          console.log('Logged in successfully!', res.data);
+        } else {
+          console.error('Google login failed:', res.data.message);
+        }
+      } catch (err) {
+        console.error('Error logging in with Google:', err);
+      }
+    }
+  };
+
   useEffect(() => {
-    // localStorageInstance = localStorage
     setLocalStorageInstance(localStorage)
   }, []);
 
@@ -122,15 +156,19 @@ export function LoginForm() {
             </span>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          <Button variant="outline" disabled={isLoading}>
-            <Icons.gitHub className="mr-2 h-4 w-4" />
-            GitHub
-          </Button>
-          <Button variant="outline" disabled={isLoading}>
+        <div className="grid grid-cols-1 gap-4 w-full">
+          {/* <Button variant="outline" className="w-full" disabled={isLoading} onClick={() => signIn('google')}>
             <Icons.google className="mr-2 h-4 w-4" />
             Google
-          </Button>
+          </Button> */}
+          <GoogleLogin
+            logo_alignment="center"
+            text="continue_with"
+            theme="outline"
+            onSuccess={cr => handleGoogleLogin(cr)}
+            onError={() => console.log('Login Failed')}
+            useOneTap
+          />
         </div>
         <p className="text-center text-sm text-muted-foreground">
           Don't have an account?{" "}
@@ -139,6 +177,12 @@ export function LoginForm() {
           </Link>
         </p>
       </CardFooter>
+      <MessageToast
+        message={toastMessage}
+        visible={toastVisible}
+        onClose={() => setToastVisible(false)}
+        isError
+      />
     </Card>
   );
 }

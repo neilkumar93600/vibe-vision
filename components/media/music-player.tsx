@@ -31,6 +31,8 @@ import {
   Volume2,
   VolumeX,
   Repeat,
+  ChevronUp,
+  ChevronDown,
   Share2,
   Download,
   Heart,
@@ -43,8 +45,12 @@ import {
   MusicIcon,
   Info,
   Minimize2,
-  Maximize2
+  Maximize2,
+  MicVocal
 } from 'lucide-react';
+import ScrollingText from '../ui/scroll-text';
+import SongLyrics from '../ui/song-lyrics';
+import axios from 'axios';
 
 // Define an interface for playlist items
 interface PlaylistItem {
@@ -100,6 +106,7 @@ interface Song {
   audioUrl: string;
   duration: number;
   timestamp: string;
+  lyrics: string;
 }
 
 interface CurrentSong {
@@ -116,59 +123,102 @@ export default function EnhancedMusicPlayer({ currentSong }: CurrentSong) {
   const [isShuffle, setIsShuffle] = useState<boolean>(false);
   const [isLiked, setIsLiked] = useState<boolean>(false);
   const [isMuted, setIsMuted] = useState<boolean>(false);
-  const [showPlaylist, setShowPlaylist] = useState<boolean>(false);
   const [currentSongIndex, setCurrentSongIndex] = useState<number>(0);
   const [playlist] = useState<PlaylistItem[]>(defaultPlaylist);
-  const [isRadioMode, setIsRadioMode] = useState<boolean>(false);
   const [showLyrics, setShowLyrics] = useState<boolean>(false);
+
+  // const [showLyrics, setShowLyrics] = useState<boolean>(false)
 
 
 
   // -------------------------------------------------------------------------------
 
 
-  const [generatedSongs, setGeneratedSongs] = useState<Song[]>([]);
+  // const [generatedSongs, setGeneratedSongs] = useState<Song[]>([]);
   // const currentSong: Song | null = currentSongIndex !== null ? generatedSongs[currentSongIndex] : null;
   const playerScreenRef = useRef<HTMLDivElement>(null)
   const [isMusicPlayerFullScreen, setIsMusicPlayerFullScreen] = useState<boolean>(false)
 
-  const [imageUrl, setImageUrl] = useState<string | null>(null)
-  const [musicUrl, setMusicUrl] = useState<string | null>(null)
-
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const maximizeScreen = () => {
-    if (playerScreenRef.current) {
-      if (playerScreenRef.current.requestFullscreen) {
-        playerScreenRef.current.requestFullscreen();
-        setIsMusicPlayerFullScreen(true)
-      } else if ((playerScreenRef.current as any).mozRequestFullScreen) {
-        (playerScreenRef.current as any).mozRequestFullScreen();
-        setIsMusicPlayerFullScreen(true)
-      } else if ((playerScreenRef.current as any).webkitRequestFullscreen) {
-        (playerScreenRef.current as any).webkitRequestFullscreen();
-        setIsMusicPlayerFullScreen(true)
-      } else if ((playerScreenRef.current as any).msRequestFullscreen) {
-        (playerScreenRef.current as any).msRequestFullscreen();
-        setIsMusicPlayerFullScreen(true)
-      }
-    }
+  const isTouchDevice = (): boolean => {
+    return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
   };
 
-  const minimizeScreen = () => {
+  const isMobileDevice = (): boolean => {
+    return /Mobi|Android/i.test(navigator.userAgent);
+  };
+
+  const maximizeScreen = (): void => {
+    if (isTouchDevice() || isMobileDevice()) {
+      setIsMusicPlayerFullScreen(true);
+      return;
+    }
+
+    if (playerScreenRef.current) {
+      const element = playerScreenRef.current as HTMLElement;
+
+      if (element.requestFullscreen) {
+        element.requestFullscreen();
+      } else if ((element as any).mozRequestFullScreen) {
+        (element as any).mozRequestFullScreen(); // For Firefox
+      } else if ((element as any).webkitRequestFullscreen) {
+        (element as any).webkitRequestFullscreen(); // For Safari
+      } else if ((element as any).msRequestFullscreen) {
+        (element as any).msRequestFullscreen(); // For Internet Explorer/Edge
+      }
+    }
+
+    setIsMusicPlayerFullScreen(true);
+  };
+
+  const minimizeScreen = (): void => {
+    if (isTouchDevice() || isMobileDevice()) {
+      setIsMusicPlayerFullScreen(false);
+      return;
+    }
+
     if (document.fullscreenElement) {
       if (document.exitFullscreen) {
         document.exitFullscreen();
-        setIsMusicPlayerFullScreen(false)
       } else if ((document as any).mozCancelFullScreen) {
-        (document as any).mozCancelFullScreen();
-        setIsMusicPlayerFullScreen(false)
+        (document as any).mozCancelFullScreen(); // For Firefox
       } else if ((document as any).webkitExitFullscreen) {
-        (document as any).webkitExitFullscreen();
-        setIsMusicPlayerFullScreen(false)
+        (document as any).webkitExitFullscreen(); // For Safari
       } else if ((document as any).msExitFullscreen) {
-        (document as any).msExitFullscreen();
-        setIsMusicPlayerFullScreen(false)
+        (document as any).msExitFullscreen(); // For Internet Explorer/Edge
+      }
+    }
+
+    setIsMusicPlayerFullScreen(false);
+  };
+
+
+  const handleShowLyrics = () => {
+    setShowLyrics(val => !val)
+  }
+
+  const handleDownloadAudio = async (audioUrl: string | null, displayName: string) => {
+    if (audioUrl) {
+      try {
+        // Fetch the video file as a blob using Axios
+        const response = await axios.get(audioUrl, {
+          responseType: 'blob',
+        });
+
+        const blob = new Blob([response.data], { type: 'audio/mp3' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${displayName}.mp3`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        URL.revokeObjectURL(url); // Clean up the URL object
+      } catch (error) {
+        console.error("Error downloading audio:", error);
       }
     }
   };
@@ -257,256 +307,82 @@ export default function EnhancedMusicPlayer({ currentSong }: CurrentSong) {
     }
   };
 
-  // return (
-  //   <div className="fixed bottom-0 left-0 right-0 z-50">
-  //     <Card className="rounded-none border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-  //       <CardContent className="p-3">
-  //         <audio ref={audioRef} src="/path-to-your-audio.mp3" />
-
-  //         <div className="flex items-center gap-4">
-  //           {/* Album Art and Song Info */}
-  //           <div className="flex items-center gap-4 min-w-[240px]">
-  //             <Dialog>
-  //               <DialogTrigger asChild>
-  //                 <div className="relative w-16 h-16 rounded-lg overflow-hidden cursor-pointer group">
-  //                   <img
-  //                     src={currentSong.coverArt}
-  //                     alt={currentSong.title}
-  //                     className="w-full h-full object-cover transition group-hover:scale-110"
-  //                   />
-  //                   <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-  //                     <Info className="text-white" size={24} />
-  //                   </div>
-  //                 </div>
-  //               </DialogTrigger>
-  //               <DialogContent>
-  //                 <DialogHeader>
-  //                   <DialogTitle>Now Playing</DialogTitle>
-  //                   <DialogDescription>
-  //                     <div className="flex flex-col items-center gap-4 mt-4">
-  //                       <img
-  //                         src={currentSong.coverArt}
-  //                         alt={currentSong.title}
-  //                         className="w-48 h-48 rounded-lg object-cover"
-  //                       />
-  //                       <div className="text-center">
-  //                         <h3 className="text-xl font-semibold">{currentSong.title}</h3>
-  //                         <p className="text-muted-foreground">{currentSong.artist}</p>
-  //                         <p className="text-sm text-muted-foreground">{currentSong.album}</p>
-  //                       </div>
-  //                     </div>
-  //                   </DialogDescription>
-  //                 </DialogHeader>
-  //               </DialogContent>
-  //             </Dialog>
-
-  //             <div className="flex flex-col">
-  //               <h3 className="font-semibold">{currentSong.title}</h3>
-  //               <p className="text-sm text-muted-foreground">{currentSong.artist}</p>
-  //             </div>
-  //           </div>
-
-  //           {/* Main Controls */}
-  //           <div className="flex-1 flex flex-col gap-2">
-  //             <div className="flex items-center justify-center gap-4">
-  //               <Button
-  //                 variant="ghost"
-  //                 size="icon"
-  //                 onClick={() => setIsShuffle(!isShuffle)}
-  //                 className={isShuffle ? "text-primary" : ""}
-  //               >
-  //                 <Shuffle size={20} />
-  //               </Button>
-
-  //               <Button variant="ghost" size="icon" onClick={handlePrevious}>
-  //                 <SkipBack size={20} />
-  //               </Button>
-
-  //               <Button
-  //                 variant="secondary"
-  //                 size="icon"
-  //                 className="h-10 w-10"
-  //                 onClick={handlePlayPause}
-  //               >
-  //                 {isPlaying ? <Pause size={20} /> : <Play size={20} />}
-  //               </Button>
-
-  //               <Button variant="ghost" size="icon" onClick={handleNext}>
-  //                 <SkipForward size={20} />
-  //               </Button>
-
-  //               <Button
-  //                 variant="ghost"
-  //                 size="icon"
-  //                 onClick={() => setIsRepeat(!isRepeat)}
-  //                 className={isRepeat ? "text-primary" : ""}
-  //               >
-  //                 <Repeat size={20} />
-  //               </Button>
-  //             </div>
-
-  //             <div className="flex items-center gap-2">
-  //               <span className="text-sm text-muted-foreground min-w-[40px] text-right">
-  //                 {formatTime(currentTime)}
-  //               </span>
-  //               <Slider
-  //                 value={[currentTime]}
-  //                 max={duration || 100}
-  //                 step={1}
-  //                 onValueChange={handleTimeChange}
-  //                 className="flex-1"
-  //               />
-  //               <span className="text-sm text-muted-foreground min-w-[40px]">
-  //                 {formatTime(duration)}
-  //               </span>
-  //             </div>
-  //           </div>
-
-  //           {/* Right Controls */}
-  //           <div className="flex items-center gap-3 min-w-[260px] justify-end">
-  //             <Button
-  //               variant="ghost"
-  //               size="icon"
-  //               onClick={() => setIsRadioMode(!isRadioMode)}
-  //               className={isRadioMode ? "text-primary" : ""}
-  //             >
-  //               <Radio size={20} />
-  //             </Button>
-
-  //             <Button
-  //               variant="ghost"
-  //               size="icon"
-  //               onClick={() => setIsLiked(!isLiked)}
-  //               className={isLiked ? "text-red-500" : ""}
-  //             >
-  //               <Heart size={20} fill={isLiked ? "currentColor" : "none"} />
-  //             </Button>
-
-  //             <div className="flex items-center gap-2">
-  //               <Button variant="ghost" size="icon" onClick={toggleMute}>
-  //                 {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
-  //               </Button>
-  //               <Slider
-  //                 value={[isMuted ? 0 : volume]}
-  //                 max={1}
-  //                 step={0.01}
-  //                 onValueChange={handleVolumeChange}
-  //                 className="w-24"
-  //               />
-  //             </div>
-
-  //             <Dialog>
-  //               <DialogTrigger asChild>
-  //                 <Button variant="ghost" size="icon">
-  //                   <ListMusic size={20} />
-  //                 </Button>
-  //               </DialogTrigger>
-  //               <DialogContent>
-  //                 <DialogHeader>
-  //                   <DialogTitle>Playlist</DialogTitle>
-  //                 </DialogHeader>
-  //                 <ScrollArea className="h-[400px] pr-4">
-  //                   {playlist.map((song, index) => (
-  //                     <div
-  //                       key={song.id}
-  //                       className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-muted ${
-  //                         currentSongIndex === index ? "bg-muted" : ""
-  //                       }`}
-  //                       onClick={() => {
-  //                         setCurrentSongIndex(index);
-  //                         setIsPlaying(true);
-  //                       }}
-  //                     >
-  //                       <img
-  //                         src={song.coverArt}
-  //                         alt={song.title}
-  //                         className="w-12 h-12 rounded object-cover"
-  //                       />
-  //                       <div className="flex-1">
-  //                         <p className="font-medium">{song.title}</p>
-  //                         <p className="text-sm text-muted-foreground">
-  //                           {song.artist}
-  //                         </p>
-  //                       </div>
-  //                       <span className="text-sm text-muted-foreground">
-  //                         {formatTime(song.duration)}
-  //                       </span>
-  //                     </div>
-  //                   ))}
-  //                 </ScrollArea>
-  //               </DialogContent>
-  //             </Dialog>
-
-  //             <DropdownMenu>
-  //               <DropdownMenuTrigger asChild>
-  //                 <Button variant="ghost" size="icon">
-  //                   <MoreHorizontal size={20} />
-  //                 </Button>
-  //               </DropdownMenuTrigger>
-  //               <DropdownMenuContent align="end">
-  //                 <DropdownMenuItem onClick={() => {}}>
-  //                   <Download size={16} className="mr-2" />
-  //                   Download
-  //                 </DropdownMenuItem>
-  //                 <DropdownMenuItem onClick={() => {}}>
-  //                   <Share2 size={16} className="mr-2" />
-  //                   Share
-  //                 </DropdownMenuItem>
-  //                 <DropdownMenuSeparator />
-  //                 <DropdownMenuItem onClick={() => setShowLyrics(!showLyrics)}>
-  //                   <MusicIcon size={16} className="mr-2" />
-  //                   View Lyrics
-  //                 </DropdownMenuItem>
-  //                 <DropdownMenuItem>
-  //                   <Info size={16} className="mr-2" />
-  //                   Song Info
-  //                 </DropdownMenuItem>
-  //               </DropdownMenuContent>
-  //             </DropdownMenu>
-  //           </div>
-  //         </div>
-
-  //         {/* Progress bar at the very top */}
-  //         <Progress
-  //           value={(currentTime / duration) * 100}
-  //           className="h-1 absolute top-0 left-0 right-0"
-  //         />
-  //       </CardContent>
-  //     </Card>
-  //   </div>
-  // );
-
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50">
       {
         currentSong && (
           <div
             ref={playerScreenRef}
-            className={`fixed bottom-0 left-0 right-0 flex flex-col-reverse bg-background/95 backdrop-blur border-t`}>
-            {isMusicPlayerFullScreen && <div
-              style={{ backgroundImage: `url(${currentSong.coverArt})` }}
-              className='w-full h-full absolute pointer-events-none bg-cover blur-md opacity-40' />}
+            className={`fixed bottom-0 left-0 right-0 flex flex-col-reverse bg-background backdrop-blur border-t ${isMusicPlayerFullScreen && 'h-screen w-screen top-0'}`}>
+            {/* {isMusicPlayerFullScreen && <div
+              style={{ backgroundImage: `url(${currentSong.coverArt || imageUrl})` }}
+              className='w-full h-full absolute pointer-events-none bg-cover blur-md opacity-40' />} */}
+            {isMusicPlayerFullScreen &&
+              <div className='absolute top-4 flex w-full justify-center px-4'>
+                <div className='w-full flex justify-between'>
+                  <Button
+                    variant="ghost"
+                    // size="icon"
+                    onClick={minimizeScreen}
+                    className={`hover:text-white 'text-gray-400' scale-150/ flex`}
+                  >
+                    <ChevronDown className="h-5 w-5" />
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    onClick={handleShowLyrics}
+                    className={`hover:text-white 'text-gray-400' scale-150/ bg-red-400/ flex`} >
+                    <MicVocal className="h-5 w-5" />
+                    Lyrics
+                    {
+                      showLyrics ?
+                        <ChevronUp className="h-5 w-5" />
+                        :
+                        <ChevronDown className="h-5 w-5" />
+                    }
+                  </Button>
+                </div>
+
+                {showLyrics &&
+                  <div className='absolute flex flex-col gap-2 top-full bg-black/80 rounded-lg border p-4 border-gray-800 z-10 md:right-0 h-[480px] m-4 w-96'>
+                    <div className='text-xl px-4 pt-2' >Lyrics</div>
+                    <ScrollArea
+                      className='size-full p-4'>
+                      <SongLyrics lyrics={currentSong.lyrics} bgImage={currentSong.coverArt} />
+                    </ScrollArea>
+                  </div>
+                }
+              </div>
+            }
+
+
+
             <div
-              style={{ backgroundImage: isMusicPlayerFullScreen ? `url(${imageUrl})` : '', }}
-              className='absolute w-full h-full bg-no-repeat bg-cover opacity-30 blur-md pointer-events-none'>
+              style={{ backgroundImage: isMusicPlayerFullScreen ? `url(${currentSong.coverArt})` : '', }}
+              className='absolute w-full h-full bg-no-repeat bg-cover opacity-30 md:opacity-30 blur-md pointer-events-none'>
             </div>
+
             <Progress
               value={(currentTime / duration) * 100}
               className="h-1"
             />
+
             {isMusicPlayerFullScreen ?
               // <div className="p-4 w-full">
-              <div className="flex items-center h-full/ w-full justify-center flex-col gap-4 p-16 relative">
+              <div className="flex items-center h-full/ w-full justify-center flex-col gap-4 py-16 px-8 md:px-16 relative">
+
                 {/* Song Info */}
-                <div className="flex items-center gap-4 w-full min-w-[240px] m-20">
-                  <img
+                <div className="flex flex-col sm:flex-row items-center gap-4 w-full min-w-[240px] md:m-20">
+                  {!(isMobileDevice() || isTouchDevice()) && <img
                     src={currentSong.coverArt}
                     alt={currentSong.title}
-                    className="size-48 rounded"
-                  />
-                  <div className='flex flex-col justify-end h-full px-8 gap-4'>
-                    <h3 className="font-bold text-5xl">{currentSong.title}</h3>
-                    <h3 className="font-bold text-xl opacity-50">VibeVision Music.</h3>
+                    className="size-full md:size-48 rounded"
+                  />}
+                  <div className='flex flex-col justify-end w-full h-full md:px-8 md:gap-4'>
+                    {/* <ScrollingText text={currentSong.title} /> */}
+                    <h3 className="font-bold text-base md:text-5xl">{currentSong.title}</h3>
+                    <h3 className="font-bold text-xs opacity-50">VibeVision Music.</h3>
                     {/* <p className="text-sm text-gray-400">
                                             {currentSong.genres.join(', ')}
                                         </p> */}
@@ -515,10 +391,7 @@ export default function EnhancedMusicPlayer({ currentSong }: CurrentSong) {
 
                 {/* Player Controls */}
                 <div className="w-full">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-400">
-                      {formatTime(currentTime)}
-                    </span>
+                  <div className="flex flex-col items-center gap-2">
                     <Slider
                       value={[currentTime]}
                       max={duration}
@@ -526,9 +399,14 @@ export default function EnhancedMusicPlayer({ currentSong }: CurrentSong) {
                       onValueChange={handleTimeChange}
                       className="flex-1"
                     />
-                    <span className="text-sm text-gray-400">
-                      {formatTime(duration)}
-                    </span>
+                    <div className='flex w-full justify-between items-center text-xs md:textx-sm'>
+                      <span className="text-gray-400">
+                        {formatTime(currentTime)}
+                      </span>
+                      <span className="text-gray-400">
+                        {formatTime(duration)}
+                      </span>
+                    </div>
                   </div>
                   <div className="flex justify-center items-center gap-4 mb-2">
                     <Button
@@ -577,14 +455,15 @@ export default function EnhancedMusicPlayer({ currentSong }: CurrentSong) {
                 </div>
 
                 {/* Additional Controls */}
-                <div className="flex items-center gap-2 w-full min-w-[240px] justify-end">
+                <div className="flex items-center gap-2 w-full md:min-w-[240px] justify-center md:justify-end">
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => setIsLiked(!isLiked)}
-                    className={`hover:text-white ${isLiked ? 'text-red-500' : 'text-gray-400'}`}
+                    // onClick={() => setIsLiked(!isLiked)}
+                    onClick={() => { handleDownloadAudio(currentSong.audioUrl, currentSong.title) }}
+                    className={`hover:text-white ${isLiked ? 'text-red-500/' : 'text-gray-400/'}`}
                   >
-                    <Heart className="h-5 w-5" />
+                    <Download className="h-5 w-5" />
                   </Button>
                   <div className="flex items-center gap-2">
                     <Button
@@ -631,7 +510,7 @@ export default function EnhancedMusicPlayer({ currentSong }: CurrentSong) {
                     size="icon"
                     // onClick={() => setIsMusicPlayerFullScreen(val => !val)}
                     onClick={minimizeScreen}
-                    className={`hover:text-white 'text-gray-400'`}
+                    className={`hover:text-white 'text-gray-400' hidden md:flex`}
                   >
                     {!isMusicPlayerFullScreen ? <Maximize2 className="h-5 w-5" />
                       : <Minimize2 className="h-5 w-5" />}
@@ -642,14 +521,21 @@ export default function EnhancedMusicPlayer({ currentSong }: CurrentSong) {
 
               :
 
-              <div className="p-4 w-full">
-                <div className="flex items-center gap-4">
+              <div className="p-4 w-full relative">
+                <div className="flex items-center justify-between gap-4 relative">
+                  <div
+                    onClick={() => {
+                      if ((isMobileDevice() || isTouchDevice()) && !isMusicPlayerFullScreen) {
+                        maximizeScreen()
+                      }
+                    }}
+                    className='bg-red-400/ bg-transparent absolute size-full top-0 left-0 z-10 md:hidden' />
                   {/* Song Info */}
-                  <div className="flex items-center gap-4 min-w-[240px]">
+                  <div className="flex flex-1 md:flex-none items-center gap-4 md:min-w-[240px] z-0">
                     <img
                       src={currentSong.coverArt}
                       alt={currentSong.title}
-                      className="w-12 h-12 rounded"
+                      className="size-8 sm:size-12 rounded"
                     />
                     <div>
                       <h3 className="font-medium">{currentSong.title}</h3>
@@ -660,13 +546,13 @@ export default function EnhancedMusicPlayer({ currentSong }: CurrentSong) {
                   </div>
 
                   {/* Player Controls */}
-                  <div className="flex-1">
+                  <div className="md:flex-1 z-20">
                     <div className="flex justify-center items-center gap-4 mb-2">
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => setIsShuffle(!isShuffle)}
-                        className={`hover:text-white ${isShuffle ? 'text-primary' : 'text-gray-400'}`}
+                        className={`hover:text-white hidden md:flex ${isShuffle ? 'text-primary' : 'text-gray-400'}`}
                       >
                         <Shuffle className="h-5 w-5" />
                       </Button>
@@ -700,12 +586,22 @@ export default function EnhancedMusicPlayer({ currentSong }: CurrentSong) {
                         variant="ghost"
                         size="icon"
                         onClick={() => setIsRepeat(!isRepeat)}
-                        className={`hover:text-white ${isRepeat ? 'text-primary' : 'text-gray-400'}`}
+                        className={`hover:text-white hidden md:flex ${isRepeat ? 'text-primary' : 'text-gray-400'}`}
                       >
                         <Repeat className="h-5 w-5" />
                       </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        // onClick={() => setIsMusicPlayerFullScreen(val => !val)}
+                        onClick={maximizeScreen}
+                        className={`hover:text-white /text-gray-400 hidden`}
+                      >
+                        {!isMusicPlayerFullScreen ? <ChevronUp className="h-5 w-5" />
+                          : <ChevronDown className="h-5 w-5" />}
+                      </Button>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="hidden md:flex items-center gap-2">
                       <span className="text-sm text-gray-400">
                         {formatTime(currentTime)}
                       </span>
@@ -723,14 +619,15 @@ export default function EnhancedMusicPlayer({ currentSong }: CurrentSong) {
                   </div>
 
                   {/* Additional Controls */}
-                  <div className="flex items-center gap-2 min-w-[240px] justify-end">
+                  <div className="hidden md:flex items-center gap-2 min-w-[240px] justify-end">
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => setIsLiked(!isLiked)}
-                      className={`hover:text-white ${isLiked ? 'text-red-500' : 'text-gray-400'}`}
+                      // onClick={() => setIsLiked(!isLiked)}
+                      onClick={() => { handleDownloadAudio(currentSong.audioUrl, currentSong.title) }}
+                      className={`hover:text-white ${isLiked ? 'text-red-500/' : 'text-gray-400/'}`}
                     >
-                      <Heart className="h-5 w-5" />
+                      <Download className="h-5 w-5" />
                     </Button>
                     <div className="flex items-center gap-2">
                       <Button

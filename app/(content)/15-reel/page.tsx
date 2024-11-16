@@ -47,6 +47,7 @@ import { BASE_URL } from '@/config';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 import { Layout } from '@/components/layout/layout';
+import MessageToast from '@/components/ui/MessageToast';
 
 // FFmpeg Configuration
 // const ffmpeg = new FFmpeg();
@@ -105,12 +106,19 @@ export default function RoastVideoCreator() {
         roastStyle: 'funny'
     });
 
-    const [localStorageInstance,  setLocalStorageInstance] = useState<Storage | null>(null)
-  
+    const [localStorageInstance, setLocalStorageInstance] = useState<Storage | null>(null)
+
+    const [toastVisible, setToastVisible] = useState(false);
+
+    const showToast = () => {
+        setToastVisible(true);
+        // The toast will auto-close after 2 seconds because of the useEffect in the Toast component
+    };
+
     useEffect(() => {
-      setLocalStorageInstance(localStorage);
+        setLocalStorageInstance(localStorage);
     }, [])
-    
+
 
     const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
 
@@ -129,6 +137,7 @@ export default function RoastVideoCreator() {
     const handleGenerate = async () => {
         let currentTime = Date.now();
         const token = localStorageInstance?.getItem('token');
+        const loggedInUser = localStorageInstance?.getItem('loggedInUser');
 
         if (!imageFile) {
             //   alert('Please upload an image before submitting.');
@@ -143,9 +152,12 @@ export default function RoastVideoCreator() {
         formData.append('voice', selectedVoice);
         formData.append('style', settings.roastStyle);
         formData.append('duration', String(settings.duration));
+        formData.append('userName', String(loggedInUser));
         // formData.append('user_id', String(currentUserToken));
 
         try {
+            showToast()
+
             const response = await axios.post(
                 `${BASE_URL}/api/generate-video/roast-video`,
                 formData,
@@ -157,8 +169,8 @@ export default function RoastVideoCreator() {
             );
 
             setRoastScript(response.data.summary || 'No summary generated.');
-            setVideoUrl(`${BASE_URL}/${response.data.video}`); // Set video file path
-            setIsVideoGenerated(true); // Mark video as generated
+            setVideoUrl(`${BASE_URL}/${response.data.video}`);
+            setIsVideoGenerated(true);
             console.log(`${BASE_URL}/${response.data.video}`);
         } catch (error) {
             console.error('Error generating summary:', error);
@@ -573,7 +585,7 @@ export default function RoastVideoCreator() {
                     </Dialog>
 
                     {/* Alert */}
-                    {alert.show && (
+                    {false && alert.show && (
                         <Alert
                             // variant={alert.variant}
                             className="fixed bottom-4 left-4 max-w-md animate-in fade-in slide-in-from-bottom-4"
@@ -581,6 +593,12 @@ export default function RoastVideoCreator() {
                             <AlertDescription>{alert.message}</AlertDescription>
                         </Alert>
                     )}
+
+                    <MessageToast
+                        message="Your creation is in progress! You can keep track in your profile."
+                        visible={toastVisible}
+                        onClose={() => setToastVisible(false)}
+                    />
                 </div>
             </div>
         </Layout>

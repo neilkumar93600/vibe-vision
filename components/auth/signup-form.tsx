@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod"; // Corrected import
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -19,17 +19,24 @@ import { Icons } from "../ui/icons";
 import Link from "next/link";
 import axios from "axios";
 import { BASE_URL } from "@/config";
+import MessageToast from "../ui/MessageToast";
 
 const signupSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
   lastName: z.string().min(2, "Last name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
-  channelName: z.string().min(3, "Channel name must be at least 3 characters"),
+  // channelName: z.string().min(3, "Channel name must be at least 3 characters"),
 });
 
 export function SignUpForm() {
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string>('No Message');
+
+  const showToast = () => {
+    setToastVisible(true);
+  };
 
   const form = useForm({
     resolver: zodResolver(signupSchema),
@@ -38,7 +45,7 @@ export function SignUpForm() {
       lastName: "",
       email: "",
       password: "",
-      channelName: "",
+      // channelName: "",
     },
   });
 
@@ -53,13 +60,16 @@ export function SignUpForm() {
         password: data.password,
         // channelName: data.channelName,
       });
-      
-      toast.success("Account created successfully! Please check your email to verify your account.");
+
+      // toast.success("Account created successfully! Please check your email to verify your account.");
       // Redirect to login page
       window.location.href = "/login";
     } catch (error) {
       console.error(error);
-      toast.error("Something went wrong. Please try again.");
+      // toast.error("Something went wrong. Please try again.");
+
+      setToastMessage(`Something went wrong. Please try again. \n DEV: {-- ${error} --}`);
+      showToast()
     } finally {
       setIsLoading(false);
     }
@@ -95,14 +105,14 @@ export function SignUpForm() {
               />
             </div>
           </div>
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <Label htmlFor="channelName">Channel name</Label>
             <Input
               id="channelName"
               placeholder="Your unique channel name"
               {...form.register("channelName")}
             />
-          </div>
+          </div> */}
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -156,6 +166,12 @@ export function SignUpForm() {
           </Link>
         </p>
       </CardFooter>
+      <MessageToast
+        message={toastMessage}
+        visible={toastVisible}
+        onClose={() => setToastVisible(false)}
+        isError
+      />
     </Card>
   );
 }

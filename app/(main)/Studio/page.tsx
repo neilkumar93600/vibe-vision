@@ -64,6 +64,9 @@ interface SectionProps {
 
 interface EnhancedFeatureGridProps {
     onNavigate: (path: string) => void;
+    features: Array<string>;
+  title: string;
+  description?: string; 
 }
 
 const tutorials = [

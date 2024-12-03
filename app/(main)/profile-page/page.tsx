@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input2";
@@ -18,7 +18,6 @@ import {
     UserCircleIcon,
     Video,
     X,
-    PlusIcon,
     Camera,
     User2
 } from 'lucide-react';
@@ -26,8 +25,6 @@ import axios from 'axios';
 import { BASE_URL } from '@/config';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import EnhancedMusicPlayer from '@/components/media/music-player';
-import { Progress } from '@/components/ui/progress';
-import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import ScrollingText from '@/components/ui/scroll-text';
 

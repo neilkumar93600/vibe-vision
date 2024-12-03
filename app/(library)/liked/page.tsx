@@ -1,7 +1,7 @@
 "use client"
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { PlayCircle, Brain, Sparkles, Trash2, Clock, User, Heart } from "lucide-react";
+import { PlayCircle, Sparkles, Trash2, Clock, User, Heart } from "lucide-react";
 import { Layout } from "@/components/layout/layout";
 import { useState, useEffect } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";

@@ -9,14 +9,9 @@ import {
     Filter,
     MoreVertical,
     Clock,
-    TrendingUp,
     Tag,
-    ThumbsUp,
-    Zap,
     Activity,
-    Eye,
-    ArrowUpRight,
-    ChevronRight,
+    Eye
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -50,9 +45,8 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Progress } from "@/components/ui/progress";
 
-// Enhanced interfaces with more AI-driven metrics
+// Interfaces remain the same as in the previous implementation
 interface Video {
     id: number;
     title: string;
@@ -89,16 +83,6 @@ interface WatchSession {
     };
 }
 
-interface UserPreferences {
-    favoriteCategories: string[];
-    watchPatterns: {
-        timeOfDay: { [key: string]: number };
-        duration: { [key: string]: number };
-        topics: { [key: string]: number };
-    };
-    learningGoals: string[];
-}
-
 const WatchHistory = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [selectedDate, setSelectedDate] = useState('today');
@@ -106,59 +90,18 @@ const WatchHistory = () => {
     const [filterType, setFilterType] = useState('all');
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const [watchHistory, setWatchHistory] = useState<WatchSession[]>([]);
-    const [userPreferences, setUserPreferences] = useState<UserPreferences | null>(null);
-    const [aiInsights, setAiInsights] = useState<{
-        topCategories: string[];
-        watchTimeDistribution: { [key: string]: number };
-        engagementTrends: { category: string; score: number }[];
-        learningProgress: { topic: string; progress: number }[];
-        predictedInterests: string[];
-        focusMetrics: { time: string; score: number }[];
-    }>({
-        topCategories: [],
-        watchTimeDistribution: {},
-        engagementTrends: [],
-        learningProgress: [],
-        predictedInterests: [],
-        focusMetrics: []
-    });
+    // Mobile responsiveness state
+    const [isMobile, setIsMobile] = useState(false);
 
-    // Load user preferences from localStorage
+    // Responsive check
     useEffect(() => {
-        const loadUserPreferences = () => {
-            const savedPreferences = localStorage.getItem('userPreferences');
-            if (savedPreferences) {
-                setUserPreferences(JSON.parse(savedPreferences));
-            } else {
-                const defaultPreferences: UserPreferences = {
-                    favoriteCategories: ['Technology', 'Science', 'Education'],
-                    watchPatterns: {
-                        timeOfDay: {
-                            morning: 25,
-                            afternoon: 30,
-                            evening: 35,
-                            night: 10
-                        },
-                        duration: {
-                            short: 40,
-                            medium: 45,
-                            long: 15
-                        },
-                        topics: {
-                            technology: 35,
-                            science: 25,
-                            education: 20,
-                            entertainment: 20
-                        }
-                    },
-                    learningGoals: ['AI/ML', 'Web Development', 'Data Science']
-                };
-                localStorage.setItem('userPreferences', JSON.stringify(defaultPreferences));
-                setUserPreferences(defaultPreferences);
-            }
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth <= 768);
         };
 
-        loadUserPreferences();
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
     // Add clearWatchHistory function
@@ -170,15 +113,7 @@ const WatchHistory = () => {
             // Reset state
             setWatchHistory([]);
 
-            // Reset AI insights
-            setAiInsights({
-                topCategories: [],
-                watchTimeDistribution: {},
-                engagementTrends: [],
-                learningProgress: [],
-                predictedInterests: [],
-                focusMetrics: []
-            });
+            //
 
             // Close the dialog
             setShowDeleteDialog(false);
@@ -294,106 +229,7 @@ const WatchHistory = () => {
             }
         }];
     };
-
-    // Enhanced AI insights generation
-    const generateAiInsights = () => {
-        const allVideos = watchHistory.flatMap(session => session.videos);
-
-        // Advanced category analysis
-        const categoryAnalysis = new Map<string, {
-            count: number;
-            engagementTotal: number;
-            watchTime: number;
-            learningValue: number;
-        }>();
-
-        allVideos.forEach(video => {
-            if (video.category) {
-                const current = categoryAnalysis.get(video.category) || {
-                    count: 0,
-                    engagementTotal: 0,
-                    watchTime: 0,
-                    learningValue: 0
-                };
-
-                categoryAnalysis.set(video.category, {
-                    count: current.count + 1,
-                    engagementTotal: current.engagementTotal + (video.engagementScore || 0),
-                    watchTime: current.watchTime + (video.watchProgress || 0),
-                    learningValue: current.learningValue + (video.aiInsights?.learningValue || 0)
-                });
-            }
-        });
-
-        // Generate comprehensive insights
-        const topCategories = Array.from(categoryAnalysis.entries())
-            .sort(([, a], [, b]) => b.count - a.count)
-            .slice(0, 3)
-            .map(([category]) => category);
-
-        const watchTimeDistribution = {
-            morning: Math.random() * 100,
-            afternoon: Math.random() * 100,
-            evening: Math.random() * 100,
-            night: Math.random() * 100,
-        };
-
-        const engagementTrends = Array.from(categoryAnalysis.entries())
-            .map(([category, data]) => ({
-                category,
-                score: data.engagementTotal / data.count
-            }))
-            .sort((a, b) => b.score - a.score);
-
-        const learningProgress = Array.from(categoryAnalysis.entries())
-            .map(([category, data]) => ({
-                topic: category,
-                progress: (data.learningValue / data.count)
-            }))
-            .sort((a, b) => b.progress - a.progress);
-
-        setAiInsights({
-            topCategories,
-            watchTimeDistribution,
-            engagementTrends,
-            learningProgress,
-            predictedInterests: generatePredictedInterests(categoryAnalysis),
-            focusMetrics: generateFocusMetrics()
-        });
-    };
-
-    // Generate predicted interests based on watch patterns
-    const generatePredictedInterests = (categoryAnalysis: Map<string, any>): string[] => {
-        const relatedTopics = new Map<string, number>();
-
-        categoryAnalysis.forEach((data, category) => {
-            const relatedToCategory = [
-                'Advanced ' + category,
-                category + ' Projects',
-                category + ' Research',
-                'Applied ' + category
-            ];
-
-            relatedToCategory.forEach(topic => {
-                relatedTopics.set(topic, (relatedTopics.get(topic) || 0) + data.engagementTotal);
-            });
-        });
-
-        return Array.from(relatedTopics.entries())
-            .sort(([, a], [, b]) => b - a)
-            .slice(0, 5)
-            .map(([topic]) => topic);
-    };
-
-    // Generate focus metrics throughout the day
-    const generateFocusMetrics = (): { time: string; score: number }[] => {
-        const times = ['Morning', 'Afternoon', 'Evening', 'Night'];
-        return times.map(time => ({
-            time,
-            score: Math.random() * 100
-        }));
-    };
-
+    
     // Enhanced video card component with AI insights
     const VideoCard = ({ video }: { video: Video }) => (
         <Card className="p-4 bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-all duration-300 backdrop-blur-lg group">
@@ -462,25 +298,7 @@ const WatchHistory = () => {
                     <p className="text-gray-400 text-sm mb-1">{video.channel}</p>
                     <p className="text-gray-400 text-sm">{video.views} • {video.timestamp}</p>
 
-                    {/* AI Insights Bar */}
-                    <div className="mt-2 grid grid-cols-4 gap-2 bg-gray-900/30 p-2 rounded-lg backdrop-blur-sm">
-                        <div className="text-xs">
-                            <div className="text-purple-400">Quality</div>
-                            <div className="font-medium">{video.aiInsights?.contentQuality.toFixed(0)}%</div>
-                        </div>
-                        <div className="text-xs">
-                            <div className="text-purple-400">Relevance</div>
-                            <div className="font-medium">{video.aiInsights?.relevance.toFixed(0)}%</div>
-                        </div>
-                        <div className="text-xs">
-                            <div className="text-purple-400">Learning Value</div>
-                            <div className="font-medium">{video.aiInsights?.learningValue.toFixed(0)}%</div>
-                        </div>
-                        <div className="text-xs">
-                            <div className="text-purple-400">Match</div>
-                            <div className="font-medium">{video.aiInsights?.recommendationStrength.toFixed(0)}%</div>
-                        </div>
-                    </div>
+                    
 
                     <div className="mt-2 flex gap-2">
                         <span className="inline-flex items-center gap-1 bg-gradient-to-r from-purple-600/30 to-pink-600/30 rounded-full px-3 py-1 text-sm backdrop-blur-sm">
@@ -501,66 +319,6 @@ const WatchHistory = () => {
                 </div>
             </div>
         </Card>
-    );
-
-    // Enhanced insights panel with more AI metrics
-    const InsightsPanel = () => (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <Card className="p-4 bg-gray-800/30 border-gray-700 backdrop-blur-lg hover:bg-gray-800/40 transition-all duration-300">
-                <div className="flex items-center gap-2 mb-3">
-                    <Brain className="w-5 h-5 text-purple-400" />
-                    <h3 className="font-semibold">Learning Analytics</h3>
-                </div>
-                <div className="space-y-2">
-                    {aiInsights.learningProgress.slice(0, 3).map((item, index) => (
-                        <div key={index}>
-                            <div className="flex justify-between text-sm mb-1">
-                                <span className="text-gray-400">{item.topic}</span>
-                                <span className="text-purple-400">{item.progress.toFixed(0)}%</span>
-                            </div>
-                            <Progress value={item.progress} className="h-2 bg-gray-700">
-                                <div className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full" />
-                            </Progress>
-                        </div>
-                    ))}
-                </div>
-            </Card>
-            
-            <Card className="p-4 bg-gray-800/30 border-gray-700 backdrop-blur-lg hover:bg-gray-800/40 transition-all duration-300">
-                <div className="flex items-center gap-2 mb-3">
-                    <Activity className="w-5 h-5 text-purple-400" />
-                    <h3 className="font-semibold">Focus Metrics</h3>
-                </div>
-                <div className="space-y-2">
-                    {aiInsights.focusMetrics.map((metric, index) => (
-                        <div key={index}>
-                            <div className="flex justify-between text-sm mb-1">
-                                <span className="text-gray-400">{metric.time}</span>
-                                <span className="text-purple-400">{metric.score.toFixed(0)}%</span>
-                            </div>
-                            <Progress value={metric.score} className="h-2 bg-gray-700">
-                                <div className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full" />
-                            </Progress>
-                        </div>
-                    ))}
-                </div>
-            </Card>
-            
-            <Card className="p-4 bg-gray-800/30 border-gray-700 backdrop-blur-lg hover:bg-gray-800/40 transition-all duration-300">
-                <div className="flex items-center gap-2 mb-3">
-                    <Zap className="w-5 h-5 text-purple-400" />
-                    <h3 className="font-semibold">Predicted Interests</h3>
-                </div>
-                <div className="space-y-2">
-                    {aiInsights.predictedInterests.map((interest, index) => (
-                        <div key={index} className="flex items-center justify-between p-2 rounded-lg bg-gray-700/30 hover:bg-gray-700/50 transition-all duration-200">
-                            <span className="text-sm text-gray-300">{interest}</span>
-                            <ArrowUpRight className="w-4 h-4 text-purple-400" />
-                        </div>
-                    ))}
-                </div>
-            </Card>
-        </div>
     );
 
     // Enhanced search with AI suggestions
@@ -611,9 +369,6 @@ const WatchHistory = () => {
                             </div>
                         </div>
 
-                        {/* AI Insights Panel */}
-                        <InsightsPanel />
-
                         <div className="flex justify-between items-center">
                             <div className="flex gap-4 items-center">
                                 <Select value={selectedDate} onValueChange={setSelectedDate}>
@@ -639,14 +394,6 @@ const WatchHistory = () => {
                                         <DropdownMenuItem onClick={() => setFilterType('all')}>
                                             All types
                                         </DropdownMenuItem>
-                                        {aiInsights.topCategories.map((category, index) => (
-                                            <DropdownMenuItem
-                                                key={index}
-                                                onClick={() => setFilterType(category.toLowerCase())}
-                                            >
-                                                {category}
-                                            </DropdownMenuItem>
-                                        ))}
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </div>
@@ -739,27 +486,6 @@ const WatchHistory = () => {
                                 </p>
                             </div>
                         )}
-                    </div>
-
-                    {/* Floating AI Assistant Button */}
-                    <div className="fixed bottom-8 right-8">
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        className="w-12 h-12 rounded-full bg-purple-600 hover:bg-purple-700 transition-colors duration-200"
-                                        onClick={() => {
-                                            // TODO: Implement AI assistant functionality
-                                        }}
-                                    >
-                                        <Brain className="w-6 h-6" />
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p>Ask AI Assistant</p>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
                     </div>
                 </div>
             </div>

@@ -1,32 +1,25 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/keyboard';
 import { Navigation, Keyboard } from 'swiper/modules';
 import {
-    Play, Pause, Heart, Star, Share2, Sparkles, Music,
-    Mic, RefreshCw, TrendingUp, ChevronRight, Volume2,
-    SkipBack, SkipForward, Shuffle, Repeat, User,
+    Play, Pause, Heart, Star, Share2, Music,ChevronRight,User,
     Joystick
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { Button } from "../../../components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
-import { ScrollArea } from "../../../components/ui/scroll-area";
-import { Slider } from "../../../components/ui/slider";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../components/ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/avatar";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../../components/ui/tooltip";
-import { Badge } from "../../../components/ui/badge";
-import MusicPlayer from '../../../components/media/music-player';
-import { Layout } from "../../../components/layout/layout";
-import { LampContainer } from "../../../components/ui/lamp";
-import EnhancedMusicPlayer from '../../../components/media/music-player';
-
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
+import { Layout } from "@/components/layout/layout";
+import { LampContainer } from "@/components/ui/lamp";
 // Enhanced features data with gradients and hover states
 const features = [
     // {

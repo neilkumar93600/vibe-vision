@@ -29,11 +29,9 @@ import {
     ArrowUpDown,
     Shuffle,
     Brain,
-    Sparkles,
     UserCircle2,
     Users,
     Zap,
-    ChevronRight,
     Activity,
     TrendingUp,
     Lightbulb

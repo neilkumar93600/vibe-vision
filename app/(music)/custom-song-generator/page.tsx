@@ -2,13 +2,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
-import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
     Dialog,
@@ -16,41 +13,19 @@ import {
     DialogDescription,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-    Play,
-    Pause,
-    SkipBack,
-    SkipForward,
-    Volume2,
-    VolumeX,
-    Repeat,
-    Share2,
-    UserCircleIcon,
     TriangleAlert,
-    Heart,
-    MoreHorizontal,
-    Shuffle,
-    ListMusic,
-    Music2,
-    Info,
     GuitarIcon,
-    Settings,
     Music,
     Download,
     Share,
-    Maximize2,
-    Minimize2,
     AudioLines,
-    PauseCircleIcon
 } from 'lucide-react';
 import { Layout } from "../../../components/layout/layout";
-import { Icon } from '@radix-ui/react-select';
 import axios from 'axios';
 import { BASE_URL } from '@/config';
 import EnhancedMusicPlayer from '@/components/media/music-player';
-import { ToastProvider } from '@/components/ui/toast';
 import MessageToast from '@/components/ui/MessageToast';
 import ScrollingText from '@/components/ui/scroll-text';
 

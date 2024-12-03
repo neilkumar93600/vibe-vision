@@ -23,11 +23,121 @@ module.exports = {
       },
     },
     extend: {
+      aspectRatio: {
+        '9/16': '9 / 16',
+      },
+      backgroundImage: {
+        'gradient-ocean': 'linear-gradient(to bottom right, #4F42B4, #4E5BAD, #4C74A6, #4B8DA0, #49A39A)',
+      },
+      fontFamily: {
+        'rubik-glitch': ['var(--font-rubik-glitch)'],
+        'roboto-condensed': ['var(--font-roboto-condensed)'],
+      },
+      animation: {
+        first: "moveVertical 30s ease infinite",
+        second: "moveInCircle 20s reverse infinite",
+        third: "moveInCircle 40s linear infinite",
+        fourth: "moveHorizontal 40s ease infinite",
+        fifth: "moveInCircle 20s ease infinite",
+      },
       keyframes: {
+        gradientOcean: {
+          '0%': {
+            backgroundPosition: '0% 50%'
+          },
+          '50%': {
+            backgroundPosition: '100% 50%'
+          },
+          '100%': {
+            backgroundPosition: '0% 50%'
+          }
+        },
+        gradientOceanOverlay: {
+          '0%': {
+            backgroundPosition: '100% 0%'
+          },
+          '50%': {
+            backgroundPosition: '0% 100%'
+          },
+          '100%': {
+            backgroundPosition: '100% 0%'
+          }
+        },
+        bubbleUp: {
+          '0%': {
+            transform: 'translateY(0)',
+            opacity: '0.5'
+          },
+          '100%': {
+            transform: 'translateY(-100vh)',
+            opacity: '0'
+          }
+        },
+        'bubble-up': {
+          '0%': {
+            transform: 'translateY(0) scale(0.8)',
+            opacity: '0.6'
+          },
+          '100%': {
+            transform: 'translateY(-100vh) scale(1.2)',
+            opacity: '0'
+          }
+        },
+        moveHorizontal: {
+          "0%": {
+            transform: "translateX(-50%) translateY(-10%)",
+          },
+          "50%": {
+            transform: "translateX(50%) translateY(10%)",
+          },
+          "100%": {
+            transform: "translateX(-50%) translateY(-10%)",
+          },
+        },
+        moveInCircle: {
+          "0%": {
+            transform: "rotate(0deg)",
+          },
+          "50%": {
+            transform: "rotate(180deg)",
+          },
+          "100%": {
+            transform: "rotate(360deg)",
+          },
+        },
+        moveVertical: {
+          "0%": {
+            transform: "translateY(-50%)",
+          },
+          "50%": {
+            transform: "translateY(50%)",
+          },
+          "100%": {
+            transform: "translateY(-50%)",
+          },
+        },
         sparkle: {
           "0%, 100%": { opacity: "0.75", scale: "0.9" },
           "50%": { opacity: "1", scale: "1" },
         },
+        sparkle: {
+          '0%': {
+            opacity: '0',
+            transform: 'scale(0)',
+          },
+          '50%': {
+            opacity: '1',
+            transform: 'scale(1)',
+          },
+          '100%': {
+            opacity: '0',
+            transform: 'scale(0)',
+          },
+        },
+        animation: {
+          sparkle: 'sparkle ease-in-out',
+        },
+        'bubble-up': 'bubble-up linear infinite',
         "marquee-x": {
           from: { transform: "translateX(0)" },
           to: { transform: "translateX(calc(-100% - var(--gap)))" },
@@ -46,11 +156,14 @@ module.exports = {
         },
       },
       animation: {
+        'gradient-ocean': 'gradientOcean 15s ease infinite',
+        'gradient-ocean-overlay': 'gradientOceanOverlay 20s ease infinite',
         "marquee-horizontal": "marquee-x var(--duration) infinite linear",
         "marquee-vertical": "marquee-y var(--duration) linear infinite",
         sparkle: "sparkle 2s ease-in-out infinite",
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'bubble-up': 'bubbleUp linear infinite'
       },
       boxShadow: {
         input: `0px 2px 3px -1px rgba(0,0,0,0.1), 0px 1px 0px 0px rgba(25,28,33,0.02), 0px 0px 0px 1px rgba(25,28,33,0.08)`,

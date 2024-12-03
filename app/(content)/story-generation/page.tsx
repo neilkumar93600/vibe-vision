@@ -3,13 +3,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../../components/ui/card";
 import { Button } from "../../../components/ui/button";
-import { Input } from "../../../components/ui/input";
 import { Slider } from "../../../components/ui/slider";
 import { Textarea } from "../../../components/ui/textarea";
 import { Switch } from "../../../components/ui/switch";
 import { Label } from "../../../components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../components/ui/tabs";
-import { Toggle } from "../../../components/ui/toggle";
 import {
   Select,
   SelectContent,
@@ -23,9 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
 } from "../../../components/ui/dialog";
-import { Progress } from "../../../components/ui/progress";
 import { Badge } from "../../../components/ui/badge";
 import {
   Tooltip,
@@ -34,48 +30,19 @@ import {
   TooltipTrigger,
 } from "../../../components/ui/tooltip";
 import { ScrollArea } from "../../../components/ui/scroll-area";
-import { Separator } from "../../../components/ui/separator";
 import {
   BookOpen,
-  Video,
   Download,
   Share2,
-  ThumbsUp,
-  Volume2,
   TriangleAlert,
-  Play,
-  Pause,
-  Maximize,
   Settings,
-  Plus,
   Sparkles,
-  Languages,
-  Timer,
   Wand2,
-  Save,
-  History,
-  Palette,
-  Music,
-  VolumeX,
   RefreshCw,
-  Camera,
   Copy,
   Check,
-  Moon,
-  Sun,
-  Heart,
-  Star,
-  BookOpenCheck,
-  Library,
   BrainCircuit,
-  Feather,
-  Clock,
-  Users,
   Share,
-  Facebook,
-  Twitter,
-  Linkedin,
-  Youtube,
 } from 'lucide-react';
 import { BASE_URL } from '@/config';
 import axios from 'axios';

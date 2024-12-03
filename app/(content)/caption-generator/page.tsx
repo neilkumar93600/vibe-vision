@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { FileUpload } from "../../../components/ui/file-upload";
 import { Button } from "../../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
@@ -19,17 +19,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../../../components/ui/dialog";
-import { Input } from "../../../components/ui/input";
 import { Label } from "../../../components/ui/label";
 import { Textarea } from "../../../components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "../../../components/ui/radio-group";
-import { 
-  Alert,
-  AlertDescription,
-  AlertTitle 
-} from "../../../components/ui/alert";
 import { Badge } from "../../../components/ui/badge";
-import { ScrollArea } from "../../../components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../components/ui/tabs";
 import {
   Tooltip,
@@ -42,12 +35,9 @@ import {
   CloudIcon, 
   RefreshCcw,
   Copy,
-  Tag,
   HelpCircle,
   Wand2,
   Share2,
-  Trash2,
-  Camera,
   Settings2,
   Palette,
   Type

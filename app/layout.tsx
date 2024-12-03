@@ -1,15 +1,22 @@
-// app/layout.tsx
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Roboto_Condensed, Rubik_Glitch } from 'next/font/google';
 import { ThemeProvider } from '../components/providers/theme-provider';
 import { Toaster } from '../components/ui/toaster';
-import { SessionProvider } from 'next-auth/react'; // Import SessionProvider from next-auth
-import './globals.css';
-import AuthProvider from '@/components/providers/auth-provider';
+import { AuthProvider } from "@/components/auth/sessionprovider";
 
-const inter = Inter({
+import './globals.css';
+
+const rubikGlitch = Rubik_Glitch({
   subsets: ['latin'],
   display: 'swap',
+  weight: '400',
+  variable: '--font-rubik-glitch',
+});
+
+const roboto = Roboto_Condensed({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-roboto',
 });
 
 export const metadata: Metadata = {
@@ -27,15 +34,21 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <AuthProvider> {/* Wrap with SessionProvider */}
+      <body
+        className={`${roboto.className} ${rubikGlitch.variable}`}
+        suppressHydrationWarning
+      >
+        <AuthProvider>
           <ThemeProvider
             attribute="class"
             defaultTheme="dark"
             enableSystem
             disableTransitionOnChange
           >
-            <div className="relative min-h-screen bg-background">
+            <div
+              className="relative min-h-screen bg-background"
+              suppressHydrationWarning
+            >
               {children}
               <Toaster />
             </div>

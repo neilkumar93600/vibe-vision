@@ -1,13 +1,8 @@
 'use client';
 
-import React, { useState, useCallback, useEffect, ChangeEvent } from 'react';
-import { useDropzone } from 'react-dropzone';
-// import { FFmpeg } from '@ffmpeg/ffmpeg';
-// import { fetchFile, toBlobURL } from '@ffmpeg/util';
+import React, { useState, useEffect, ChangeEvent } from 'react';
 import axios from 'axios';
 import { cn } from "../../../lib/utils";
-
-// shadcn/ui components
 import { Button } from "../../../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
 import {
@@ -49,11 +44,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Layout } from '@/components/layout/layout';
 import MessageToast from '@/components/ui/MessageToast';
 
-// FFmpeg Configuration
-// const ffmpeg = new FFmpeg();
-// const BASE_URL = 'https://unpkg.com/@ffmpeg/core@0.12.2/dist/umd';
 
-// Voice Configuration
 const VOICE_OPTIONS = [
     { value: 'aura-asteria-en', label: 'Asteria', description: 'American, Feminine voice', gender: 'f' },
     { value: 'aura-orpheus-en', label: 'Orpheus', description: 'American, Masculine voice', gender: 'm' },

@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { Music, Play, ChevronLeft, Pause } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import MusicPlayer from '../../../components/media/music-player';
 import { Button } from "../../../components/ui/button";
 import { Card, CardContent } from "../../../components/ui/card";
 import { Input } from "../../../components/ui/input";

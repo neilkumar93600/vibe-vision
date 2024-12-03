@@ -87,8 +87,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 }
 
 // Ensure body parsing is enabled
-export const config = {
-    api: {
-        bodyParser: true,
+export const metadata = {
+    config: {
+        api: {
+            bodyParser: true,
+        },
     },
 };

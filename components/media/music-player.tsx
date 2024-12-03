@@ -1,18 +1,9 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import { Slider } from "../ui/slider";
 import { Progress } from "../ui/progress";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -22,7 +13,6 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { ScrollArea } from "../ui/scroll-area";
-import { Badge } from "../ui/badge";
 import {
   Play,
   Pause,
@@ -33,22 +23,13 @@ import {
   Repeat,
   ChevronUp,
   ChevronDown,
-  Share2,
   Download,
-  Heart,
-  MoreHorizontal,
   Shuffle,
-  ListMusic,
-  Clock,
-  Radio,
-  Music2,
-  MusicIcon,
   Info,
   Minimize2,
   Maximize2,
   MicVocal
 } from 'lucide-react';
-import ScrollingText from '../ui/scroll-text';
 import SongLyrics from '../ui/song-lyrics';
 import axios from 'axios';
 

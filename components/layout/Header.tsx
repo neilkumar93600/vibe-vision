@@ -2,16 +2,9 @@ import React, { useState, useEffect, useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  Bell,
-  Search,
-  Menu,
-  Settings,
   LogOut,
   User,
-  Upload,
   ChevronRight,
-  Sun,
-  Moon,
   CircleCheckBig,
   Loader,
   TriangleAlert,
@@ -19,6 +12,7 @@ import {
   RefreshCw,
   LibraryBig,
   SparklesIcon,
+  Settings,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import {
@@ -39,9 +33,10 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import { ScrollArea } from "../ui/scroll-area";
-import { useTheme } from "next-themes";
 import axios from "axios";
 import { BASE_URL } from "@/config";
+import { logout } from "@/lib/auth-service";
+import { getToken } from "@/lib/token-manager";
 
 interface Notification {
   id: number;
@@ -83,15 +78,10 @@ interface Breadcrumb {
 }
 
 export function Header({
-  onSidebarOpen,
   isAuthenticated = false,
-  isSidebarCollapsed,
-  onSidebarCollapse,
 }: HeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { theme, setTheme } = useTheme();
-
   const [mounted, setMounted] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -109,9 +99,7 @@ export function Header({
   ]);
 
   const [data, setData] = useState<ContentItem[]>([]);
-  const [localStorageInstance, setLocalStorageInstance] = useState<Storage | null>(null)
 
-  // Initialize localStorage safely
   const storage = useMemo(() => {
     if (typeof window !== 'undefined') {
       return window.localStorage;
@@ -151,22 +139,11 @@ export function Header({
     }, [{ label: "Home", path: "/" }]);
   }, [pathname]);
 
-  const handleLogout = () => {
-    if (storage) {
-      storage.removeItem('token');
-      storage.removeItem('loggedInUser');
-      storage.removeItem('loggedInUserEmail');
-    }
-    router.push('/');
-  };
-
-  const username = storage?.getItem('loggedInUser') || '';
-
   const fetchData = async () => {
     setData([])
     if (typeof window !== 'undefined') {
-      setLocalStorageInstance(window.localStorage);
-      const token = window.localStorage.getItem('token');
+      // setLocalStorageInstance(window.localStorage);
+      const token = getToken()
 
       try {
         const response = await axios.get(
@@ -196,62 +173,31 @@ export function Header({
     <div className="fixed top-0 z-50 w-full">
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex h-16 items-center gap-4 px-4">
-          {/* Sidebar Toggle */}
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onSidebarOpen}
-              className="lg:hidden"
-              aria-label="Toggle mobile sidebar"
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onSidebarCollapse}
-              className="hidden lg:flex"
-              aria-label="Toggle desktop sidebar"
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-          </div>
-
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <img
-              src="/logo.svg"
+              src="/logo.webp"
               alt="Vibe Vision Logo"
               className="h-8 w-8 rounded-full"
             />
-            <span className="font-bold text-lg text-transparent bg-clip-text bg-gradient-to-r from-violet-500 via-purple-500/30 to-pink-400">
-              Vibe Vision
+            <span className="font-rubik-glitch text-lg text-transparent bg-clip-text bg-gradient-to-r from-[#4BC0C8] via-[#C779D0] to-[#FEAC5E]">
+              VibeVision
             </span>
+
           </Link>
 
           <div className="ml-auto flex items-center gap-4">
-            {/* Theme Toggle */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              aria-label="Toggle theme"
-              className="hidden"
-            >
-              {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-            </Button>
 
-            {isAuthenticated && false&&
+            {isAuthenticated && false &&
 
 
               <Link href="/comedy-lab" className="flex h-full gap-6 items-center">
-              <div
-                className={`cursor-pointer text-center text-xs flex items-center gap-2 relative px-4 py-1 border border-transparent hover:border-white bg-gradient-to-r from-violet-500 from-10% via-sky-500 via-30% to-pink-500 to-90% rounded-sm z-10 hover:bg-[length:100%] before:absolute before:-top-[3px] before:-bottom-[3px] before:-left-[5px] before:-right-[5px] before:bg-gradient-to-r before:from-violet-500 before:from-10% before:via-sky-500 before:via-30% before:to-pink-500 durat before:bg-[length:400%] before:-z-10 before:rounded-sm before:hover:blur-xl before:transition-all before:ease-in-out before:duration-1000 before:hover:bg-[length:10%] active:bg-violet-700 focus:ring-violet-700`}>
-                <SparklesIcon className="size-4" fill="white" />
-                Generate
-              </div>
-              <div className="w-[1px] h-6"> <div className="w-full h-full bg-neutral-500"></div></div>
+                <div
+                  className={`cursor-pointer text-center text-xs flex items-center gap-2 relative px-4 py-1 border border-transparent hover:border-white bg-gradient-to-r from-violet-500 from-10% via-sky-500 via-30% to-pink-500 to-90% rounded-sm z-10 hover:bg-[length:100%] before:absolute before:-top-[3px] before:-bottom-[3px] before:-left-[5px] before:-right-[5px] before:bg-gradient-to-r before:from-violet-500 before:from-10% before:via-sky-500 before:via-30% before:to-pink-500 durat before:bg-[length:400%] before:-z-10 before:rounded-sm before:hover:blur-xl before:transition-all before:ease-in-out before:duration-1000 before:hover:bg-[length:10%] active:bg-violet-700 focus:ring-violet-700`}>
+                  <SparklesIcon className="size-4" fill="white" />
+                  Generate
+                </div>
+                <div className="w-[1px] h-6"> <div className="w-full h-full bg-neutral-500"></div></div>
               </Link>
 
             }
@@ -259,8 +205,8 @@ export function Header({
             {/* User Menu */}
             <UserMenu
               isAuthenticated={isAuthenticated}
-              username={username}
-              onLogout={handleLogout}
+              username={'username'}
+              onLogout={logout}
               showUserMenu={showUserMenu}
               setShowUserMenu={setShowUserMenu}
             />
@@ -333,7 +279,7 @@ const UserMenu = ({
     <DropdownMenuContent align="end" className="w-56">
       {isAuthenticated ? (
         <>
-          <DropdownMenuLabel>My Account | {username}</DropdownMenuLabel>
+          <DropdownMenuLabel>{username}</DropdownMenuLabel>
           <DropdownMenuSeparator />
 
           <Link href="/profile-page">
@@ -344,9 +290,9 @@ const UserMenu = ({
           {/* <DropdownMenuItem>
             <Settings className="mr-2 h-4 w-4" /> Settings
           </DropdownMenuItem> */}
-          <Link href="/comedy-lab">
+          <Link href="/setting">
             <DropdownMenuItem>
-              <Upload className="mr-2 h-4 w-4" /> Studio
+              <Settings className="mr-2 h-4 w-4" /> Setting
             </DropdownMenuItem>
           </Link>
           <DropdownMenuSeparator />
